@@ -3,9 +3,9 @@
 
 .set MB_ALIGN,    1<<0             /* align loaded modules on page boundaries */
 .set MB_MEMINFO,  1<<1             /* provide memory map */
-.set MB_FLAGS,    ALIGN | MEMINFO  /* this is the Multiboot 'flag' field */
+.set MB_FLAGS,    MB_ALIGN | MB_MEMINFO  /* this is the Multiboot 'flag' field */
 .set MB_MAGIC,    0x1BADB002       /* 'magic number' lets bootloader find the header */
-.set MB_CHECKSUM, -(MAGIC + FLAGS) /* checksum of above, to prove we are multiboot */
+.set MB_CHECKSUM, -(MB_MAGIC + MB_FLAGS) /* checksum of above, to prove we are multiboot */
 
 .section .multiboot
 	.align 4
