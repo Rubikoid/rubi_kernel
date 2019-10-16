@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.13)
 
-project(rubiKernel C CXX ASM)
+project(rubiKernel C CXX ASM_NASM)
 # enable_language(ASM-ATT)
 
 # set(PREFIX "$ENV{HOME}/gcc_cross/opt")
@@ -8,6 +8,12 @@ project(rubiKernel C CXX ASM)
 # set(CMAKE_ASM_COMPILER "${PREFIX}/bin/i686-elf-gcc")
 # set(CMAKE_CXX_COMPILER "${PREFIX}/bin/i686-elf-g++")
 
-add_executable(kernel "kernel/kernel.c" "loader/start.s")
-target_compile_options(kernel PRIVATE -std=gnu99 -ffreestanding -g)
+# set(CMAKE_NASM_LINK_EXECUTABLE "ld <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
+set(CAN_USE_ASSEMBLER TRUE)
+set(CMAKE_ASM_NASM_OBJECT_FORMAT elf32)
+enable_language(ASM_NASM)
+
+add_executable(kernel "kernel/kernel.c" "loader/start.asm")
+target_compile_options(kernel PRIVATE $<$<COMPILE_LANGUAGE:C>:-std=gnu99> $<$<COMPILE_LANGUAGE:C>:-ffreestanding> -g)
+set(CMAKE_ASM_NASM_FLAGS_DEBUG "-Fdwarf")
 target_link_options(kernel PRIVATE -ffreestanding -nostdlib -g -lgcc -T ${CMAKE_SOURCE_DIR}/loader/linker.ld)
