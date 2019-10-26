@@ -16,7 +16,7 @@ void kernel_main() {
     term_print("Hello, World!\n");
     for (int i = 0; i < 10; i++) {
         char x[2] = "0";
-        x[0] += i;
+        x[0] += i; 
         term_print("Welcome to the kernel");
         term_print(x);
         term_print(".\n");

@@ -1,0 +1,4 @@
+set architecture i386:x86-64
+file ./build/kernel
+br kernel_start
+target remote :1339
