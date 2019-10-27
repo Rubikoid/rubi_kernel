@@ -6,6 +6,10 @@ global kernel_start
 extern _kernel_start
 extern _kernel_end
 
+%define VIRT_BASE 0xC0000000
+%define	PHYS(x) ((x) - VIRT_BASE)
+%define	VIRT(x) ((x) + VIRT_BASE)
+
 MB_ALIGN    equ  1 << 0                 ; align loaded modules on page boundaries
 ME_MINFO    equ  1 << 1                 ; provide memory map
 FLAGS       equ  MB_ALIGN | ME_MINFO    ; this is the Multiboot 'flag' field
@@ -26,54 +30,62 @@ section .bss
     
     align 4096
     boot_page_directory:
-    	resb 4096
-    boot_page_table1:
-        resb 4096
+    	resd 1024
+    boot_page_table:
+        resd (1024) * 1024
 
-
-section .text
+section .boottext
     kernel_start:
-        mov edi, [boot_page_table1 - 0xC0000000] ; phys addr of kernel
-        mov esi, 0 ; first addr to map is 0
-        mov ecx, 1023 ; map 1023 pages, 1024 - vga buffer
+        xchg bx, bx ; magic break
 
-        .k1: ; TODO: разобраться, как эта херня работает
-            cmp esi, [_kernel_start - 0xC0000000]
-            jl .k2
-            cmp esi, [_kernel_end - 0xC0000000]
-            jge .k3
+        lea edi, [PHYS(boot_page_table)] ; phys addr of kernel
+        mov eax, 0x003
+        mov ecx, 1024 * 1024;[VIRT_BASE >> 12]
 
-            mov edx, esi
-            or edx, 0x003
-            mov edi, edx
-        
-        .k2:
-            add esi, 4096
+        .fill_tables_with_direct_mappings: ; 
+            mov [edi], eax
+            add eax, 0x1000 ; it's one in 12's bit, in addr bit of PTE
             add edi, 4
-            loop .k1
+            dec ecx
+            jnz .fill_tables_with_direct_mappings
 
-        .k3:
-            mov eax, 0x000B8000 | 0x003
-            mov [boot_page_table1 - 0xC0000000 + 1023 * 4], eax
 
-            lea eax, [boot_page_table1 - 0xC0000000 + 0x003]
-            mov [boot_page_directory - 0xC0000000 + 0], eax
-            mov [boot_page_directory - 0xC0000000 + 768 * 4], eax
+            lea edi, [PHYS(boot_page_directory)]
+            lea edx, [PHYS(boot_page_table) + 0x003]
+            mov ecx, 1024
+        .fill_directory_with_table_addrs: 
+            mov [edi], edx
+            add edx, 0x1000
+            add edi, 4
+            dec ecx
+            jnz .fill_directory_with_table_addrs
 
-            lea ecx, [boot_page_directory - 0xC0000000]
+        .enable_paging:
+            xchg bx, bx ; magic break
+
+            lea ecx, [PHYS(boot_page_directory)]
             mov cr3, ecx
 
             mov ecx, cr0
             or ecx, 0x80010000
             mov cr0, ecx
 
-            jmp .most_init
+        .paging_enabled_jump_naxyi:
+            xchg bx, bx ; magic break
+            mov eax, higher_kernel_start
+            jmp eax
 
-    .most_init:
-        mov eax, 0
-        mov [boot_page_directory + 0], eax
-        mov ecx, cr3
-        mov cr3, ecx
+section .text
+    higher_kernel_start:
+        lea edi, [PHYS(boot_page_directory)]
+        mov ecx, VIRT_BASE >> 12 >> 10
+
+        .k4:
+            mov [edi], dword 0
+            add edi, 4
+            dec ecx
+            jnz .k4
+        
         
         mov esp, stack_top
         call kernel_main

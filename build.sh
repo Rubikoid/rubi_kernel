@@ -1,2 +1,4 @@
-cmake .. -DCMAKE_TOOLCHAIN_FILE=/home/rubikoid/gcc_cross/toolchain.cmake
-make -C build -j 8
+mkdir build && 
+        cd build && 
+        cmake .. -DCMAKE_TOOLCHAIN_FILE=/home/rubikoid/gcc_cross/toolchain.cmake &&
+        make -C build -j 8
