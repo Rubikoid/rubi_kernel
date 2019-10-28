@@ -38,17 +38,25 @@ section .boottext
     kernel_start:
         xchg bx, bx ; magic break
 
-        lea edi, [PHYS(boot_page_table)] ; phys addr of kernel
+        lea edi, [PHYS(boot_page_table)]
         mov eax, 0x003
-        mov ecx, 1024 * 1024;[VIRT_BASE >> 12]
+        mov ecx, VIRT_BASE >> (10 + 2) ; map addr before kernel as is. 2^10 -> 10 because of 1024 PTE per table, 2^2 -> 2 because of 4 bytes per PTE 
 
-        .fill_tables_with_direct_mappings: ; 
+        .fill_lower_half_with_direct_mappings: ; 
             mov [edi], eax
             add eax, 0x1000 ; it's one in 12's bit, in addr bit of PTE
             add edi, 4
             dec ecx
-            jnz .fill_tables_with_direct_mappings
-
+            jnz .fill_lower_half_with_direct_mappings
+        
+            mov eax, 0x003
+            mov ecx, (0x200000 >> 2) ; 2 mb ?
+        .fill_higher_half_with_mappings:
+            mov [edi], eax
+            add eax, 0x1000
+            add edi, 4
+            dec ecx
+            jnz .fill_higher_half_with_mappings
 
             lea edi, [PHYS(boot_page_directory)]
             lea edx, [PHYS(boot_page_table) + 0x003]
@@ -88,6 +96,7 @@ section .text
         
         
         mov esp, stack_top
+        xchg bx, bx ; magic break
         call kernel_main
         .hang:
             cli

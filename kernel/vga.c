@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include <stdint.h>
  
-volatile uint16_t* vga_buffer = (uint16_t*) 0xC03FF000; //0xB8000;
+volatile uint16_t* vga_buffer = (uint16_t*) (0xC0000000 + 0xB8000); //0xB8000;
 // By default, the VGA textmode buffer has a size of 80x25 characters
 const int VGA_COLS = 80;
 const int VGA_ROWS = 25;
