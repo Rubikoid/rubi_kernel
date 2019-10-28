@@ -18,7 +18,7 @@ file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/iso" "${CMAKE_BINARY_DIR}/iso/boot" "${
 file(GLOB_RECURSE KERNEL_SRC ${PROJECT_SOURCE_DIR}/kernel/src *.c)
 file(GLOB_RECURSE KERNEL_HEAD ${PROJECT_SOURCE_DIR}/kernel/include *.h)
 
-add_executable(kernel "kernel/src/kernel.c" "loader/start.asm")
+add_executable(kernel ${KERNEL_SRC} ${KERNEL_HEAD} "loader/start.asm")
 
 # add include hack
 target_include_directories(kernel PRIVATE "kernel/include")
