@@ -27,7 +27,7 @@ extern size_t last_page_ID;
 void init_memory_manager();
 
 void *alloc_page();
-void free_page();
+void free_page(void *page_addr_in);
 
 void *alloc_mem(size_t count);
 void free_mem(void *ptr);

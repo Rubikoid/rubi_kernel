@@ -27,16 +27,24 @@ void kernel_main() {
         term_print(".\n");
     }
     term_print_int(sizeof(int), 10); term_print("\n");                  // 4
-    term_print_int(sizeof(unsigned int), 10); term_print("\n");         // 4
     term_print_int(sizeof(long unsigned int), 10); term_print("\n");    // 4
-    term_print_int(sizeof(long unsigned long), 10); term_print("\n");   // 8
+    term_print_int(sizeof(void *), 10); term_print("\n");               // 4
     term_print_int(sizeof(size_t), 10); term_print("\n");               // 4
 
-    term_print_int(last_page_ID, 16); term_print("\n");
+    term_print_int(last_page_ID, 16); term_print("\n\n");
 
     //term_print_int(boot_page_directory, 16); term_print("\n");
     //term_print_int(boot_page_table, 16); term_print("\n");
 
+    void *a = alloc_page();
+    term_print_int(last_page_ID, 16); term_print("\n");
+    term_print_int((uint32_t)a, 16); term_print("\n\n");
+    void *b = alloc_page();
+    term_print_int(last_page_ID, 16); term_print("\n");
+    term_print_int((uint32_t)b, 16); term_print("\n\n");
 
-    alloc_page();
+    free_page(b);
+    term_print_int(last_page_ID, 16); term_print("\n");
+    free_page(a);
+    term_print_int(last_page_ID, 16); term_print("\n\n");
 }
