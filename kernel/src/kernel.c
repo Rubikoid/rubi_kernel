@@ -19,17 +19,17 @@ void kernel_main() {
     init_memory_manager();
 
     term_print("Hello, World!\n");
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 3; i++) {
         char x[2] = "0";
         x[0] += i;
-        term_print("Welcome to the kernel");
+        term_print("Welcome to the kernel ");
         term_print(x);
         term_print(".\n");
     }
-    term_print_int(sizeof(int), 10); term_print("\n");                  // 4
-    term_print_int(sizeof(long unsigned int), 10); term_print("\n");    // 4
-    term_print_int(sizeof(void *), 10); term_print("\n");               // 4
-    term_print_int(sizeof(size_t), 10); term_print("\n");               // 4
+    term_print("sizeof(int):"); term_print_int(sizeof(int), 10); term_print("\n");                                  // 4
+    term_print("sizeof(long unsigned int):"); term_print_int(sizeof(long unsigned int), 10); term_print("\n");      // 4
+    term_print("sizeof(void *):"); term_print_int(sizeof(void *), 10); term_print("\n");                            // 4
+    term_print("sizeof(size_t):"); term_print_int(sizeof(size_t), 10); term_print("\n");                            // 4
 
     term_print_int(last_page_ID, 16); term_print("\n\n");
 

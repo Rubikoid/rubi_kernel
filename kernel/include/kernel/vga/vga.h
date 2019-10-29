@@ -17,11 +17,11 @@ extern struct VGA_State vga_state;
 
 void term_init();
 void term_clear();
+void term_setc(uint16_t x, uint16_t y, uint8_t color, char c);
 void term_putc(char c);
 void term_print(const char* str);
 
 void term_print_int(uint32_t x, uint32_t base);
-void term_print_hex(uint8_t x);
-
+// TODO: implement printf
 
 #endif

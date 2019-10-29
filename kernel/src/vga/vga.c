@@ -31,6 +31,14 @@ void term_clear() {
     }
 }
 
+void term_setc(uint16_t x, uint16_t y, uint8_t color, char c) {
+    // check for newline, i because why not.
+    if (c != '\n') {
+        const size_t index = (VGA_COLS * y) + x;
+        vga_buffer[index] = (color << 8) | c;
+    }
+}
+
 void term_putc(char c) {
     switch (c) {
         case '\n': {
@@ -40,8 +48,7 @@ void term_putc(char c) {
         }
 
         default: {
-            const size_t index = (VGA_COLS * vga_state.term_row) + vga_state.term_col;
-            vga_buffer[index] = ((uint16_t)vga_state.term_color << 8) | c;
+            term_setc(vga_state.term_col, vga_state.term_row, vga_state.term_color, c);
             vga_state.term_col++;
             break;
         }
@@ -52,7 +59,7 @@ void term_putc(char c) {
         vga_state.term_row++;
     }
 
-    if (vga_state.term_row >= VGA_ROWS) {
+    if (vga_state.term_row >= VGA_ROWS) { // TODO: make normal scrolling for vga
         vga_state.term_col = 0;
         vga_state.term_row = 0;
     }
@@ -64,10 +71,10 @@ void term_print(const char* str) {
 }
 
 void term_print_int(uint32_t x, uint32_t base) {
-    char rt[32];
+    char rt[36]; // more than 32 bits can't be. so.
 
-    uint32_t k = 0;
     uint8_t i = 0;
+    uint32_t k = 0;
 
     // make reversed string from number
     while (x != 0) {
@@ -80,15 +87,11 @@ void term_print_int(uint32_t x, uint32_t base) {
 
     // reverse string
     i -= 1;
-    k = 0;  // SHITCODE, TODO: FIX THAT SHIT!11
+    k = 0;  // FIXME: FIX THAT SHITCODE!11
     for (int j = 0; j < i; j++, i--) {
         k = rt[j];
         rt[j] = rt[i];
         rt[i] = k;
     }
     term_print(rt);
-}
-
-void term_print_hex(uint8_t x) {
-    // TODO: WIP
 }
