@@ -34,5 +34,9 @@ void kernel_main() {
 
     term_print_int(last_page_ID, 16); term_print("\n");
 
+    //term_print_int(boot_page_directory, 16); term_print("\n");
+    //term_print_int(boot_page_table, 16); term_print("\n");
+
+
     alloc_page();
 }

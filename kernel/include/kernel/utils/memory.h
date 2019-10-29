@@ -16,10 +16,13 @@
 #define TABLE_BIT_FIELD         (0b00000000001111111111000000000000)
 #define PDTE_BIT_FIELD          (DIRECTORY_BIT_FIELD | TABLE_BIT_FIELD)
 
-extern volatile uint32_t boot_page_directory;
-extern volatile uint32_t boot_page_table;
+extern size_t boot_page_directory;
+extern size_t boot_page_table;
 
-extern uint32_t last_page_ID;
+extern volatile uint32_t *page_directory_ptr;
+extern volatile uint32_t *page_table_ptr;
+
+extern size_t last_page_ID;
 
 void init_memory_manager();
 
