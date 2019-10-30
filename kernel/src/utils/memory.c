@@ -29,6 +29,8 @@ void *alloc_page() {
 }
 
 void free_page(void *page_addr_in) {
+	if(page_addr_in == NULL)
+		return;
     size_t page_addr = (size_t) page_addr_in;
     uint32_t PDE_index = (page_addr) >> 22;
     uint32_t PTE_index = ((page_addr & TABLE_BIT_FIELD) >> 12);
@@ -41,10 +43,15 @@ void free_page(void *page_addr_in) {
     return;
 }
 
-
+uint16_t free_mem_in_page = 0;
+uint8_t last_mem_page_id = 0;
+void *allocated_pages[128] = {0}; // TODO: make define or normal MM
 
 void *alloc_mem(size_t count) {
-    
+    if(count > free_mem_in_page) {
+    	
+    }
+    return NULL;
 }
 
 void free_mem(void *ptr) {
