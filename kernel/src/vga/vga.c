@@ -29,6 +29,8 @@ void term_clear() {
             vga_buffer[index] = ((uint16_t)vga_state.term_color << 8) | ' ';
         }
     }
+    vga_state.term_col = 0;
+    vga_state.term_row = 0;
 }
 
 void term_setc(uint16_t x, uint16_t y, uint8_t color, char c) {
@@ -76,6 +78,11 @@ void term_print_int(uint32_t x, uint32_t base) {
     uint8_t i = 0;
     uint32_t k = 0;
 
+    if(x == 0) { // path from kernel panic if we try to print 0;
+        rt[i] = '0';
+        i++;
+    }
+    
     // make reversed string from number
     while (x != 0) {
         k = x % base;
