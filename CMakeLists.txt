@@ -20,14 +20,12 @@ file(GLOB_RECURSE KERNEL_HEAD ${PROJECT_SOURCE_DIR}/kernel/include *.h)
 
 add_executable(kernel ${KERNEL_SRC} ${KERNEL_HEAD} "loader/start.asm")
 
-# add include hack
-target_include_directories(kernel PRIVATE "kernel/include")
+target_include_directories(kernel PRIVATE "kernel/include") # add includes
 
-# compile without linux gcc shit
-target_compile_options(kernel PRIVATE $<$<COMPILE_LANGUAGE:C>:-std=gnu99> $<$<COMPILE_LANGUAGE:C>:-ffreestanding> -g)
+target_compile_options(kernel PRIVATE $<$<COMPILE_LANGUAGE:C>:-std=gnu99> $<$<COMPILE_LANGUAGE:C>:-ffreestanding> -g -Wall) # compile without linux gcc shit
 set(CMAKE_ASM_NASM_FLAGS_DEBUG "-Fdwarf") # some debug info, i hope
-#link everything using linkerscript
-target_link_options(kernel PRIVATE -ffreestanding -nostdlib -g -lgcc -T ${CMAKE_SOURCE_DIR}/loader/linker.ld) 
+target_compile_definitions(kernel PRIVATE "_DEBUG=1" "KERNEL_VERSION=\"v0.0.3\"")
+target_link_options(kernel PRIVATE -ffreestanding -nostdlib -g -lgcc -T ${CMAKE_SOURCE_DIR}/loader/linker.ld) #link everything using linkerscript
 
 # generate iso file for bochs
 add_custom_command(TARGET kernel POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:kernel> ${CMAKE_BINARY_DIR}/iso/boot/$<TARGET_FILE_NAME:kernel>)

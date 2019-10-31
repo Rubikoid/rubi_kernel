@@ -41,12 +41,12 @@ void free_page(void *page_addr_in) {
 }
 
 uint8_t last_mem_page_id = -1;
-struct mem_info allocated_pages[128] = {0};  // TODO: make define or normal MM
+struct mem_info_t allocated_pages[128] = {0};  // TODO: make define or normal MM
 
 void *alloc_mem(size_t count) {
     if (count > PAGE_SIZE)
         return NULL;
-    struct mem_info *last_page = &allocated_pages[last_mem_page_id];
+    struct mem_info_t *last_page = &allocated_pages[last_mem_page_id];
     if (count > last_page->free_mem_in_page) {
         last_mem_page_id += 1;
         last_page = &allocated_pages[last_mem_page_id];
@@ -66,7 +66,7 @@ void free_mem(void *ptr, size_t count) {  // FIXME: Create fix for what __geniou
     uint32_t base_addr = ((uint32_t)ptr & PDTE_BIT_FIELD);
     for (int i = 0; i <= last_mem_page_id; i++) {
         if (allocated_pages[i].pointer == base_addr) {
-            struct mem_info *last_page = &allocated_pages[i];
+            struct mem_info_t *last_page = &allocated_pages[i];
             last_page->free_mem_in_page += count;
             if (last_page->free_mem_in_page == PAGE_SIZE && i == last_mem_page_id) {
                 free_page(last_page->pointer);

@@ -9,16 +9,20 @@
 #define TABLE_SIZE (PAGE_SIZE * 1024)
 #define KERNEL_TABLE_COUNT (4)
 
-//#ifdef _DEBUG
+#ifdef _DEBUG
 #define DEBUG_ASM asm("xchg %bx, %bx");
-//#else
-//#define DEBUG_ASM
-//#endif
+#else
+#define DEBUG_ASM
+#endif
+
+#ifndef KERNEL_VERSION
+#define KERNEL_VERSION "vN.N.N"
+#endif
 
 typedef uint8_t* va_list;
 
 #define va_start(ap, A) \
-    (void)((ap) = (char*)&(A) + sizeof(A))
+    (void)((ap) = (uint8_t*)&(A) + sizeof(A))
 
 #define va_end(ap) \
     (void)((ap) = 0)

@@ -3,6 +3,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <kernel/defines.h>
+#include <kernel/utils/dt.h>
+#include <kernel/utils/int.h>
 #include <kernel/utils/memory.h>
 #include <kernel/utils/utils.h>
 #include <kernel/vga/vga.h>
@@ -18,9 +21,16 @@ extern uint8_t *_gdt;
 void kernel_main() {
     term_init();
     init_memory_manager();
+    
+    gdt_init();
+    idt_init();
 
-    term_print("RubiKernel: Init process [ok]!\n");
+    term_print("RubiKernel "KERNEL_VERSION": Init [ok]!\n");
 
+    term_print("Let's try read value from 0x0, and die\n");
+    // printf("sizeof(unlong)=%u\n", sizeof(unsigned long));
+    // abort("ABORT: test\n");
+    int x = *((int *)0);
     //term_print_int(last_page_ID, 16);
     //term_print("\n\n");
 

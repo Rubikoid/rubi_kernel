@@ -10,7 +10,7 @@ volatile uint16_t *vga_buffer = (uint16_t *)(0xC0000000 + 0xB8000);
 const int VGA_COLS = 80;  // x
 const int VGA_ROWS = 25;  // y
 
-struct VGA_State vga_state = {0};
+struct VGA_state_t vga_state = {0};
 
 void term_init() {
     vga_state.term_col = 0;
@@ -88,13 +88,13 @@ void vsprintf(char *ret, char *format, va_list arg_list) {
                     case 'x':
                         num = va_arg(arg_list, uint32_t);
                         itoa(rt, num, 16);
-                        j += memcpy(rt, (ret + j), strlen(rt));
+                        j += memcpy((uint8_t *)rt, (uint8_t *)(ret + j), strlen(rt));
                         i += 2;
                         break;
                     case 'u':
                         num = va_arg(arg_list, uint32_t);
                         itoa(rt, num, 10);
-                        j += memcpy(rt, (ret + j), strlen(rt));
+                        j += memcpy((uint8_t *)rt, (uint8_t *)(ret + j), strlen(rt));
                         i += 2;
                         break;
                     case 's':
@@ -117,11 +117,11 @@ void sprintf(char *ret, char *format, ...) {
     va_list va;
     va_start(va, format);
     vsprintf(ret, format, va);
+    va_end(va);
 }
 
 void vprintf(char *format, va_list arg_list) {
     char ret[256];
-    for (int i = 0; i < 256; i++) ret[i] = 'X';  // mem leak checker
     vsprintf(ret, format, arg_list);
     term_print(ret);
 }
@@ -130,4 +130,5 @@ void printf(char *format, ...) {
     va_list va;
     va_start(va, format);
     vprintf(format, va);
+    va_end(va);
 }
