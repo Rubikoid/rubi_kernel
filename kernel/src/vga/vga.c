@@ -1,14 +1,16 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <kernel/utils/memory.h>
+#include <kernel/utils/utils.h>
 #include <kernel/vga/vga.h>
 
-volatile uint16_t* vga_buffer = (uint16_t*)(0xC0000000 + 0xB8000);
+volatile uint16_t *vga_buffer = (uint16_t *)(0xC0000000 + 0xB8000);
 // By default, the VGA textmode buffer has a size of 80x25 characters
-const int VGA_COLS = 80;
-const int VGA_ROWS = 25;
+const int VGA_COLS = 80;  // x
+const int VGA_ROWS = 25;  // y
 
-struct VGA_State vga_state;
+struct VGA_State vga_state = {0};
 
 void term_init() {
     vga_state.term_col = 0;
@@ -33,6 +35,7 @@ void term_clear() {
     vga_state.term_row = 0;
 }
 
+// x - cols, max 80; y - rows, max 25
 void term_setc(uint16_t x, uint16_t y, uint8_t color, char c) {
     // check for newline, i because why not.
     if (c != '\n') {
@@ -61,44 +64,70 @@ void term_putc(char c) {
         vga_state.term_row++;
     }
 
-    if (vga_state.term_row >= VGA_ROWS) { // TODO: make normal scrolling for vga
+    if (vga_state.term_row >= VGA_ROWS) {  // TODO: make normal scrolling for vga
         vga_state.term_col = 0;
         vga_state.term_row = 0;
     }
 }
 
-void term_print(const char* str) {
+void term_print(const char *str) {
     for (size_t i = 0; str[i] != '\0'; i++)
         term_putc(str[i]);
 }
 
-void term_print_int(uint32_t x, uint32_t base) {
-    char rt[36]; // more than 32 bits can't be. so.
+void vsprintf(char *ret, char *format, va_list arg_list) {
+    uint32_t i = 0, j = 0;
 
-    uint8_t i = 0;
-    uint32_t k = 0;
+    char rt[32];
+    uint32_t num = 0;
 
-    if(x == 0) { // path from kernel panic if we try to print 0;
-        rt[i] = '0';
-        i++;
+    while (format[i] != 0) {
+        switch (format[i]) {
+            case '%':
+                switch (format[i + 1]) {  // FIXME: i think, that we can't have more than uint32_t
+                    case 'x':
+                        num = va_arg(arg_list, uint32_t);
+                        itoa(rt, num, 16);
+                        j += memcpy(rt, (ret + j), strlen(rt));
+                        i += 2;
+                        break;
+                    case 'u':
+                        num = va_arg(arg_list, uint32_t);
+                        itoa(rt, num, 10);
+                        j += memcpy(rt, (ret + j), strlen(rt));
+                        i += 2;
+                        break;
+                    case 's':
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                ret[j] = format[i];
+                i++;
+                j++;
+                break;
+        }
     }
-    
-    // make reversed string from number
-    while (x != 0) {
-        k = x % base;
-        x = x / base;
-        rt[i] = k + (k < 10 ? '0' : 'A' - 10);
-        i++;
-    }
-    rt[i] = '\0';
+    ret[j] = 0;
+}
 
-    // reverse string
-    i -= 1;
-    k = 0;  // FIXME: FIX THAT SHITCODE!11
-    for (int j = 0; j < i; j++, i--) {
-        k = rt[j];
-        rt[j] = rt[i];
-        rt[i] = k;
-    }
-    term_print(rt);
+void sprintf(char *ret, char *format, ...) {
+    va_list va;
+    va_start(va, format);
+    vsprintf(ret, format, va);
+}
+
+void vprintf(char *format, va_list arg_list) {
+    char ret[256];
+    for (int i = 0; i < 256; i++) ret[i] = 'X';  // mem leak checker
+    vsprintf(ret, format, arg_list);
+    term_print(ret);
+}
+
+void printf(char *format, ...) {
+    va_list va;
+    va_start(va, format);
+    vprintf(format, va);
 }

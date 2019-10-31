@@ -84,3 +84,11 @@ void free_mem(void *ptr, size_t count) {  // FIXME: Create fix for what __geniou
         last_mem_page_id -= 1;
     }
 }
+
+uint32_t memcpy(uint8_t *from, uint8_t *to, size_t count) {
+    int i = 0;
+    for (; i < count; i++) {
+        to[i] = from[i];
+    }
+    return i;
+}

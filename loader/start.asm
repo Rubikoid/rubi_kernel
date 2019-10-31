@@ -27,7 +27,7 @@ global _gdt:data, boot_page_directory:data, boot_page_table:data
 section .bss
 	align 16
 	stack_bottom:
-		resb 16384 
+		resb 16384*2
     stack_top:
     
     align 4096
