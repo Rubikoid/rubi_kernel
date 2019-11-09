@@ -4,7 +4,7 @@
 #include <kernel/utils/utils.h>
 #include <kernel/vga/vga.h>
 
-volatile uint16_t *vga_buffer = (uint16_t *)(0xC0000000 + 0xB8000);
+volatile uint16_t* vga_buffer = (uint16_t* )(0xC0000000 + 0xB8000);
 // By default, the VGA textmode buffer has a size of 80x25 characters
 const int VGA_COLS = 80;  // x
 const int VGA_ROWS = 25;  // y
@@ -69,12 +69,12 @@ void term_putc(char c) {
     }
 }
 
-void term_print(const char *str) {
+void term_print(const char* str) {
     for (size_t i = 0; str[i] != '\0'; i++)
         term_putc(str[i]);
 }
 
-void vsprintf(char *ret, char *format, va_list arg_list) {
+void vsprintf(char* ret, char* format, va_list arg_list) {
     uint32_t i = 0, j = 0;
 
     char rt[32];
@@ -87,13 +87,13 @@ void vsprintf(char *ret, char *format, va_list arg_list) {
                     case 'x':
                         num = va_arg(arg_list, uint32_t);
                         itoa(rt, num, 16);
-                        j += memcpy((uint8_t *)rt, (uint8_t *)(ret + j), strlen(rt));
+                        j += memcpy((uint8_t* )rt, (uint8_t* )(ret + j), strlen(rt));
                         i += 2;
                         break;
                     case 'u':
                         num = va_arg(arg_list, uint32_t);
                         itoa(rt, num, 10);
-                        j += memcpy((uint8_t *)rt, (uint8_t *)(ret + j), strlen(rt));
+                        j += memcpy((uint8_t* )rt, (uint8_t* )(ret + j), strlen(rt));
                         i += 2;
                         break;
                     case 's':
@@ -112,20 +112,20 @@ void vsprintf(char *ret, char *format, va_list arg_list) {
     ret[j] = 0;
 }
 
-void sprintf(char *ret, char *format, ...) {
+void sprintf(char* ret, char* format, ...) {
     va_list va;
     va_start(va, format);
     vsprintf(ret, format, va);
     va_end(va);
 }
 
-void vprintf(char *format, va_list arg_list) {
+void vprintf(char* format, va_list arg_list) {
     char ret[256];
     vsprintf(ret, format, arg_list);
     term_print(ret);
 }
 
-void printf(char *format, ...) {
+void printf(char* format, ...) {
     va_list va;
     va_start(va, format);
     vprintf(format, va);

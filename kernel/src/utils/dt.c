@@ -97,7 +97,7 @@ void gdt_flush() {
     }
 }
 
-void encode_gdt_entry(struct GDT_raw_entry_t *target, struct GDT_normal_entry_t *source) {
+void encode_gdt_entry(struct GDT_raw_entry_t* target, struct GDT_normal_entry_t* source) {
     // Check the limit to make sure that it can be encoded
     if ((source->limit > 65536) && ((source->limit & 0xFFF) != 0xFFF)) {
         return;

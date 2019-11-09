@@ -103,7 +103,7 @@ extern struct IDT_entry_t idt_table[IDT_ENTRIES_COUNT];
 
 extern void gdt_init();
 extern void gdt_flush();
-extern void encode_gdt_entry(struct GDT_raw_entry_t *target, struct GDT_normal_entry_t *source);
+extern void encode_gdt_entry(struct GDT_raw_entry_t* target, struct GDT_normal_entry_t* source);
 
 extern void idt_init();
 extern void idt_fill_entry(uint8_t offset, size_t handler);

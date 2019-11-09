@@ -4,7 +4,7 @@
 #include <kernel/utils/int.h>
 #include <kernel/vga/vga.h>
 
-void abort(char *death_message) {
+void abort(char* death_message) {
     term_print(death_message);
     disable_int();
     halt();

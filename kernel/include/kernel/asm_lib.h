@@ -10,7 +10,7 @@ extern void halt();
 extern void out_byte(uint16_t port, uint8_t value);
 extern uint8_t in_byte(uint16_t port);
 
-extern void gdt_load(void *gdt_ptr);
-extern void idt_load(unsigned long *addr);
+extern void gdt_load(void* gdt_ptr);
+extern void idt_load(unsigned long* addr);
 
 #endif

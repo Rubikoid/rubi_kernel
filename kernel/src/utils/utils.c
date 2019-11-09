@@ -3,14 +3,14 @@
 #include <kernel/utils/utils.h>
 #include <kernel/vga/vga.h>
 
-uint32_t strlen(char *str) {
+uint32_t strlen(char* str) {
     uint32_t ret = 0;
     while (str[ret] != 0)
         ret += 1;
     return ret;
 }
 
-void itoa(char *ret, uint32_t x, uint32_t base) {
+void itoa(char* ret, uint32_t x, uint32_t base) {
     uint32_t i = 0;
     uint32_t k = 0;
 
@@ -30,7 +30,7 @@ void itoa(char *ret, uint32_t x, uint32_t base) {
     reverse_string(ret, i - 1);
 }
 
-void reverse_string(char *str, uint32_t size) {
+void reverse_string(char* str, uint32_t size) {
     uint8_t k = 0;
     uint32_t j = 0;
     for (; j < size; j++, size--) {

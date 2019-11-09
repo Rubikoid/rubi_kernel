@@ -13,7 +13,7 @@
 //	#error "This code must be compiled with an x86-elf compiler"
 //#endif
 
-extern uint8_t *_gdt;
+extern uint8_t* _gdt;
 
 void kernel_main() {
     term_init();

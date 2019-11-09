@@ -95,7 +95,7 @@ section .text
     ;pop     ebp
     ;ret
 
-    ;gdt_load(void *gdt_ptr); Load gdt
+    ;gdt_load(void* gdt_ptr); Load gdt
     gdt_load:
         mov eax, [esp+4]
         lgdt [eax]
