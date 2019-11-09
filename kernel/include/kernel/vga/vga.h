@@ -20,11 +20,4 @@ extern void term_clear();
 extern void term_setc(uint16_t x, uint16_t y, uint8_t color, char c);
 extern void term_putc(char c);
 extern void term_print(const char *str);
-
-extern void vsprintf(char *ret, char *format, va_list arg_list);
-extern void sprintf(char *ret, char *format, ...);
-
-extern void vprintf(char *format, va_list arg_list);
-extern void printf(char *format, ...);
-
 #endif

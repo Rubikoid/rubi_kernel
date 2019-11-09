@@ -1,5 +1,6 @@
 #include <types.h>
 
+#include <lib/string.h>
 #include <kernel/utils/memory.h>
 #include <kernel/utils/utils.h>
 #include <kernel/vga/vga.h>
@@ -72,51 +73,6 @@ void term_putc(char c) {
 void term_print(const char *str) {
     for (size_t i = 0; str[i] != '\0'; i++)
         term_putc(str[i]);
-}
-
-void vsprintf(char *ret, char *format, va_list arg_list) {
-    uint32_t i = 0, j = 0;
-
-    char rt[32];
-    uint32_t num = 0;
-
-    while (format[i] != 0) {
-        switch (format[i]) {
-            case '%':
-                switch (format[i + 1]) {  // FIXME: i think, that we can't have more than uint32_t
-                    case 'x':
-                        num = va_arg(arg_list, uint32_t);
-                        itoa(rt, num, 16);
-                        j += memcpy((uint8_t *)rt, (uint8_t *)(ret + j), strlen(rt));
-                        i += 2;
-                        break;
-                    case 'u':
-                        num = va_arg(arg_list, uint32_t);
-                        itoa(rt, num, 10);
-                        j += memcpy((uint8_t *)rt, (uint8_t *)(ret + j), strlen(rt));
-                        i += 2;
-                        break;
-                    case 's':
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            default:
-                ret[j] = format[i];
-                i++;
-                j++;
-                break;
-        }
-    }
-    ret[j] = 0;
-}
-
-void sprintf(char *ret, char *format, ...) {
-    va_list va;
-    va_start(va, format);
-    vsprintf(ret, format, va);
-    va_end(va);
 }
 
 void vprintf(char *format, va_list arg_list) {
