@@ -13,14 +13,14 @@
 
 struct mem_info_t {
     uint16_t free_mem_in_page;
-    void* pointer;
+    void *pointer;
 };
 
 extern size_t boot_page_directory;
 extern size_t boot_page_table;
 
-extern volatileuint32_t* page_directory_ptr;
-extern volatileuint32_t* page_table_ptr;
+extern volatile uint32_t *page_directory_ptr;
+extern volatile uint32_t *page_table_ptr;
 
 extern size_t last_page_ID;
 
@@ -30,13 +30,9 @@ extern struct mem_info_t allocated_pages[128];
 extern void init_memory_manager();
 
 extern void* alloc_page();
-extern void free_page(void* page_addr_in);
+extern void free_page(void *page_addr_in);
 
 extern void* alloc_mem(size_t count);
-extern void free_mem(void* ptr, size_t count);
-
-
-extern uint32_t memcpy(uint8_t* from, uint8_t* to, size_t count);
-
+extern void free_mem(void *ptr, size_t count);
 
 #endif

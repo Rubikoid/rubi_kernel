@@ -12,7 +12,7 @@
 extern void pic_init();
 extern void pic_enable();
 
-extern void abort(char* death_message);
+extern void abort(char *death_message);
 
 
 extern void cint_division_by_zero();
