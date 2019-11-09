@@ -1,7 +1,4 @@
-// GCC provides these header files automatically
-// They give us access to useful things like fixed-width types
-#include <stddef.h>
-#include <stdint.h>
+#include <types.h>
 
 #include <kernel/defines.h>
 #include <kernel/utils/dt.h>
@@ -25,12 +22,10 @@ void kernel_main() {
     gdt_init();
     idt_init();
 
-    term_print("RubiKernel "KERNEL_VERSION": Init [ok]!\n");
-
-    term_print("Let's try read value from 0x0, and die\n");
+    term_print("[OK] RubiKernel "KERNEL_VERSION": Init!\n");
+    printf("Last page id: 0x%x\n", last_page_ID);
     // printf("sizeof(unlong)=%u\n", sizeof(unsigned long));
     // abort("ABORT: test\n");
-    int x = *((int *)0);
     //term_print_int(last_page_ID, 16);
     //term_print("\n\n");
 

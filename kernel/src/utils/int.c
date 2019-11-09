@@ -1,5 +1,4 @@
-#include <stddef.h>
-#include <stdint.h>
+#include <types.h>
 
 #include <kernel/asm_lib.h>
 #include <kernel/utils/int.h>
@@ -21,6 +20,18 @@ void int_general_protect() {
 
 void int_aligment_check() {
     abort("ABORT: Aligment check");
+}
+
+void int_division_by_zero() {
+    abort("ABORT: Division by zero");
+}
+
+void int_segment_not_present() {
+    abort("ABORT: segment not present");
+}
+
+void int_page_fault() {
+    abort("ABORT: page fault");
 }
 
 void pic_init() {

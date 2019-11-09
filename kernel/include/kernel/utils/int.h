@@ -1,5 +1,4 @@
-#include <stddef.h>
-#include <stdint.h>
+#include <types.h>
 
 #ifndef KERNEL_UTILS_INT_H_
 #define KERNEL_UTILS_INT_H_
@@ -14,8 +13,13 @@ extern void pic_init();
 extern void pic_enable();
 
 extern void abort(char *death_message);
-extern void int_double_fail();
-extern void int_general_protect();
-extern void int_aligment_check();
+
+
+extern void cint_division_by_zero();
+extern void cint_double_fail();
+extern void cint_segment_not_present();
+extern void cint_general_protect();
+extern void cint_aligment_check();
+extern void cint_page_fault();
 
 #endif

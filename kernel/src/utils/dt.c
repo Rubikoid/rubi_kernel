@@ -1,6 +1,4 @@
-
-#include <stddef.h>
-#include <stdint.h>
+#include <types.h>
 
 #include <kernel/defines.h>
 #include <kernel/asm_lib.h>
@@ -48,7 +46,7 @@ void gdt_init() {
     normal_gdt[GDT_KDATA_SEGMENT].dpl = 0;
     normal_gdt[GDT_KDATA_SEGMENT].db = 1;
 
-    /* normal_gdt[GDT_KSTACK_SEGMENT].base = 0;
+    normal_gdt[GDT_KSTACK_SEGMENT].base = 0;
     normal_gdt[GDT_KSTACK_SEGMENT].limit = 0xFFFFFFFF;
     normal_gdt[GDT_KSTACK_SEGMENT].type = 0b0010;
     normal_gdt[GDT_KSTACK_SEGMENT].p = 1;
@@ -87,7 +85,7 @@ void gdt_init() {
     normal_gdt[GDT_USTACK_SEGMENT].g = 0;
     normal_gdt[GDT_USTACK_SEGMENT].s = 1;
     normal_gdt[GDT_USTACK_SEGMENT].dpl = 0b11;
-    normal_gdt[GDT_USTACK_SEGMENT].db = 1; */
+    normal_gdt[GDT_USTACK_SEGMENT].db = 1;
 
     gdt_flush();
     gdt_load(&gdt_ptr);
@@ -139,9 +137,13 @@ void idt_init() {
 
     pic_init();
 
-    idt_fill_entry(INT_DOUBLE_FAULT, (size_t)int_double_fail);
-    idt_fill_entry(INT_GENERAL_PROTECT, (size_t)int_general_protect);
-    idt_fill_entry(INT_ALIGNMENT_CHECK, (size_t)int_aligment_check);
+    idt_fill_entry(INT_DIVIDE_BY_ZERO, (size_t)cint_division_by_zero);
+    idt_fill_entry(INT_DOUBLE_FAULT, (size_t)cint_double_fail);
+    idt_fill_entry(INT_SEGMENT_NOT_PRES, (size_t)cint_segment_not_present);
+    idt_fill_entry(INT_GENERAL_PROTECT, (size_t)cint_general_protect);
+    idt_fill_entry(INT_ALIGNMENT_CHECK, (size_t)cint_aligment_check);
+    idt_fill_entry(INT_PAGE_FAULT, (size_t)cint_page_fault);
+    
 
     idt_address = (size_t)&idt_table;
 	idt_ptr[0] = (sizeof (struct IDT_entry_t) * IDT_ENTRIES_COUNT) + ((idt_address & 0xFFFF) << 16);

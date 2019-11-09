@@ -1,6 +1,4 @@
-#include <stddef.h>
-#include <stdint.h>
-
+#include <types.h>
 #include <kernel/defines.h>
 
 #ifndef KERNEL_VGA_VGA_H_

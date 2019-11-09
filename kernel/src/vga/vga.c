@@ -1,5 +1,4 @@
-#include <stddef.h>
-#include <stdint.h>
+#include <types.h>
 
 #include <kernel/utils/memory.h>
 #include <kernel/utils/utils.h>

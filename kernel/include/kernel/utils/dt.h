@@ -1,5 +1,4 @@
-#include <stddef.h>
-#include <stdint.h>
+#include <types.h>
 
 #ifndef KERNEL_UTILS_DT_H_
 #define KERNEL_UTILS_DT_H_
@@ -26,14 +25,25 @@
 #define GDT_USTACK_SELECTOR 0x8*GDT_USTACK_SEGMENT
 #define GDT_UTSS_SELECTOR   0x8*GDT_TSS_SEGMENT
 
-#define INT_ZERO 0x0
-#define INT_OPCODE 0x6
-#define INT_DOUBLE_FAULT 0x8
-#define INT_GENERAL_PROTECT 0xD
-#define INT_PAGE_FAULT 0xE
-#define INT_ALIGNMENT_CHECK 0x11
-#define INT_TIMER 0x20
-#define INT_KEYBOARD 0x21
+#define INT_DIVIDE_BY_ZERO      0x0
+#define INT_NMI                 0x2
+#define INT_BREAKPOINT          0x3
+#define INT_OVERFLOW            0x4
+#define INT_BOUND               0x5
+#define INT_OPCODE              0x6
+#define INT_DEV_NOT_AVAIL       0x7
+#define INT_DOUBLE_FAULT        0x8
+#define INT_COPROC_SEGMENT_OVER 0x9
+#define INT_INVALID_TSS         0xA
+#define INT_SEGMENT_NOT_PRES    0xB
+#define INT_SS_FAULT            0xC
+#define INT_GENERAL_PROTECT     0xD
+#define INT_PAGE_FAULT          0xE
+#define INT_FPU                 0x10
+#define INT_ALIGNMENT_CHECK     0x11
+
+#define INT_TIMER               0x20
+#define INT_KEYBOARD            0x21
 // #define INT_SYSCALL 0x80
 
 #define INTERRUPT_GATE 0x8e

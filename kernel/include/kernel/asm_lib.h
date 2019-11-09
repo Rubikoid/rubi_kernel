@@ -1,5 +1,4 @@
-#include <stddef.h>
-#include <stdint.h>
+#include <types.h>
 
 #ifndef KERNEL_ASMLIB_H_
 #define KERNEL_ASMLIB_H_

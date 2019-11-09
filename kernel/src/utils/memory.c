@@ -1,6 +1,4 @@
-#include <stddef.h>
-#include <stdint.h>
-
+#include <types.h>
 #include <kernel/utils/memory.h>
 
 size_t last_page_ID;

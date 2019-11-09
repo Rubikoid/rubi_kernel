@@ -1,5 +1,4 @@
-#include <stddef.h>
-#include <stdint.h>
+#include <types.h>
 #include <kernel/defines.h>
 
 #ifndef KERNEL_UTILS_MEMORY_H_

@@ -1,5 +1,4 @@
-#include <stddef.h>
-#include <stdint.h>
+#include <types.h>
 
 #ifndef KERNEL_DEFINES_H_
 #define KERNEL_DEFINES_H_
@@ -18,16 +17,5 @@
 #ifndef KERNEL_VERSION
 #define KERNEL_VERSION "vN.N.N"
 #endif
-
-typedef uint8_t* va_list;
-
-#define va_start(ap, A) \
-    (void)((ap) = (uint8_t*)&(A) + sizeof(A))
-
-#define va_end(ap) \
-    (void)((ap) = 0)
-
-#define va_arg(ap, T) \
-    (*(T*)(((ap) += sizeof(T)) - sizeof(T)))
 
 #endif
