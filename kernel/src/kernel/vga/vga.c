@@ -66,7 +66,7 @@ void term_putc(char c, uint8_t flush) {
         vga_state.term_row++;
     }
 
-    if (vga_state.term_row >= VGA_ROWS) {  // TODO: make normal scrolling for vga
+    if (vga_state.term_row >= VGA_ROWS) {
         // vga_state.term_col = 0;
         // vga_state.term_row = 0;
         for (int y = 1; y < VGA_ROWS; y++) {

@@ -57,6 +57,7 @@ unsigned int vsprintf(char *s1, const char *s2, va_list list) {
 
     char rt[32];
     uint32_t num = 0;
+    void *ptr = 0;
 
     while (s2[src_i] != 0) {
         switch (s2[src_i]) {
@@ -79,9 +80,14 @@ unsigned int vsprintf(char *s1, const char *s2, va_list list) {
                         break;
                     }
                     case 's': {
+                        ptr = va_arg(list, void *);
+                        memcpy((uint8_t *)(s1 + dst_i), (uint8_t *)ptr, strlen(ptr));
+                        dst_i += strlen(ptr);
+                        src_i += 2;
                         break;
                     }
                     default: {
+                        src_i += 1;
                         break;
                     }
                 }
