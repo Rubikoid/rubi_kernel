@@ -5,32 +5,37 @@
 #include <kernel/vga/vga.h>
 
 void abort(char *death_message) {
+    vga_state.term_buffer = (uint16_t *)(0xC0000000 + 0xB8000);
+    vga_state.term_col = 0;
+    vga_state.term_row = 0;
+    vga_state.term_color = V_BLACK << 4 | V_WHITE;
+
     term_print(death_message);
     disable_int();
     halt();
 }
 
-void int_double_fail() {
+void cint_double_fail() {
     abort("ABORT: Double fail");
 }
 
-void int_general_protect() {
+void cint_general_protect() {
     abort("ABORT: General protect");
 }
 
-void int_aligment_check() {
+void cint_aligment_check() {
     abort("ABORT: Aligment check");
 }
 
-void int_division_by_zero() {
+void cint_division_by_zero() {
     abort("ABORT: Division by zero");
 }
 
-void int_segment_not_present() {
+void cint_segment_not_present() {
     abort("ABORT: segment not present");
 }
 
-void int_page_fault() {
+void cint_page_fault() {
     abort("ABORT: page fault");
 }
 

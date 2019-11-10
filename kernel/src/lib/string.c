@@ -49,46 +49,52 @@ void strinv(char *str, uint32_t size) {
 unsigned int sprintf(char *s1, const char *s2, ...) {
     va_list va;
     va_start(va, s2);
-    vsprintf(s1, s2, va);
-    va_end(va);
+    return vsprintf(s1, s2, va);
 }
 
 unsigned int vsprintf(char *s1, const char *s2, va_list list) {
-    uint32_t i = 0, j = 0;
+    uint32_t src_i = 0, dst_i = 0;
 
     char rt[32];
     uint32_t num = 0;
 
-    while (s2[i] != 0) {
-        switch (s2[i]) {
-            case '%':
-                switch (s2[i + 1]) {  // FIXME: i think, that we can't have more than uint32_t
-                    case 'x':
+    while (s2[src_i] != 0) {
+        switch (s2[src_i]) {
+            case '%': {
+                switch (s2[src_i + 1]) {  // FIXME: i think, that we can't have more than uint32_t
+                    case 'x': {
                         num = va_arg(list, uint32_t);
-                        itoa(rt, num, 16);
-                        memcpy((uint8_t *)rt, (uint8_t *)(s1 + j), strlen(rt));
-                        j += strlen(rt);
-                        i += 2;
+                        itoa(num, rt, 16);
+                        memcpy((uint8_t *)(s1 + dst_i), (uint8_t *)rt, strlen(rt));
+                        dst_i += strlen(rt);
+                        src_i += 2;
                         break;
-                    case 'u':
+                    }
+                    case 'u': {
                         num = va_arg(list, uint32_t);
-                        itoa(rt, num, 10);
-                        memcpy((uint8_t *)rt, (uint8_t *)(s1 + j), strlen(rt));
-                        j += strlen(rt);
-                        i += 2;
+                        itoa(num, rt, 10);
+                        memcpy((uint8_t *)(s1 + dst_i), (uint8_t *)rt, strlen(rt));
+                        dst_i += strlen(rt);
+                        src_i += 2;
                         break;
-                    case 's':
+                    }
+                    case 's': {
                         break;
-                    default:
+                    }
+                    default: {
                         break;
+                    }
                 }
                 break;
-            default:
-                s1[j] = s2[i];
-                i++;
-                j++;
+            }
+            default: {
+                s1[dst_i] = s2[src_i];
+                src_i++;
+                dst_i++;
                 break;
+            }
         }
     }
-    s1[j] = 0;
+    s1[dst_i] = 0;
+    return dst_i;
 }

@@ -1,7 +1,7 @@
 #include <types.h>
 
-#include <kernel/defines.h>
 #include <kernel/asm_lib.h>
+#include <kernel/defines.h>
 #include <kernel/utils/dt.h>
 #include <kernel/utils/int.h>
 
@@ -143,12 +143,11 @@ void idt_init() {
     idt_fill_entry(INT_GENERAL_PROTECT, (size_t)cint_general_protect);
     idt_fill_entry(INT_ALIGNMENT_CHECK, (size_t)cint_aligment_check);
     idt_fill_entry(INT_PAGE_FAULT, (size_t)cint_page_fault);
-    
 
     idt_address = (size_t)&idt_table;
-	idt_ptr[0] = (sizeof (struct IDT_entry_t) * IDT_ENTRIES_COUNT) + ((idt_address & 0xFFFF) << 16);
-	idt_ptr[1] = idt_address >> 16 ;
-    idt_load(idt_ptr);
+    idt_ptr[0] = (sizeof(struct IDT_entry_t) * IDT_ENTRIES_COUNT) + ((idt_address & 0xFFFF) << 16);
+    idt_ptr[1] = idt_address >> 16;
+    idt_load((unsigned long *)idt_ptr);
     DEBUG_ASM;
 }
 

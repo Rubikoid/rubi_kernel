@@ -16,15 +16,16 @@ enable_language(ASM_NASM)
 
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/iso" "${CMAKE_BINARY_DIR}/iso/boot" "${CMAKE_BINARY_DIR}/iso/boot/grub")
 file(GLOB_RECURSE KERNEL_SRC ${PROJECT_SOURCE_DIR}/kernel/src *.c)
+file(GLOB_RECURSE KERNEL_ASM_SRC ${PROJECT_SOURCE_DIR}/kernel/src *.asm)
 file(GLOB_RECURSE KERNEL_HEAD ${PROJECT_SOURCE_DIR}/kernel/include *.h)
 
-add_executable(kernel ${KERNEL_SRC} ${KERNEL_HEAD} "loader/start.asm")
+add_executable(kernel ${KERNEL_ASM_SRC} ${KERNEL_SRC} ${KERNEL_HEAD})
 
 target_include_directories(kernel PRIVATE "kernel/include") # add includes
 
-target_compile_options(kernel PRIVATE $<$<COMPILE_LANGUAGE:C>:-std=gnu99> $<$<COMPILE_LANGUAGE:C>:-ffreestanding> -g -Wall) # compile without linux gcc shit
+target_compile_options(kernel PRIVATE $<$<COMPILE_LANGUAGE:C>:-std=gnu99> $<$<COMPILE_LANGUAGE:C>:-fno-stack-protector> $<$<COMPILE_LANGUAGE:C>:-ffreestanding> -g -Wall) # compile without linux gcc shit
 set(CMAKE_ASM_NASM_FLAGS_DEBUG "-Fdwarf") # some debug info, i hope
-target_compile_definitions(kernel PRIVATE "_DEBUG=1" "KERNEL_VERSION=\"v0.0.4\"")
+target_compile_definitions(kernel PRIVATE "KERNEL=1" "_DEBUG=1" "KERNEL_VERSION=\"v0.0.6\"")
 target_link_options(kernel PRIVATE -ffreestanding -nostdlib -g -lgcc -T ${CMAKE_SOURCE_DIR}/loader/linker.ld) #link everything using linkerscript
 
 # generate iso file for bochs
@@ -38,3 +39,5 @@ add_custom_command(TARGET kernel POST_BUILD COMMAND genisoimage -R -b boot/grub/
 # generate debug info for bochs
 add_custom_command(TARGET kernel POST_BUILD COMMAND objcopy --only-keep-debug $<TARGET_FILE:kernel> ${CMAKE_BINARY_DIR}/kernel.sym.bin)
 add_custom_command(TARGET kernel POST_BUILD COMMAND bash -c "nm ${CMAKE_BINARY_DIR}/kernel.sym.bin | grep \" [Tbt] \" | awk '{ print \$1\" \"\$3 }' > ${CMAKE_BINARY_DIR}/kernel.sym " VERBATIM)
+
+add_custom_target(run COMMAND qemu-system-x86_64 -kernel ./kernel DEPENDS kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})

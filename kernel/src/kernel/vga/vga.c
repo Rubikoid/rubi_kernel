@@ -1,21 +1,23 @@
 #include <types.h>
 
-#include <lib/string.h>
 #include <kernel/utils/memory.h>
 #include <kernel/utils/utils.h>
 #include <kernel/vga/vga.h>
+#include <lib/string.h>
 
 volatile uint16_t *vga_buffer = (uint16_t *)(0xC0000000 + 0xB8000);
+
 // By default, the VGA textmode buffer has a size of 80x25 characters
-const int VGA_COLS = 80;  // x
-const int VGA_ROWS = 25;  // y
+uint16_t term_buffers[VGA_SIZE * (TERM_COUNT + 1)] = {0};
 
 struct VGA_state_t vga_state = {0};
 
 void term_init() {
     vga_state.term_col = 0;
     vga_state.term_row = 0;
-    vga_state.term_color = 0x0F;
+    vga_state.term_color = V_BLACK << 4 | V_WHITE;
+    vga_state.screen = 0;
+    vga_state.term_buffer = (uint16_t *)term_buffers + (VGA_SIZE * vga_state.screen);
     term_clear();
 }
 
@@ -28,30 +30,30 @@ void term_clear() {
             // - B is the background color
             // - F is the foreground color
             // - C is the ASCII character
-            vga_buffer[index] = ((uint16_t)vga_state.term_color << 8) | ' ';
+            vga_state.term_buffer[index] = ((uint16_t)vga_state.term_color << 8) | ' ';
         }
     }
     vga_state.term_col = 0;
     vga_state.term_row = 0;
+    term_flush();
 }
 
 // x - cols, max 80; y - rows, max 25
 void term_setc(uint16_t x, uint16_t y, uint8_t color, char c) {
-    // check for newline, i because why not.
+    // check for newline
     if (c != '\n') {
         const size_t index = (VGA_COLS * y) + x;
-        vga_buffer[index] = (color << 8) | c;
+        vga_state.term_buffer[index] = (color << 8) | c;
     }
 }
 
-void term_putc(char c) {
+void term_putc(char c, uint8_t flush) {
     switch (c) {
         case '\n': {
             vga_state.term_col = 0;
             vga_state.term_row++;
             break;
         }
-
         default: {
             term_setc(vga_state.term_col, vga_state.term_row, vga_state.term_color, c);
             vga_state.term_col++;
@@ -65,25 +67,44 @@ void term_putc(char c) {
     }
 
     if (vga_state.term_row >= VGA_ROWS) {  // TODO: make normal scrolling for vga
-        vga_state.term_col = 0;
-        vga_state.term_row = 0;
+        // vga_state.term_col = 0;
+        // vga_state.term_row = 0;
+        for (int y = 1; y < VGA_ROWS; y++) {
+            for (int x = 0; x < VGA_COLS; x++) {
+                vga_state.term_buffer[VGA_COLS * (y - 1) + x] = vga_state.term_buffer[VGA_COLS * y + x];
+            }
+        }
+        for (int x = 0; x < VGA_COLS; x++) {
+            vga_state.term_buffer[(VGA_COLS * (VGA_ROWS - 1)) + x] = ((uint16_t)vga_state.term_color << 8) | ' ';
+        }
+        vga_state.term_row -= 1;
     }
+    if (flush)
+        term_flush();
 }
 
 void term_print(const char *str) {
-    for (size_t i = 0; str[i] != '\0'; i++)
-        term_putc(str[i]);
+    for (size_t i = 0; str[i] != '\0'; i++) {
+        switch (str[i]) {
+            case '\e': {
+                vga_state.term_color = str[++i];
+                break;
+            }
+            default: {
+                term_putc(str[i], 0);
+                break;
+            }
+        }
+    }
+    term_flush();
 }
 
-void vprintf(char *format, va_list arg_list) {
-    char ret[256];
-    vsprintf(ret, format, arg_list);
-    term_print(ret);
+void term_change(uint8_t term_id) {
+    vga_state.screen = 0;
+    vga_state.term_buffer == term_buffers + (VGA_SIZE * vga_state.screen);
+    term_flush();
 }
 
-void printf(char *format, ...) {
-    va_list va;
-    va_start(va, format);
-    vprintf(format, va);
-    va_end(va);
+void term_flush() {
+    memcpy((void *)vga_buffer, vga_state.term_buffer, VGA_SIZE);
 }

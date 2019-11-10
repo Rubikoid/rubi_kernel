@@ -63,7 +63,7 @@ void *alloc_mem(size_t count) {
 void free_mem(void *ptr, size_t count) {  // FIXME: Create fix for what __genious__ solution with count;
     uint32_t base_addr = ((uint32_t)ptr & PDTE_BIT_FIELD);
     for (int i = 0; i <= last_mem_page_id; i++) {
-        if (allocated_pages[i].pointer == base_addr) {
+        if ((uint32_t)allocated_pages[i].pointer == base_addr) {
             struct mem_info_t *last_page = &allocated_pages[i];
             last_page->free_mem_in_page += count;
             if (last_page->free_mem_in_page == PAGE_SIZE && i == last_mem_page_id) {
