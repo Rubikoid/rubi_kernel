@@ -28,13 +28,13 @@ void kernel_main(struct multiboot_t* multiboot, void* kstack) {
     printf("Multiboot: 0x%x\n", multiboot);
     printf("StackStart: 0x%x\n", kstack);
     printf("Mem_lower: %u\nMem_upper: %u\n", multiboot->mem_lower, multiboot->mem_upper);
-    printf("Last page id: 0x%x \n\n", last_page_ID);
+    printf("Last page id: 0x%x \n", last_page_ID);
     // printf("sizeof(unlong)=%u\n", sizeof(unsigned long));
     //abort("ABORT: test\n");
     //term_print_int(last_page_ID, 16);
     //term_print("\n\n");
 
-    term_print("End!\n");
+    // term_print("End!\n");
 
     return;
 }

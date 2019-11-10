@@ -77,7 +77,8 @@ void term_putc(char c, uint8_t flush) {
         for (int x = 0; x < VGA_COLS; x++) {
             vga_state.term_buffer[(VGA_COLS * (VGA_ROWS - 1)) + x] = ((uint16_t)vga_state.term_color << 8) | ' ';
         }
-        vga_state.term_row -= 1;
+        vga_state.term_row = VGA_ROWS - 1;
+        term_flush();
     }
     if (flush)
         term_flush();
@@ -101,10 +102,10 @@ void term_print(const char *str) {
 
 void term_change(uint8_t term_id) {
     vga_state.screen = 0;
-    vga_state.term_buffer == term_buffers + (VGA_SIZE * vga_state.screen);
+    vga_state.term_buffer = (uint16_t *)term_buffers + (VGA_SIZE * vga_state.screen);
     term_flush();
 }
 
 void term_flush() {
-    memcpy((void *)vga_buffer, vga_state.term_buffer, VGA_SIZE);
+    memcpy((void *)vga_buffer, vga_state.term_buffer, VGA_SIZE * 2);
 }
