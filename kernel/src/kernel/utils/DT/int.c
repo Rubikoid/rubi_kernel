@@ -1,42 +1,32 @@
 #include <types.h>
 
 #include <kernel/asm_lib.h>
-#include <kernel/utils/int.h>
+#include <kernel/utils/DT/int.h>
 #include <kernel/vga/vga.h>
+#include <lib/stdio.h>
 
-void abort(char *death_message) {
-    vga_state.term_buffer = (uint16_t *)(0xC0000000 + 0xB8000);
-    vga_state.term_col = 0;
-    vga_state.term_row = 0;
-    vga_state.term_color = V_BLACK << 4 | V_WHITE;
-
-    term_print(death_message);
-    disable_int();
-    halt();
+void cint_double_fail(PUSHAD_C) {
+    kpanic("Kernel panic: Double fail");
 }
 
-void cint_double_fail() {
-    abort("ABORT: Double fail");
+void cint_general_protect(PUSHAD_C) {
+    kpanic("Kernel panic: General protect");
 }
 
-void cint_general_protect() {
-    abort("ABORT: General protect");
+void cint_aligment_check(PUSHAD_C) {
+    kpanic("Kernel panic: Aligment check");
 }
 
-void cint_aligment_check() {
-    abort("ABORT: Aligment check");
+void cint_division_by_zero(PUSHAD_C) {
+    kpanic("Kernel panic: Division by zero");
 }
 
-void cint_division_by_zero() {
-    abort("ABORT: Division by zero");
+void cint_segment_not_present(PUSHAD_C) {
+    kpanic("Kernel panic: segment not present");
 }
 
-void cint_segment_not_present() {
-    abort("ABORT: segment not present");
-}
-
-void cint_page_fault() {
-    abort("ABORT: page fault");
+void cint_page_fault(size_t addr, PUSHAD_C) {
+    kpanic("Kernel panic: page fault at 0x%x", addr);
 }
 
 void pic_init() {

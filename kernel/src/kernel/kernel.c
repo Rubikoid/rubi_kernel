@@ -2,8 +2,8 @@
 
 #include <kernel/asm_lib.h>
 #include <kernel/defines.h>
-#include <kernel/utils/dt.h>
-#include <kernel/utils/int.h>
+#include <kernel/utils/DT/dt.h>
+#include <kernel/utils/DT/int.h>
 #include <kernel/utils/memory.h>
 #include <kernel/utils/utils.h>
 #include <kernel/vga/vga.h>
@@ -29,6 +29,7 @@ void kernel_main(struct multiboot_t* multiboot, void* kstack) {
     printf("StackStart: 0x%x\n", kstack);
     printf("Mem_lower: %u\nMem_upper: %u\n", multiboot->mem_lower, multiboot->mem_upper);
     printf("Last page id: 0x%x \n", last_page_ID);
+    int a = *((int*)0x1337);
     // printf("sizeof(unlong)=%u\n", sizeof(unsigned long));
     //abort("ABORT: test\n");
     //term_print_int(last_page_ID, 16);
