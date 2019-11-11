@@ -11,6 +11,35 @@
 #define TABLE_BIT_FIELD         (0b00000000001111111111000000000000)
 #define PDTE_BIT_FIELD          (DIRECTORY_BIT_FIELD | TABLE_BIT_FIELD)
 
+struct __attribute__((__packed__)) page_directory_entry_t {
+    uint8_t present : 1;
+    uint8_t read_write : 1;
+    uint8_t user_supervisor : 1;
+    uint8_t write_through : 1;
+    uint8_t cache_disabled : 1;
+    uint8_t accessed : 1;
+    uint8_t zero : 1;
+    uint8_t page_size : 1;
+    uint8_t ignored : 1;
+    uint8_t available : 3;
+    uint32_t page_table_addr : 20;
+};
+
+struct __attribute__((__packed__)) page_table_entry_t {
+    uint8_t present : 1;
+    uint8_t read_write : 1;
+    uint8_t user_supervisor : 1;
+    uint8_t write_through : 1;
+    uint8_t cache_disabled : 1;
+    uint8_t accessed : 1;
+    uint8_t dirty : 1;
+    uint8_t zero : 1;
+    uint8_t global : 1;
+    uint8_t available : 3;
+    uint32_t page_phys_addr : 20;
+};
+
+
 struct mem_info_t {
     uint16_t free_mem_in_page;
     void *pointer;

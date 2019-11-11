@@ -299,5 +299,5 @@ void slist_test() {
         assert(fir->prev == fourth);
         assert(list.head == fourth);
     }
-    slist_dump(&list);
+    // slist_dump(&list);
 }
