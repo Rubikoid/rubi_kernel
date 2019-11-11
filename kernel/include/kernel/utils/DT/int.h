@@ -50,7 +50,7 @@ extern void cint_double_fail(PUSHAD_C);
 extern void cint_segment_not_present(PUSHAD_C);
 extern void cint_general_protect(uint16_t cs, PUSHAD_C, uint32_t error_code, uint32_t in_eip);
 extern void cint_aligment_check(PUSHAD_C);
-extern void cint_page_fault(size_t addr,PUSHAD_C);
+extern void cint_page_fault(size_t addr,PUSHAD_C, uint32_t error_code, uint32_t in_eip);
 extern void cint_timer(PUSHAD_C);
 extern void cint_keyboard(PUSHAD_C);
 

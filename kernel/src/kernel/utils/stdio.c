@@ -17,9 +17,9 @@ void kprintf(char *format, ...) {
     va_end(va);
 }
 
-void kassert(const char *file, uint32_t line, uint8_t expr) {
-    if (expr) {
-        kprintf("[" G_RED "ERR" G_WHITE "] Assert in %s at %u", file, line);
+void kassert(const char *file, const char *func, uint32_t line, uint8_t expr) {
+    if (!expr) {
+        kprintf("[" G_RED "ERR" G_WHITE "] Assert in %s at %u (%s)\n", file, line, func);
     }
 }
 

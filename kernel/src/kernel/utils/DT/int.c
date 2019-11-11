@@ -25,8 +25,8 @@ void cint_segment_not_present(PUSHAD_C) {
     kpanic("Kernel panic: segment not present");
 }
 
-void cint_page_fault(size_t addr, PUSHAD_C) {
-    kpanic("Kernel panic: page fault at 0x%x", addr);
+void cint_page_fault(size_t addr, PUSHAD_C, uint32_t error_code, uint32_t in_eip) {
+    kpanic("Kernel panic: page fault at %x, EIP: %x, Error_code: %x", addr, in_eip, error_code);
 }
 
 // just handle the tmier and do't do anything

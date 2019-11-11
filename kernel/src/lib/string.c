@@ -7,11 +7,17 @@ int strlen(const char *s) {
     return ret;
 }
 
+void *memset(void *dst, uint8_t value, uint32_t bytes) {
+    int i = 0;
+    for (; i < bytes; i++)
+        ((uint8_t *)dst)[i] = value;
+    return dst;
+}
+
 void *memcpy(void *buf1, const void *buf2, uint32_t bytes) {
     int i = 0;
-    for (; i < bytes; i++) {
+    for (; i < bytes; i++)
         ((uint8_t *)buf1)[i] = ((uint8_t *)buf2)[i];
-    }
     return buf1;
 }
 
@@ -88,7 +94,7 @@ unsigned int vsprintf(char *s1, const char *s2, va_list list) {
                     }
                     case 'c': {
                         num = va_arg(list, uint32_t);
-                        s1[dst_i] = (uint8_t) num;
+                        s1[dst_i] = (uint8_t)num;
                         dst_i += 1;
                         src_i += 2;
                     }

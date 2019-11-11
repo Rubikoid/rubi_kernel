@@ -32,7 +32,7 @@ extern void init_memory_manager();
 extern void* alloc_page();
 extern void free_page(void *page_addr_in);
 
-extern void* alloc_mem(size_t count);
-extern void free_mem(void *ptr, size_t count);
+extern void* kmalloc(size_t count);
+extern void kfree(void *ptr);
 
 #endif

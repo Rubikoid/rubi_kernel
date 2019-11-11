@@ -1,5 +1,6 @@
 #include <types.h>
 
+#include <kernel/asm_lib.h>
 #include <kernel/utils/memory.h>
 #include <kernel/utils/utils.h>
 #include <kernel/vga/vga.h>
@@ -18,6 +19,11 @@ void term_init() {
     vga_state.term_color = V_BLACK << 4 | V_WHITE;
     vga_state.screen = 0;
     vga_state.term_buffer = (uint16_t *)term_buffers + (VGA_SIZE * vga_state.screen);
+    
+    //disable cursor
+    out_byte(0x3D4, 0x0A);
+    out_byte(0x3D5, 0x20);
+    
     term_clear();
 }
 

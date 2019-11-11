@@ -8,6 +8,7 @@
 #include <kernel/utils/utils.h>
 #include <kernel/vga/vga.h>
 #include <lib/stdio.h>
+#include <lib/slist.h>
 
 //#if defined(__linux__)
 //	#error "This code must be compiled with a cross-compiler"
@@ -32,6 +33,9 @@ void kernel_main(struct multiboot_t* multiboot, void* kstack) {
     term_print("[" G_GREEN "OK" G_WHITE "] RubiKernel " KERNEL_VERSION ": Init!\n");
     printf("Multiboot: 0x%x; StackStart: 0x%x; Mem_upper: %u\n", multiboot, kstack, multiboot->mem_upper);
     printf("Last page id: 0x%x;\n", last_page_ID);
+    
+    slist_test();
+    
     while(1) halt();
     // printf("sizeof(unlong)=%u\n", sizeof(unsigned long));
     //abort("ABORT: test\n");
