@@ -1,6 +1,6 @@
 bits 32
 
-global disable_int, enable_int, out_byte, in_byte, gdt_load, idt_load, halt
+global reload_kernel_segments, disable_int, enable_int, out_byte, in_byte, gdt_load, idt_load, halt
 section .text
 ;push    ebp
     ;mov     ebp, esp
@@ -8,6 +8,29 @@ section .text
     ;mov     esp, ebp
     ;pop     ebp
     ;ret
+
+    ;reload_kernel_segments(void); Load kernel segments data
+    reload_kernel_segments:
+    jmp   0x08:.reload_segment
+    .reload_segment:
+        mov ax, 0x10
+        mov ds, ax
+        mov es, ax
+        mov fs, ax
+        mov gs, ax
+        mov ss, ax
+        ret
+
+    reload_user_segments:
+    jmp   0x08:.reload_segment
+    .reload_segment:
+        mov ax, 0x10
+        mov ds, ax
+        mov es, ax
+        mov fs, ax
+        mov gs, ax
+        mov ss, ax
+        ret
 
     ;gdt_load(void *gdt_ptr); Load gdt
     gdt_load:

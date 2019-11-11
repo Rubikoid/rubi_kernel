@@ -57,7 +57,7 @@ void gdt_init() {
     normal_gdt[GDT_KSTACK_SEGMENT].db = 1;
 
     // user
-    normal_gdt[GDT_UCODE_SEGMENT].base = 0;
+    /* normal_gdt[GDT_UCODE_SEGMENT].base = 0;
     normal_gdt[GDT_UCODE_SEGMENT].limit = 0xFFFFFFFF;
     normal_gdt[GDT_UCODE_SEGMENT].type = 0b1010;
     normal_gdt[GDT_UCODE_SEGMENT].p = 1;
@@ -85,7 +85,7 @@ void gdt_init() {
     normal_gdt[GDT_USTACK_SEGMENT].g = 0;
     normal_gdt[GDT_USTACK_SEGMENT].s = 1;
     normal_gdt[GDT_USTACK_SEGMENT].dpl = 0b11;
-    normal_gdt[GDT_USTACK_SEGMENT].db = 1;
+    normal_gdt[GDT_USTACK_SEGMENT].db = 1; */
 
     gdt_flush();
     gdt_load(&gdt_ptr);
@@ -132,6 +132,7 @@ void encode_gdt_entry(struct GDT_raw_entry_t *target, struct GDT_normal_entry_t 
 }
 
 void idt_init() {
+    disable_int();
     size_t idt_address;
     size_t idt_ptr[2];
 
@@ -143,11 +144,15 @@ void idt_init() {
     idt_fill_entry(INT_GENERAL_PROTECT, (size_t)int_general_protect);
     idt_fill_entry(INT_ALIGNMENT_CHECK, (size_t)int_aligment_check);
     idt_fill_entry(INT_PAGE_FAULT, (size_t)int_page_fault);
+    idt_fill_entry(INT_TIMER, (size_t)int_timer);
+    idt_fill_entry(INT_KEYBOARD, (size_t)int_keyboard);
 
+    // generate addres for idt
     idt_address = (size_t)&idt_table;
     idt_ptr[0] = (sizeof(struct IDT_entry_t) * IDT_ENTRIES_COUNT) + ((idt_address & 0xFFFF) << 16);
     idt_ptr[1] = idt_address >> 16;
     idt_load((unsigned long *)idt_ptr);
+    enable_int();
     DEBUG_ASM;
 }
 

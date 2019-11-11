@@ -86,6 +86,12 @@ unsigned int vsprintf(char *s1, const char *s2, va_list list) {
                         src_i += 2;
                         break;
                     }
+                    case 'c': {
+                        num = va_arg(list, uint32_t);
+                        s1[dst_i] = (uint8_t) num;
+                        dst_i += 1;
+                        src_i += 2;
+                    }
                     default: {
                         src_i += 1;
                         break;

@@ -16,20 +16,23 @@
 //#endif
 
 void kernel_main(struct multiboot_t* multiboot, void* kstack) {
-    init_memory_manager();
+    term_init();
+    term_print("[" G_GREEN "OK" G_WHITE "] Terminal\n");
 
+    init_memory_manager();
+    term_print("[" G_GREEN "OK" G_WHITE "] MemoryManager\n");
+    
     gdt_init();
     idt_init();
+    pic_enable();
+    term_print("[" G_GREEN "OK" G_WHITE "] GDT, IDT, PIC\n");
 
-    term_init();
     multiboot = (struct multiboot_t*)(((size_t)multiboot) + 0xC0000000);  // make virtual ptr to multiboot structure
 
     term_print("[" G_GREEN "OK" G_WHITE "] RubiKernel " KERNEL_VERSION ": Init!\n");
-    printf("Multiboot: 0x%x\n", multiboot);
-    printf("StackStart: 0x%x\n", kstack);
-    printf("Mem_lower: %u\nMem_upper: %u\n", multiboot->mem_lower, multiboot->mem_upper);
-    printf("Last page id: 0x%x \n", last_page_ID);
-    int a = *((int*)0x1337);
+    printf("Multiboot: 0x%x; StackStart: 0x%x; Mem_upper: %u\n", multiboot, kstack, multiboot->mem_upper);
+    printf("Last page id: 0x%x;\n", last_page_ID);
+    while(1) halt();
     // printf("sizeof(unlong)=%u\n", sizeof(unsigned long));
     //abort("ABORT: test\n");
     //term_print_int(last_page_ID, 16);
