@@ -32,32 +32,14 @@ void kernel_main(struct multiboot_t* multiboot, void* kstack) {
 
     term_print("[" G_GREEN "OK" G_WHITE "] RubiKernel " KERNEL_VERSION ": Init!\n");
     printf("Multiboot: 0x%x; StackStart: 0x%x; Mem_upper: %u\n", multiboot, kstack, multiboot->mem_upper);
-    printf("Last page id: 0x%x;\n", last_page_ID);
+    // printf("Last page id: 0x%x;\n", last_page_ID);
     
-    // slist_test();
-    void *x = kmalloc(10);
-    void *y = kmalloc(10);
-    void *z = kmalloc(10);
-    
-    kheap_dump(&kheap_list);
-
-    kfree(x);
-
-    kheap_dump(&kheap_list);
-
-    kfree(y);
-    
-    kheap_dump(&kheap_list);
-
-    kfree(z);
-
-    kheap_dump(&kheap_list);
-
-    x = kmalloc(5);
-    kheap_dump(&kheap_list);
-    y = kmalloc(50);
-    kheap_dump(&kheap_list);
-    
+    mmu_dump();
+    /*printf("[" G_GREEN "OK" G_WHITE "] KHeap pages\n");
+    DEBUG_ASM;
+    init_kheap_pages();
+    DEBUG_ASM;
+    mmu_dump();*/
     while(1) halt();
     // printf("sizeof(unlong)=%u\n", sizeof(unsigned long));
     //abort("ABORT: test\n");

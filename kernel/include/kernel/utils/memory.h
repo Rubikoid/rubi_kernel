@@ -59,17 +59,8 @@ struct kheap_entry_t {
 extern size_t boot_page_directory;
 extern size_t boot_page_table;
 
-extern volatile uint32_t *page_directory_ptr;
-extern volatile uint32_t *page_table_ptr;
-
-extern volatile struct page_directory_entry_t *page_directory;
-extern volatile struct page_table_entry_t *page_table;
-
-// dynamic page alloc data
-extern size_t last_page_ID;
-
-extern uint8_t last_mem_page_id;
-extern struct mem_info_t allocated_pages[128];
+extern volatile struct page_directory_entry_t *kernel_page_directory;
+extern volatile struct page_table_entry_t *kernel_page_table;
 
 // kernel heap data
 extern struct kheap_entry_t kheap_blocks[KHEAP_SIZE];
@@ -77,9 +68,11 @@ extern struct slist_def_t kheap_list;
 
 extern void init_memory_manager();
 
+extern void mmu_dump();
 extern void* alloc_page();
 extern void free_page(void *page_addr_in);
 
+extern void init_kheap_pages();
 extern void* kmalloc(size_t count);
 extern void kfree(void *ptr);
 

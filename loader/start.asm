@@ -34,15 +34,15 @@ section .bss
     boot_page_directory:
     	resd 1024
     boot_page_table:
-        resd (1024) * 1024
+        resd (1024) * 4 * 2;1024
 
 section .boottext
     kernel_start:
-        ; xchg bx, bx ; magic break
+        xchg bx, bx ; magic break
 
-        mov edi, PHYS(boot_page_table)
+        mov edi, PHYS(boot_page_table); + (VIRT_BASE >> (10 + 2)) * 4
         mov eax, 0x003
-        mov ecx, VIRT_BASE >> (10 + 2) ; map addr before kernel as is. 2^10 -> 10 because of 1024 PTE per table, 2^2 -> 2 because of 4 bytes per PTE 
+        mov ecx, (1024) * 4; VIRT_BASE >> (10 + 2) ; map addr before kernel as is. 2^10 -> 10 because of 1024 PTE per table, 2^2 -> 2 because of 4 bytes per PTE 
         
         .fill_lower_half_with_direct_mappings:
             mov [edi], eax
@@ -61,10 +61,21 @@ section .boottext
             dec ecx
             jnz .fill_higher_half_with_mappings
 
-            ; fill_directory_with_table_addrs
+            ; fill_directory_with_table_addrs for lower half
             mov edi, PHYS(boot_page_directory)
             mov edx, PHYS(boot_page_table) + 0x003
-            mov ecx, 1024
+            mov ecx, 4
+        .fill_directory_with_table_addrs_lower_half: 
+            mov [edi], edx
+            add edx, 0x1000
+            add edi, 4
+            dec ecx
+            jnz .fill_directory_with_table_addrs_lower_half
+
+            ; fill_directory_with_table_addrs
+            mov edi, PHYS(boot_page_directory) + (VIRT_BASE >> (22)) * 4
+            mov edx, PHYS(boot_page_table) + 0x003
+            mov ecx, 4
         .fill_directory_with_table_addrs: 
             mov [edi], edx
             add edx, 0x1000
@@ -72,6 +83,8 @@ section .boottext
             dec ecx
             jnz .fill_directory_with_table_addrs
 
+            xchg bx, bx
+        
         .enable_paging:
             mov ecx, PHYS(boot_page_directory)
             mov cr3, ecx
@@ -81,7 +94,7 @@ section .boottext
             mov cr0, ecx
 
         .paging_enabled_jump_naxyi:
-            ; xchg bx, bx ; magic break
+            xchg bx, bx ; magic break
             mov eax, higher_kernel_start
             jmp eax
 
@@ -89,15 +102,25 @@ section .boottext
 global kernel_start
 section .text
     higher_kernel_start: ; kernel
-        mov edi, boot_page_directory
-        mov ecx, (VIRT_BASE) / (4 * 1024 * 1024) ; 3gb by 4mb (get count of first 3gb pages)
+        mov edi, boot_page_directory ; part with lower half mappings
+        mov esi, boot_page_directory + 4 * 4 ; part with higher half mappings
+        mov ecx, 4 ;(VIRT_BASE) / (4 * 1024 * 1024) ; 3gb by 4mb (get count of first 3gb pages)
 
-        .k4:
+        .remap_higher_half: ; remap higher half mapping to lower half mapping (HI/LO HAFL OF DIRECTOR)
+            mov eax, dword [esi]
+            mov [edi], eax
+            add edi, 4
+            dec ecx
+            jnz .remap_higher_half
+
+            mov edi, esi
+            mov ecx, 4
+        .zero_higher_half: ; clear higher half
             mov [edi], dword 0
             add edi, 4
             dec ecx
-            jnz .k4
-        
+            jnz .zero_higher_half
+
         mov esp, stack_top
         xchg bx, bx ; magic break
         push esp
