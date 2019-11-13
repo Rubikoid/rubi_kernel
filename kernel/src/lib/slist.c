@@ -193,7 +193,7 @@ void slist_delete(struct slist_def_t *list, struct slist_head_t *pos) {
 
 void slist_dump(struct slist_def_t *list) {
     printf("-- slist dump\n");
-    for(struct slist_head_t *elem = list->head; elem != NULL; elem = elem->next) {
+    for (struct slist_head_t *elem = list->head; elem != NULL; elem = elem->next) {
         printf("    t=%x p=%x n=%x\n", elem, elem->prev, elem->next);
     }
 }

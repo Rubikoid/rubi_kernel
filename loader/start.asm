@@ -53,7 +53,7 @@ section .boottext
         
             ; fill_higher_half_with_mappings
             mov eax, 0x003
-            mov ecx, (1024 * 4) ; map first 16 mb ; one page is 4kb; one table is 4mb
+            mov ecx, (1024) * 4 ;  one page is 4kb; one table is 4mb
         .fill_higher_half_with_mappings:
             mov [edi], eax
             add eax, 0x1000

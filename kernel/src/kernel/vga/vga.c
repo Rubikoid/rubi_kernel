@@ -1,10 +1,9 @@
 #include <types.h>
 
 #include <kernel/asm_lib.h>
-#include <kernel/utils/memory.h>
+#include <kernel/serial/serial.h>
 #include <kernel/utils/utils.h>
 #include <kernel/vga/vga.h>
-#include <kernel/serial/serial.h>
 #include <lib/string.h>
 
 volatile uint16_t *vga_buffer = (uint16_t *)(0xC0000000 + 0xB8000);
@@ -20,11 +19,11 @@ void term_init() {
     vga_state.term_color = V_BLACK << 4 | V_WHITE;
     vga_state.screen = 0;
     vga_state.term_buffer = (uint16_t *)term_buffers + (VGA_SIZE * vga_state.screen);
-    
+
     //disable cursor
     outb(0x3D4, 0x0A);
     outb(0x3D5, 0x20);
-    
+
     term_clear();
 }
 
@@ -100,8 +99,8 @@ void term_print(const char *str) {
             }
             default: {
                 write_com(0, str[i]);
-                if(str[i] == '\n')
-                    write_com(0, '\r'); // we ignore \r character, but seems like serial need to have it
+                if (str[i] == '\n')
+                    write_com(0, '\r');  // we ignore \r character, but seems like serial need to have it
                 term_putc(str[i], 0);
                 break;
             }

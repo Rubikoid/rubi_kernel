@@ -36,9 +36,9 @@ void cint_timer(PUSHAD_C) {
 
 void cint_keyboard(PUSHAD_C) {
     uint8_t status = inb(KB_CMD_PORT);
-    if(status & 0x1) {
+    if (status & 0x1) {
         uint8_t keycode = inb(KB_PORT);
-        if(keycode >= 1) {
+        if (keycode >= 1) {
             // printf("Keyboard interrupt: %u 0x%x\n", keycode, keycode);
         }
     }

@@ -31,7 +31,7 @@ void kpanic(char *message, ...) {
     va_list va;
     va_start(va, message);
 
-    vga_state.term_buffer = (uint16_t *)(0xC0000000 + 0xB8000); 
+    vga_state.term_buffer = (uint16_t *)(0xC0000000 + 0xB8000);
     vga_state.term_col = 0;
     vga_state.term_row = 0;
     vga_state.term_color = V_BLACK << 4 | V_WHITE;
