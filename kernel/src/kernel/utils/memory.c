@@ -85,7 +85,7 @@ void *kmalloc(size_t size) {
             // just forget diff
             if(current_sl->next == NULL) {
                 size_t kheap_alloc_addr = current_entry->addr + current_entry->size;
-                if(kheap_alloc_addr + size_diff >= kheap_start_addr + kheap_size) {
+                if(kheap_alloc_addr + size_diff < kheap_start_addr + kheap_size) {
                     current_entry->size += size_diff;
                     current_entry->is_busy = 1;
                     return (void *) current_entry->addr;
