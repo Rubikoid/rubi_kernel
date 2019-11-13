@@ -1,5 +1,6 @@
 #include <types.h>
 #include <kernel/defines.h>
+#include <lib/slist.h>
 
 #ifndef KERNEL_UTILS_MEMORY_H_
 #define KERNEL_UTILS_MEMORY_H_
@@ -10,6 +11,8 @@
 #define DIRECTORY_BIT_FIELD     (0b11111111110000000000000000000000)
 #define TABLE_BIT_FIELD         (0b00000000001111111111000000000000)
 #define PDTE_BIT_FIELD          (DIRECTORY_BIT_FIELD | TABLE_BIT_FIELD)
+
+#define KHEAP_SIZE 1024
 
 struct __attribute__((__packed__)) page_directory_entry_t {
     uint8_t present : 1;
@@ -45,16 +48,32 @@ struct mem_info_t {
     void *pointer;
 };
 
+struct kheap_entry_t {
+	struct slist_head_t head;
+	size_t addr;
+	size_t size;
+	uint8_t is_busy;
+};
+
+// padding data
 extern size_t boot_page_directory;
 extern size_t boot_page_table;
 
 extern volatile uint32_t *page_directory_ptr;
 extern volatile uint32_t *page_table_ptr;
 
+extern volatile struct page_directory_entry_t *page_directory;
+extern volatile struct page_table_entry_t *page_table;
+
+// dynamic page alloc data
 extern size_t last_page_ID;
 
 extern uint8_t last_mem_page_id;
 extern struct mem_info_t allocated_pages[128];
+
+// kernel heap data
+extern struct kheap_entry_t kheap_blocks[KHEAP_SIZE];
+extern struct slist_def_t kheap_list;
 
 extern void init_memory_manager();
 
@@ -64,4 +83,5 @@ extern void free_page(void *page_addr_in);
 extern void* kmalloc(size_t count);
 extern void kfree(void *ptr);
 
+extern void kheap_dump(struct slist_def_t *list);
 #endif

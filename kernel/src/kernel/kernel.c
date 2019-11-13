@@ -34,7 +34,29 @@ void kernel_main(struct multiboot_t* multiboot, void* kstack) {
     printf("Multiboot: 0x%x; StackStart: 0x%x; Mem_upper: %u\n", multiboot, kstack, multiboot->mem_upper);
     printf("Last page id: 0x%x;\n", last_page_ID);
     
-    slist_test();
+    // slist_test();
+    void *x = kmalloc(10);
+    void *y = kmalloc(10);
+    void *z = kmalloc(10);
+    
+    kheap_dump(&kheap_list);
+
+    kfree(x);
+
+    kheap_dump(&kheap_list);
+
+    kfree(y);
+    
+    kheap_dump(&kheap_list);
+
+    kfree(z);
+
+    kheap_dump(&kheap_list);
+
+    x = kmalloc(5);
+    kheap_dump(&kheap_list);
+    y = kmalloc(50);
+    kheap_dump(&kheap_list);
     
     while(1) halt();
     // printf("sizeof(unlong)=%u\n", sizeof(unsigned long));
