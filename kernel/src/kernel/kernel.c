@@ -7,6 +7,7 @@
 #include <kernel/utils/memory.h>
 #include <kernel/utils/utils.h>
 #include <kernel/vga/vga.h>
+#include <kernel/serial/serial.h>
 #include <lib/stdio.h>
 #include <lib/slist.h>
 
@@ -17,8 +18,9 @@
 //#endif
 
 void kernel_main(struct multiboot_t* multiboot, void* kstack) {
+    init_com(0);
     term_init();
-    term_print("[" G_GREEN "OK" G_WHITE "] Terminal\n");
+    term_print("[" G_GREEN "OK" G_WHITE "] Serial and terminal\n");
 
     init_memory_manager();
     term_print("[" G_GREEN "OK" G_WHITE "] MemoryManager\n");
@@ -32,7 +34,6 @@ void kernel_main(struct multiboot_t* multiboot, void* kstack) {
 
     term_print("[" G_GREEN "OK" G_WHITE "] RubiKernel " KERNEL_VERSION ": Init!\n");
     printf("Multiboot: 0x%x; StackStart: 0x%x; Mem_upper: %u\n", multiboot, kstack, multiboot->mem_upper);
-    // printf("Last page id: 0x%x;\n", last_page_ID);
     
     mmu_dump();
     /*printf("[" G_GREEN "OK" G_WHITE "] KHeap pages\n");

@@ -120,6 +120,7 @@ section .text
             add edi, 4
             dec ecx
             jnz .zero_higher_half
+            
 
         mov esp, stack_top
         xchg bx, bx ; magic break

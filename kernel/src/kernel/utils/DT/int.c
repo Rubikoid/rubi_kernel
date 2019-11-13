@@ -31,40 +31,40 @@ void cint_page_fault(size_t addr, PUSHAD_C, uint32_t error_code, uint32_t in_eip
 
 // just handle the tmier and do't do anything
 void cint_timer(PUSHAD_C) {
-    out_byte(PIC1_CMD_PORT, PIC_EOI);
+    outb(PIC1_CMD_PORT, PIC_EOI);
 }
 
 void cint_keyboard(PUSHAD_C) {
-    uint8_t status = in_byte(KB_CMD_PORT);
+    uint8_t status = inb(KB_CMD_PORT);
     if(status & 0x1) {
-        uint8_t keycode = in_byte(KB_PORT);
+        uint8_t keycode = inb(KB_PORT);
         if(keycode >= 1) {
             // printf("Keyboard interrupt: %u 0x%x\n", keycode, keycode);
         }
     }
-    out_byte(PIC1_CMD_PORT, PIC_EOI);
+    outb(PIC1_CMD_PORT, PIC_EOI);
 }
 
 void pic_init() {
-    out_byte(PIC1_CMD_PORT, ICW1_INIT | ICW1_ICW4); /* init PIC1 */
-    out_byte(PIC2_CMD_PORT, ICW1_INIT | ICW1_ICW4); /* init PIC2 */
+    outb(PIC1_CMD_PORT, ICW1_INIT | ICW1_ICW4); /* init PIC1 */
+    outb(PIC2_CMD_PORT, ICW1_INIT | ICW1_ICW4); /* init PIC2 */
 
-    out_byte(PIC1_DATA_PORT, PIC1_INT_OFFSET); /* IQW2 offset */
-    out_byte(PIC2_DATA_PORT, PIC2_INT_OFFSET); /* IQW2 offset */
+    outb(PIC1_DATA_PORT, PIC1_INT_OFFSET); /* IQW2 offset */
+    outb(PIC2_DATA_PORT, PIC2_INT_OFFSET); /* IQW2 offset */
 
-    out_byte(PIC1_DATA_PORT, 0x00); /* IQW3 no cascade */
-    out_byte(PIC2_DATA_PORT, 0x00); /* IQW3 no cascade */
+    outb(PIC1_DATA_PORT, 0x00); /* IQW3 no cascade */
+    outb(PIC2_DATA_PORT, 0x00); /* IQW3 no cascade */
 
-    out_byte(PIC1_DATA_PORT, 0x01); /* IQW4 no cascade */
-    out_byte(PIC2_DATA_PORT, 0x01); /* IQW4 no cascade */
+    outb(PIC1_DATA_PORT, 0x01); /* IQW4 no cascade */
+    outb(PIC2_DATA_PORT, 0x01); /* IQW4 no cascade */
 
-    out_byte(PIC1_DATA_PORT, 0xff); /* disable irq PIC1 */
-    out_byte(PIC2_DATA_PORT, 0xff); /* disable irq PIC2 */
+    outb(PIC1_DATA_PORT, 0xff); /* disable irq PIC1 */
+    outb(PIC2_DATA_PORT, 0xff); /* disable irq PIC2 */
 }
 
 void pic_enable() {
-    out_byte(PIC1_DATA_PORT, 0xFC); /* Enable IRQ0, IRQ1 */
+    outb(PIC1_DATA_PORT, 0xFC); /* Enable IRQ0, IRQ1 */
 
     // io_wait();
-    // uint8_t x1 = in_byte(KB_PORT);
+    // uint8_t x1 = inb(KB_PORT);
 }

@@ -76,5 +76,8 @@ extern void init_kheap_pages();
 extern void* kmalloc(size_t count);
 extern void kfree(void *ptr);
 
+extern void* kmalloc_a(size_t count, uint32_t align);
+extern void kfree_a(void *ptr);
+
 extern void kheap_dump(struct slist_def_t *list);
 #endif

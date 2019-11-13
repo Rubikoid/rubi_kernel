@@ -1,6 +1,6 @@
 bits 32
 
-global reload_kernel_segments, disable_int, enable_int, out_byte, in_byte, gdt_load, idt_load, halt
+global reload_kernel_segments, disable_int, enable_int, outb, inb, gdt_load, idt_load, halt
 section .text
 ;push    ebp
     ;mov     ebp, esp
@@ -67,8 +67,8 @@ section .text
         hlt
         ret
 
-    ;void out_byte(u16 port, u8 value);    
-    out_byte:
+    ;void outb(u16 port, u8 value);    
+    outb:
             mov     edx, [esp + 4]      ; port
             mov     al, [esp + 4 + 4]   ; value
             out     dx, al
@@ -76,8 +76,8 @@ section .text
             nop
             ret
 
-    ;u8 in_byte(u16 port);
-    in_byte:
+    ;u8 inb(u16 port);
+    inb:
             mov     edx, [esp + 4]      ; port
             xor     eax, eax
             in      al, dx

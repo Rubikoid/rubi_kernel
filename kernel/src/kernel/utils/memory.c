@@ -25,12 +25,14 @@ void init_memory_manager() {
 
     kernel_page_directory = (struct page_directory_entry_t *) &boot_page_directory;
     kernel_page_table = (struct page_table_entry_t *) &boot_page_table;
+    printf("KPD: %x; KPT: %x\n", &kernel_page_directory[0], &kernel_page_table[0]);
+    printf("KPD: %x; KPT: %x\n", &boot_page_directory, &boot_page_table);
 }
 
 void mmu_dump() {
     volatile struct page_directory_entry_t *cur_dir = NULL;
     volatile struct page_table_entry_t *cur_table = NULL;
-    for(int i=767; i<775;i++) {
+    for(int i=0; i < 8; i++) {
         cur_dir = &kernel_page_directory[i];
         if(1 || cur_dir->present) {
             cur_table = (volatile struct page_table_entry_t *) VIRT(cur_dir->page_table_addr << 12);
@@ -197,6 +199,21 @@ void kfree(void *ptr) {
             return;
         }
     }
+}
+
+void* kmalloc_a(size_t count, uint32_t align) {
+    void *p = kmalloc(count + align + sizeof(size_t) - 1);
+    if(p == NULL)
+        return NULL;
+    void *ptr = (void *)( (((size_t)p + sizeof(void*) + align -1) & ~(align-1)) );
+    *((void**)((size_t)ptr - sizeof(void*))) = p;
+    return ptr;
+}
+
+void kfree_a(void *ptr) {
+    void *p = *((void**)((size_t)ptr - sizeof(void*)));
+    kfree(p);
+    return;
 }
 
 void kheap_dump(struct slist_def_t *list) {
