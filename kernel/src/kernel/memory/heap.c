@@ -12,15 +12,15 @@ struct slist_def_t kheap_list = {
     .head = NULL,
     .tail = NULL};
 
-size_t kheap_start_addr;
-size_t kheap_size = 2 * 4096;  // 2 * 4kb (at least one page)
+size_t kheap_start_addr = VIRT(TABLE_SIZE * KERNEL_LOWER_TABLES);
+size_t kheap_size = 2 * TABLE_SIZE;  // 2 * 4mb (at least one page)
 
 void init_kheap_pages() {
     // alloc pages for kheap
-    kheap_start_addr = (size_t)alloc_page();             // alloc at least one page for kernel heap;
+    /*kheap_start_addr = (size_t)alloc_page();             // alloc at least one page for kernel heap;
     for (int i = 0; i < (kheap_size / 4096) - 1; i++) {  // alloc other pages for kheap, -1 because we allocated one yet
         alloc_page();
-    }
+    }*/
 }
 
 void *kmalloc(size_t size) {

@@ -1,3 +1,4 @@
+#include <kernel/memory/heap.h>
 #include <kernel/memory/mmu.h>
 #include <lib/slist.h>
 #include <lib/stdio.h>
@@ -17,6 +18,8 @@ volatile struct page_table_entry_t *kernel_page_table;
 |          PHYS          |         LINEAR         | SIZE |                      PURPOSE                       |
 +------------------------+------------------------+------+----------------------------------------------------+
 | 0x02000000->0x03FFFFFF | 0x02000000->0x03FFFFFF | 32MB | user applications                                  |
+| 0x04000000->0x05FFFFFF | 0x02000000->0x03FFFFFF | 32MB | user applications                                  |
+| 0x06000000->0x07FFFFFF | 0x02000000->0x03FFFFFF | 32MB | user applications                                  |
 +------------------------+------------------------+------+----------------------------------------------------+
     one page is 4kb
     one table is 4mb
@@ -29,8 +32,8 @@ void init_memory_manager() {
     kernel_page_directory = (struct page_directory_entry_t *)&boot_page_directory;
     kernel_page_table = (struct page_table_entry_t *)&boot_page_table;
 
-    int k = 4;
-    for (int i = 4 + (VIRT_BASE >> 22); i < 8 + (VIRT_BASE >> 22); i++, k++) {
+    int k = KERNEL_LOWER_TABLES;
+    for (int i = KERNEL_LOWER_TABLES + (VIRT_BASE >> 22); i < KERNEL_LOWER_TABLES + KERNEL_HIGHER_TABLES + (VIRT_BASE >> 22); i++, k++) {
         memset((void *)&kernel_page_directory[i], 0, sizeof(struct page_directory_entry_t));
 
         kernel_page_directory[i].present = 1;
@@ -42,7 +45,7 @@ void init_memory_manager() {
 
             kernel_page_table[1024 * k + j].present = 1;
             kernel_page_table[1024 * k + j].read_write = 1;
-            kernel_page_table[1024 * k + j].page_phys_addr = ((4 * 1024 * 1024) * (k) + j * 4096) >> 12;  // 0x01000000 is 16 MB
+            kernel_page_table[1024 * k + j].page_phys_addr = (k * TABLE_SIZE + j * PAGE_SIZE) >> 12;
         }
     }
 }
@@ -51,7 +54,7 @@ void mmu_dump() {
     volatile struct page_directory_entry_t *cur_dir = NULL;
     volatile struct page_table_entry_t *cur_table = NULL;
     int k = 0;
-    for (int i = (VIRT_BASE >> 22); i < 8 + (VIRT_BASE >> 22); i++, k++) {
+    for (int i = (VIRT_BASE >> 22); i < KERNEL_LOWER_TABLES + KERNEL_HIGHER_TABLES + (VIRT_BASE >> 22); i++, k++) {
         cur_dir = &kernel_page_directory[i];
         if (1 || cur_dir->present) {
             cur_table = (volatile struct page_table_entry_t *)VIRT(cur_dir->page_table_addr << 12);
@@ -94,7 +97,7 @@ void free_page(void *page_addr_in) {
 
     ((uint32_t *)(VIRT_BASE + (PDE & PDTE_BIT_FIELD)))[PTE_index] = 0;
 
-    if (last_page_ID - page_addr == PAGE_SIZE)  // TODO: make normal memory controller, not that stillborn
+    if (last_page_ID - page_addr == PAGE_SIZE) 
         last_page_ID -= PAGE_SIZE; */
     return;
 }

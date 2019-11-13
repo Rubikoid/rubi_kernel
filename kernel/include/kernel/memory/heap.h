@@ -5,7 +5,7 @@
 #ifndef KERNEL_MEMORY_HEAP_H_
 #define KERNEL_MEMORY_HEAP_H_
 
-#define KHEAP_SIZE 1024
+#define KHEAP_SIZE 2048
 
 struct kheap_entry_t {
     struct slist_head_t head;

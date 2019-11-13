@@ -12,6 +12,9 @@
 #define TABLE_BIT_FIELD (0b00000000001111111111000000000000)
 #define PDTE_BIT_FIELD (DIRECTORY_BIT_FIELD | TABLE_BIT_FIELD)
 
+#define KERNEL_LOWER_TABLES 4
+#define KERNEL_HIGHER_TABLES 4
+
 struct __attribute__((__packed__)) page_directory_entry_t {
     uint8_t present : 1;
     uint8_t read_write : 1;
