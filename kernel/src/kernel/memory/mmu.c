@@ -74,30 +74,21 @@ void mmu_dump() {
     }
 }
 
-void *alloc_page() {
-    /* uint32_t PDE_index = (last_page_ID) >> 22;
-    uint32_t PTE_index = ((last_page_ID & TABLE_BIT_FIELD) >> 12);
-    uint32_t PDE = page_directory_ptr[PDE_index];
-    printf("Allocating new page with PDEi: %u PTEi: %x PDE: %x\n", PDE_index, PTE_index, PDE);
-    page_directory_ptr[PDE_index] |= 0x003;
-    ((uint32_t *)(VIRT_BASE + (PDE & PDTE_BIT_FIELD)))[PTE_index] = ((last_page_ID - VIRT_BASE) & PDTE_BIT_FIELD) + 0x003;
-    last_page_ID += PAGE_SIZE;
-
-    return (void *)(last_page_ID - PAGE_SIZE); */
-    return 0;
+struct page_directory_entry_t *create_page_directory() {
+    struct page_directory_entry_t *dir;
+    dir = kmalloc_a(sizeof(struct page_directory_entry_t) * 1024, 4096);
+    memcpy((void *)dir, (void *)kernel_page_directory, sizeof(struct page_directory_entry_t) * 1024);
+    return dir;
 }
 
-void free_page(void *page_addr_in) {
-    if (page_addr_in == NULL)
-        return;
-    /*size_t page_addr = (size_t)page_addr_in;
-    uint32_t PDE_index = (page_addr) >> 22;
-    uint32_t PTE_index = ((page_addr & TABLE_BIT_FIELD) >> 12);
-    uint32_t PDE = page_directory_ptr[PDE_index];
+struct page_table_entry_t *create_page_table(size_t count) {
+    if (count > 1024) return NULL;
+    struct page_table_entry_t *table;
+    table = kmalloc_a(sizeof(struct page_table_entry_t) * count, 4096);
+    memset((void *)table, 0, sizeof(struct page_table_entry_t) * count);
+    return table;
+}
 
-    ((uint32_t *)(VIRT_BASE + (PDE & PDTE_BIT_FIELD)))[PTE_index] = 0;
-
-    if (last_page_ID - page_addr == PAGE_SIZE) 
-        last_page_ID -= PAGE_SIZE; */
-    return;
+void free_page_directory(struct page_directory_entry_t *pd) {
+    kfree_a(pd);
 }

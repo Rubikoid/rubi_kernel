@@ -11,7 +11,6 @@
 #define DIRECTORY_BIT_FIELD (0b11111111110000000000000000000000)
 #define TABLE_BIT_FIELD (0b00000000001111111111000000000000)
 #define PDTE_BIT_FIELD (DIRECTORY_BIT_FIELD | TABLE_BIT_FIELD)
-
 #define KERNEL_LOWER_TABLES 4
 #define KERNEL_HIGHER_TABLES 4
 
@@ -51,8 +50,10 @@ extern volatile struct page_directory_entry_t *kernel_page_directory;
 extern volatile struct page_table_entry_t *kernel_page_table;
 
 extern void init_memory_manager();
-
 extern void mmu_dump();
-extern void *alloc_page();
-extern void free_page(void *page_addr_in);
+
+extern struct page_directory_entry_t *create_page_directory();
+extern struct page_table_entry_t *create_page_table(size_t count);
+
+extern void free_page_directory(struct page_directory_entry_t *pd);
 #endif

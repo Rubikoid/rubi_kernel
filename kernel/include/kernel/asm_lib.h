@@ -3,12 +3,12 @@
 #ifndef KERNEL_ASMLIB_H_
 #define KERNEL_ASMLIB_H_
 
-struct mod_addr_t {
+struct __attribute__((__packed__)) mod_addr_t {
     uint32_t start;
     uint32_t end;
-} __attribute__((packed));
+};
 
-struct multiboot_t {
+struct __attribute__((__packed__)) multiboot_t {
     uint32_t flags;
     uint32_t mem_lower;
     uint32_t mem_upper;
@@ -33,7 +33,7 @@ struct multiboot_t {
     uint32_t vbe_interface_seg;
     uint32_t vbe_interface_off;
     uint32_t vbe_interface_len;
-} __attribute__((packed));
+};
 
 extern void disable_int();
 extern void enable_int();

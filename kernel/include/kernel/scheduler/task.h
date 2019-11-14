@@ -1,4 +1,5 @@
 #include <kernel/defines.h>
+#include <kernel/memory/mmu.h>
 #include <lib/slist.h>
 #include <types.h>
 
@@ -53,10 +54,10 @@ struct __attribute__((__packed__)) flags_t {
 };
 
 struct task_mem_t {
-    void* pages;          /* task physical pages */
-    uint32_t pages_count; /* task physical pages count */
-    void* page_dir;       /* page directory */
-    void* page_table;     /* page table */
+    void* pages;                             /* task physical pages */
+    uint32_t pages_count;                    /* task physical pages count */
+    struct page_directory_entry_t* page_dir; /* page directory */
+    struct page_table_entry_t* page_table;   /* page table */
 };
 
 struct __attribute__((__packed__)) task_t {
