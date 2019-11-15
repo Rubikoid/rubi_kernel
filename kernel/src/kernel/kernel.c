@@ -18,10 +18,10 @@
 //	#error "This code must be compiled with an x86-elf compiler"
 //#endif
 
-typedef struct page_directory_entry_t * pdep_t;
-typedef struct page_table_entry_t * ptep_t;
+typedef struct page_directory_entry_t *pdep_t;
+typedef struct page_table_entry_t *ptep_t;
 
-void kernel_main(struct multiboot_t* multiboot, void* kstack) {
+void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     init_com(0);
     term_init();
     term_print("[" G_GREEN "OK" G_WHITE "] Serial and terminal\n");
@@ -34,20 +34,22 @@ void kernel_main(struct multiboot_t* multiboot, void* kstack) {
     pic_enable();
     term_print("[" G_GREEN "OK" G_WHITE "] GDT, IDT, PIC\n");
 
-    multiboot = (struct multiboot_t*)(((size_t)multiboot) + 0xC0000000);  // make virtual ptr to multiboot structure
+    multiboot = (struct multiboot_t *)(((size_t)multiboot) + 0xC0000000);  // make virtual ptr to multiboot structure
 
     term_print("[" G_GREEN "OK" G_WHITE "] RubiKernel " KERNEL_VERSION ": Init!\n");
     printf("Multiboot: 0x%x; StackStart: 0x%x; Mem_upper: %u\n", multiboot, kstack, multiboot->mem_upper);
 
+    mmu_dump();
+
+/*
     pdep_t pde = create_page_directory();
     ptep_t pte = create_page_table(2);
-    bind_page_table(pde, pte, 0x0, (void *)PHYS_TASKS_SPACE_START);
-
+    bind_addr(pde, pte, 0x0, (void *)PHYS_TASKS_SPACE_START);
+    bind_addr(pde, pte, (void *)(0x0 + 0x1000), (void *)PHYS_TASKS_SPACE_START + 0x1000);
     enable_paging((void *)PHYS((size_t)pde));
-    
-    mmu_dump();
+*/
     // kheap_dump(&kheap_list);
-    
+
     while (1) halt();
     // printf("sizeof(unlong)=%u\n", sizeof(unsigned long));
     //abort("ABORT: test\n");
