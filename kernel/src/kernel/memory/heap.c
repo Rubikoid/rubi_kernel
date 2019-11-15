@@ -87,12 +87,12 @@ void *kmalloc(size_t size) {
 
     // so if we here. we have no free blocks in list, so add new to the end
     size_t kheap_alloc_addr = kheap_start_addr;
-    if (kheap_list.tail) {
+    if (kheap_list.tail != NULL) {
         current_entry = (struct kheap_entry_t *)kheap_list.tail->data;
-        kheap_alloc_addr += current_entry->addr + current_entry->size;
+        kheap_alloc_addr = current_entry->addr + current_entry->size;
     }
     if (kheap_alloc_addr >= kheap_start_addr + kheap_size) {
-        return 0;
+        return NULL;
     }
 
     current_sl = slist_insert_after(&kheap_list, kheap_list.tail);
@@ -100,7 +100,6 @@ void *kmalloc(size_t size) {
     current_entry->is_busy = 1;
     current_entry->addr = kheap_alloc_addr;
     current_entry->size = size;
-
     return (void *)current_entry->addr;
 }
 
@@ -135,16 +134,17 @@ void kfree(void *ptr) {
 }
 
 void *kmalloc_a(size_t count, uint32_t align) {
-    void *p = kmalloc(count + align + sizeof(size_t) - 1);
+    void *p = kmalloc(count + align + sizeof(size_t));
     if (p == NULL)
         return NULL;
-    void *ptr = (void *)((((size_t)p + sizeof(void *) + align - 1) & ~(align - 1)));
-    *((void **)((size_t)ptr - sizeof(void *))) = p;
+    size_t addr=(size_t)p+align+sizeof(size_t);
+    void *ptr = (void *)(addr - (addr%align));
+    *((size_t *)ptr-1)=(size_t)p;
     return ptr;
 }
 
 void kfree_a(void *ptr) {
-    void *p = *((void **)((size_t)ptr - sizeof(void *)));
+    void *p = (void *)(*((size_t *) ptr-1));
     kfree(p);
     return;
 }

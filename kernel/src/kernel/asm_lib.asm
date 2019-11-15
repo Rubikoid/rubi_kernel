@@ -1,6 +1,6 @@
 bits 32
 
-global reload_kernel_segments, disable_int, enable_int, outb, inb, gdt_load, idt_load, halt
+global enable_paging, get_cr3, reload_kernel_segments, disable_int, enable_int, outb, inb, gdt_load, idt_load, halt
 section .text
 ;push    ebp
     ;mov     ebp, esp
@@ -9,30 +9,44 @@ section .text
     ;pop     ebp
     ;ret
 
+    ;void enable_paging(void *page_directory)
+    enable_paging:
+        mov eax, [esp + 4]
+        mov cr3, eax
+        mov eax, cr0
+        or eax, 0x80000001
+        mov cr0, eax
+        ret
+
+    ;void *get_cr3(void)
+    get_cr3:
+        mov eax, cr3
+        ret
+
     ;reload_kernel_segments(void); Load kernel segments data
     reload_kernel_segments:
-    jmp   0x08:.reload_segment
-    .reload_segment:
-        mov ax, 0x10
-        mov ds, ax
-        mov es, ax
-        mov fs, ax
-        mov gs, ax
-        mov ss, ax
-        ret
+        jmp   0x08:.reload_segment
+        .reload_segment:
+            mov ax, 0x10
+            mov ds, ax
+            mov es, ax
+            mov fs, ax
+            mov gs, ax
+            mov ss, ax
+            ret
 
     reload_user_segments:
-    jmp   0x08:.reload_segment
-    .reload_segment:
-        mov ax, 0x10
-        mov ds, ax
-        mov es, ax
-        mov fs, ax
-        mov gs, ax
-        mov ss, ax
-        ret
+        jmp   0x08:.reload_segment
+        .reload_segment:
+            mov ax, 0x10
+            mov ds, ax
+            mov es, ax
+            mov fs, ax
+            mov gs, ax
+            mov ss, ax
+            ret
 
-    ;gdt_load(void *gdt_ptr); Load gdt
+    ;void gdt_load(void *gdt_ptr); Load gdt
     gdt_load:
         mov eax, [esp+4]
         lgdt [eax]
@@ -46,7 +60,7 @@ section .text
         mov ss, ax
         ret
 
-    ;idt_load(unsigned long *addr); Load gdt
+    ;void idt_load(unsigned long *addr); Load gdt
     idt_load:
         mov eax, [esp+4]
         lidt [eax]

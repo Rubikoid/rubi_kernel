@@ -11,8 +11,13 @@
 #define DIRECTORY_BIT_FIELD (0b11111111110000000000000000000000)
 #define TABLE_BIT_FIELD (0b00000000001111111111000000000000)
 #define PDTE_BIT_FIELD (DIRECTORY_BIT_FIELD | TABLE_BIT_FIELD)
+
 #define KERNEL_LOWER_TABLES 4
 #define KERNEL_HIGHER_TABLES 4
+
+#define KERNEL_PAGES_END    (VIRT_BASE + (KERNEL_HIGHER_TABLES + KERNEL_HIGHER_TABLES) * TABLE_SIZE)
+
+#define PHYS_TASKS_SPACE_START   ((KERNEL_HIGHER_TABLES + KERNEL_HIGHER_TABLES) * TABLE_SIZE)
 
 struct __attribute__((__packed__)) page_directory_entry_t {
     uint8_t present : 1;
@@ -55,5 +60,9 @@ extern void mmu_dump();
 extern struct page_directory_entry_t *create_page_directory();
 extern struct page_table_entry_t *create_page_table(size_t count);
 
+extern void bind_page_table(struct page_directory_entry_t *pd, struct page_table_entry_t *pt, void* liner_addr, void* phys_addr);
+extern void unbind_page_table(struct page_directory_entry_t *pd, struct page_table_entry_t *pt, void* liner_addr);
+
+extern void free_page_table(struct page_table_entry_t *pt);
 extern void free_page_directory(struct page_directory_entry_t *pd);
 #endif

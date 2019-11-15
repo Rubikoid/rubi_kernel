@@ -153,7 +153,7 @@ void idt_init() {
     idt_ptr[1] = idt_address >> 16;
     idt_load((unsigned long *)idt_ptr);
     enable_int();
-    DEBUG_ASM;
+    // DEBUG_ASM;
 }
 
 void idt_fill_entry(uint8_t offset, size_t handler) {

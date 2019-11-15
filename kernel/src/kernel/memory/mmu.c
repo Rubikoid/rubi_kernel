@@ -1,5 +1,6 @@
 #include <kernel/memory/heap.h>
 #include <kernel/memory/mmu.h>
+#include <kernel/asm_lib.h>
 #include <lib/slist.h>
 #include <lib/stdio.h>
 #include <lib/string.h>
@@ -17,9 +18,9 @@ volatile struct page_table_entry_t *kernel_page_table;
 +------------------------+------------------------+------+----------------------------------------------------+
 |          PHYS          |         LINEAR         | SIZE |                      PURPOSE                       |
 +------------------------+------------------------+------+----------------------------------------------------+
-| 0x02000000->0x03FFFFFF | 0x02000000->0x03FFFFFF | 32MB | user applications                                  |
-| 0x04000000->0x05FFFFFF | 0x02000000->0x03FFFFFF | 32MB | user applications                                  |
-| 0x06000000->0x07FFFFFF | 0x02000000->0x03FFFFFF | 32MB | user applications                                  |
+| 0x02000000->0x03FFFFFF | 0x00000000->0x01FFFFFF | 32MB | user applications                                  |
+| 0x04000000->0x05FFFFFF | 0x00000000->0x01FFFFFF | 32MB | user applications                                  |
+| 0x06000000->0x07FFFFFF | 0x00000000->0x01FFFFFF | 32MB | user applications                                  |
 +------------------------+------------------------+------+----------------------------------------------------+
     one page is 4kb
     one table is 4mb
@@ -51,11 +52,13 @@ void init_memory_manager() {
 }
 
 void mmu_dump() {
+    volatile struct page_directory_entry_t *pd = VIRT(get_cr3());
+
     volatile struct page_directory_entry_t *cur_dir = NULL;
     volatile struct page_table_entry_t *cur_table = NULL;
     int k = 0;
     for (int i = (VIRT_BASE >> 22); i < KERNEL_LOWER_TABLES + KERNEL_HIGHER_TABLES + (VIRT_BASE >> 22); i++, k++) {
-        cur_dir = &kernel_page_directory[i];
+        cur_dir = &pd[i];
         if (1 || cur_dir->present) {
             cur_table = (volatile struct page_table_entry_t *)VIRT(cur_dir->page_table_addr << 12);
             printf("[%u] Addr: %x [%x->%x->%x] s:%x rw:%x p:%x\n",
@@ -67,6 +70,25 @@ void mmu_dump() {
                    (i << 22) + (cur_table[1].page_phys_addr << 10),
                    // (i << 22) + (cur_table[2].page_phys_addr << 10),
                    (i << 22) + (cur_table[1023].page_phys_addr << 10),
+                   cur_dir->user_supervisor,
+                   cur_dir->read_write,
+                   cur_dir->present);
+        }
+    }
+
+    for (int i = 0, k = 0; i < 4; i++, k++) {
+        cur_dir = &pd[i];
+        if (1 || cur_dir->present) {
+            cur_table = (volatile struct page_table_entry_t *)VIRT(cur_dir->page_table_addr << 12);
+            printf("[%u] Addr: %x [%x->%x->%x] s:%x rw:%x p:%x\n",
+                   i,
+                   cur_dir->page_table_addr,
+                   // VIRT(cur_dir->page_table_addr << 12),
+                   // &kernel_page_table[1024 * k],
+                   (i << 22) + (cur_dir->present ? cur_table[0].page_phys_addr << 10 : 0),
+                   (i << 22) + (cur_dir->present ? cur_table[1].page_phys_addr << 10 : 0),
+                   // (i << 22) + (cur_table[2].page_phys_addr << 10),
+                   (i << 22) + (cur_dir->present ? cur_table[1023].page_phys_addr << 10 : 0),
                    cur_dir->user_supervisor,
                    cur_dir->read_write,
                    cur_dir->present);
@@ -89,6 +111,36 @@ struct page_table_entry_t *create_page_table(size_t count) {
     return table;
 }
 
+void bind_page_table(struct page_directory_entry_t *pd, struct page_table_entry_t *pt, void* liner_addr, void* phys_addr) {
+    if(((size_t)liner_addr > VIRT_BASE && (size_t)liner_addr < KERNEL_PAGES_END) || (size_t)phys_addr < PHYS(KERNEL_PAGES_END))
+      return;
+    uint32_t PDE = (size_t)liner_addr >> 22;
+    uint32_t PTE = ((size_t)liner_addr >> 12) & TABLE_BIT_FIELD;
+    uint32_t PT_base_addr = PHYS((size_t)pt) >> 12;
+
+    printf("%x\n", PT_base_addr);
+
+    pd[PDE].present = 1;
+    pd[PDE].read_write = 1;
+    pd[PDE].user_supervisor = 0;
+    pd[PDE].page_table_addr = PT_base_addr;
+
+    pt[PTE].present = 1;
+    pt[PTE].read_write = 1;
+    pt[PTE].user_supervisor = 0;
+    pt[PTE].page_phys_addr = (size_t)phys_addr >> 12;
+}
+//C01016A3
+void unbind_page_table(struct page_directory_entry_t *pd, struct page_table_entry_t *pt, void* liner_addr) {
+  if((size_t)liner_addr < KERNEL_PAGES_END)
+      return;
+
+}
+
 void free_page_directory(struct page_directory_entry_t *pd) {
     kfree_a(pd);
+}
+
+void free_page_table(struct page_table_entry_t *pt) {
+    kfree_a(pt);
 }

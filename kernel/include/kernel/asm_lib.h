@@ -45,4 +45,6 @@ extern uint8_t inb(uint16_t port);
 extern void gdt_load(void *gdt_ptr);
 extern void idt_load(unsigned long *addr);
 
+extern void enable_paging(void *page_directory);
+extern void *get_cr3();
 #endif

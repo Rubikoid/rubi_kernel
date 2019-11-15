@@ -18,6 +18,9 @@
 //	#error "This code must be compiled with an x86-elf compiler"
 //#endif
 
+typedef struct page_directory_entry_t * pdep_t;
+typedef struct page_table_entry_t * ptep_t;
+
 void kernel_main(struct multiboot_t* multiboot, void* kstack) {
     init_com(0);
     term_init();
@@ -36,12 +39,15 @@ void kernel_main(struct multiboot_t* multiboot, void* kstack) {
     term_print("[" G_GREEN "OK" G_WHITE "] RubiKernel " KERNEL_VERSION ": Init!\n");
     printf("Multiboot: 0x%x; StackStart: 0x%x; Mem_upper: %u\n", multiboot, kstack, multiboot->mem_upper);
 
+    pdep_t pde = create_page_directory();
+    ptep_t pte = create_page_table(2);
+    bind_page_table(pde, pte, 0x0, (void *)PHYS_TASKS_SPACE_START);
+
+    enable_paging((void *)PHYS((size_t)pde));
+    
     mmu_dump();
-    /*printf("[" G_GREEN "OK" G_WHITE "] KHeap pages\n");
-    DEBUG_ASM;
-    init_kheap_pages();
-    DEBUG_ASM;
-    mmu_dump();*/
+    // kheap_dump(&kheap_list);
+    
     while (1) halt();
     // printf("sizeof(unlong)=%u\n", sizeof(unsigned long));
     //abort("ABORT: test\n");

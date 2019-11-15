@@ -83,7 +83,7 @@ section .boottext
             dec ecx
             jnz .fill_directory_with_table_addrs
 
-            xchg bx, bx
+            ; xchg bx, bx
         
         .enable_paging:
             mov ecx, PHYS(boot_page_directory)
@@ -94,7 +94,7 @@ section .boottext
             mov cr0, ecx
 
         .paging_enabled_jump_naxyi:
-            xchg bx, bx ; magic break
+            ; xchg bx, bx ; magic break
             mov eax, higher_kernel_start
             jmp eax
 
