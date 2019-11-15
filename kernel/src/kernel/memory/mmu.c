@@ -15,8 +15,8 @@ uint8_t kernel_pages_operations = 0;
 |          PHYS          |         LINEAR         | SIZE |                      PURPOSE                       |
 +------------------------+------------------------+------+----------------------------------------------------+
 | 0x00000000->0x000FFFFF | 0xC0000000->0xC00FFFFF | 1MB  | bios, vga, etc                                     |
-| 0x00100000->0x00FFFFFF | 0xC0100000->0xC0FFFFFF | 15MB | lower kernel code, kernel heap, kernel everything  |
-| 0x01000000->0x01FFFFFF | 0xC1000000->0xC1FFFFFF | 16MB | higher kernel code, kernel heap, kernel everything |
+| 0x00100000->0x00FFFFFF | 0xC0100000->0xC0FFFFFF | 15MB | lower kernel code, kernel stack, kernel everything |
+| 0x01000000->0x01FFFFFF | 0xC1000000->0xC1FFFFFF | 16MB | kernel heap                                        |
 +------------------------+------------------------+------+----------------------------------------------------+
 |          PHYS          |         LINEAR         | SIZE |                      PURPOSE                       |
 +------------------------+------------------------+------+----------------------------------------------------+
@@ -35,19 +35,26 @@ void init_memory_manager() {
     kernel_page_directory = (struct page_directory_entry_t *)&boot_page_directory;
     kernel_page_table = (struct page_table_entry_t *)&boot_page_table;
     memset(pages_bitmap, 0, 32 * 16);
+    /* first 16 mb of kernel */
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 32; j++) {
+            pages_bitmap[i * 32 + j] = 0b11111111111111111111111111111111;
+        }
+    }
+    /* first 16 mb of kernel */
     int k = KERNEL_LOWER_TABLES * 1024;
     kernel_pages_operations = 1;
     for (size_t i = VIRT_BASE + KERNEL_LOWER_TABLES * TABLE_SIZE; i < VIRT_BASE + (KERNEL_LOWER_TABLES + KERNEL_HIGHER_TABLES) * TABLE_SIZE; i += PAGE_SIZE, k += 1) {
         if (i % TABLE_SIZE == 0) {
             bind_table(kernel_page_directory, kernel_page_table + k, i);
         }
-        bind_page(kernel_page_table + (k & TABLE_BIT_FIELD), i, PHYS(i));
+        bind_page(kernel_page_table + (k & (TABLE_BIT_FIELD >> 2)), i, PHYS(i));
     }
     kernel_pages_operations = 0;
 }
 
-void mmu_dump() {
-    struct page_directory_entry_t *pd = VIRT(get_cr3());
+void mmu_dump(struct page_directory_entry_t *pd) {
+    //struct page_directory_entry_t *pd = VIRT(get_cr3());
 
     struct page_directory_entry_t *cur_dir = NULL;
     struct page_table_entry_t *cur_table = NULL;
@@ -72,6 +79,9 @@ void mmu_dump() {
                    cur_dir->read_write,
                    cur_dir->present);
         }
+    }
+    for (int i = 0; i < 512; i += 4) {
+        printf("PB[%u]: %x %x %x %x\n", i, pages_bitmap[i], pages_bitmap[i + 1], pages_bitmap[i + 2], pages_bitmap[i + 3]);
     }
 }
 
@@ -113,13 +123,20 @@ void bind_page(struct page_table_entry_t *pt, size_t liner_addr, size_t phys_add
     pt[PTE].read_write = 1;
     pt[PTE].user_supervisor = 0;
     pt[PTE].page_phys_addr = phys_addr >> 12;
+    pages_bitmap[pt[PTE].page_phys_addr >> 5] |= 1 << (pt[PTE].page_phys_addr & 0b11111);  // select page in bitmap
+    /* printf("%x (%u) => %x (%u) => %x (%u)\n",
+           phys_addr, phys_addr,
+           phys_addr >> (12 + 5), phys_addr >> (12 + 5),
+           ((phys_addr >> 12) & 0b11111), ((phys_addr >> 12) & 0b11111)); */
 }
 
 void unbind_page(struct page_table_entry_t *pt, size_t liner_addr) {
     if ((liner_addr > VIRT_BASE && (size_t)liner_addr < KERNEL_PAGES_END && !kernel_pages_operations))
         return;
     uint32_t PTE = (liner_addr & TABLE_BIT_FIELD) >> 12;
-
+    // free page in bitmap
+    // make 0b0...1...0, invert and AND, which makes 0b1...0...1
+    pages_bitmap[pt[PTE].page_phys_addr >> 5] &= ~(1 << (pt[PTE].page_phys_addr & 0b11111));
     pt[PTE].present = 0;
     pt[PTE].page_phys_addr = 0;
 }

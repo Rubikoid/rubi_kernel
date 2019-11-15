@@ -59,7 +59,7 @@ extern struct page_table_entry_t *kernel_page_table;
 extern uint32_t pages_bitmap[32 * 16];
 
 extern void init_memory_manager();
-extern void mmu_dump();
+extern void mmu_dump(struct page_directory_entry_t *pd);
 
 extern struct page_directory_entry_t *create_page_directory();
 extern struct page_table_entry_t *create_page_table(size_t count);
