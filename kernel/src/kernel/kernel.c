@@ -39,22 +39,39 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     term_print("[" G_GREEN "OK" G_WHITE "] RubiKernel " KERNEL_VERSION ": Init!\n");
     printf("Multiboot: 0x%x; StackStart: 0x%x; Mem_upper: %u\n", multiboot, kstack, multiboot->mem_upper);
 
-    mmu_dump(kernel_page_directory);
-    pdep_t pde = create_page_directory();
-    ptep_t pte = create_page_table(2);
-    bind_addr(pde, pte, 0x0, PHYS_TASKS_SPACE_START);
-    bind_addr(pde, pte, 0x0 + 0x1000, PHYS_TASKS_SPACE_START + 0x1000);
-    unbind_page(pte, 0x0);
-    mmu_dump(pde);
-    // kheap_dump(&kheap_list);
+    pdep_t pde1 = create_page_directory();
+    ptep_t pte1 = create_page_table(2);
+    bind_table(pde1, pte1, 0x0);
+    void *a1 = alloc_page(pte1, 0x0);
+    void *b1 = alloc_page(pte1, 0x0 + PAGE_SIZE);
 
-    // while (1) halt();
-    // printf("sizeof(unlong)=%u\n", sizeof(unsigned long));
-    //abort("ABORT: test\n");
-    //term_print_int(last_page_ID, 16);
-    //term_print("\n\n");
+    pdep_t pde2 = create_page_directory();
+    ptep_t pte2 = create_page_table(2);
+    bind_table(pde2, pte2, 0x0);
+    void *a2 = alloc_page(pte2, 0x0);
+    void *b2 = alloc_page(pte2, 0x0 + PAGE_SIZE);
 
-    // term_print("End!\n");
+    printf("[" G_GREEN "OK" G_WHITE "] Allocated (%x,%x), (%x,%x)\n", a1, b1, a2, b2);
+    printf("[" G_LGRAY "OK" G_WHITE "] Switching to %x\n", pde1);
+    enable_paging((void *)PHYS((size_t)pde1));
+    printf("[" G_GREEN "OK" G_WHITE "] Switched to %x\n", pde1);
+    *((uint32_t *)10) = 0x1337;
 
+    printf("[" G_LGRAY "OK" G_WHITE "] Switching to %x\n", pde2);
+    enable_paging((void *)PHYS((size_t)pde2));
+    printf("[" G_GREEN "OK" G_WHITE "] Switched to %x\n", pde2);
+    *((uint32_t *)10) = 0xdeadbeef;
+
+    printf("[" G_LGRAY "OK" G_WHITE "] Switching to %x\n", pde1);
+    enable_paging((void *)PHYS((size_t)pde1));
+    printf("[" G_GREEN "OK" G_WHITE "] Switched to %x\n", pde1);
+    printf("[" G_GREEN "OK" G_WHITE "] Scan value: %x\n", *((uint32_t *)10));
+
+    printf("[" G_LGRAY "OK" G_WHITE "] Switching to %x\n", pde2);
+    enable_paging((void *)PHYS((size_t)pde2));
+    printf("[" G_GREEN "OK" G_WHITE "] Switched to %x\n", pde2);
+    printf("[" G_GREEN "OK" G_WHITE "] Scan value: %x\n", *((uint32_t *)10)); 
+
+    while (1) halt();
     return;
 }

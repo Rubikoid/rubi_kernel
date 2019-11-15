@@ -18,6 +18,7 @@
 #define KERNEL_PAGES_END (VIRT_BASE + (KERNEL_HIGHER_TABLES + KERNEL_HIGHER_TABLES) * TABLE_SIZE)
 
 #define PHYS_TASKS_SPACE_START ((KERNEL_HIGHER_TABLES + KERNEL_HIGHER_TABLES) * TABLE_SIZE)
+#define PHYS_TASKS_SPACE_END ((KERNEL_HIGHER_TABLES + KERNEL_HIGHER_TABLES) * TABLE_SIZE + 8 * TABLE_SIZE)
 
 struct __attribute__((__packed__)) page_directory_entry_t {
     uint8_t present : 1;
@@ -64,6 +65,7 @@ extern void mmu_dump(struct page_directory_entry_t *pd);
 extern struct page_directory_entry_t *create_page_directory();
 extern struct page_table_entry_t *create_page_table(size_t count);
 
+extern void *alloc_page(struct page_table_entry_t *pt, size_t liner_addr);
 extern void bind_addr(struct page_directory_entry_t *pd, struct page_table_entry_t *pt, size_t liner_addr, size_t phys_addr);
 extern void bind_table(struct page_directory_entry_t *pd, struct page_table_entry_t *pt, size_t liner_addr);
 extern void bind_page(struct page_table_entry_t *pt, size_t liner_addr, size_t phys_addr);

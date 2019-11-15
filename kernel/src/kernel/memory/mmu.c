@@ -80,7 +80,7 @@ void mmu_dump(struct page_directory_entry_t *pd) {
                    cur_dir->present);
         }
     }
-    for (int i = 0; i < 512; i += 4) {
+    for (int i = 256; i < 256 + 128; i += 4) {
         printf("PB[%u]: %x %x %x %x\n", i, pages_bitmap[i], pages_bitmap[i + 1], pages_bitmap[i + 2], pages_bitmap[i + 3]);
     }
 }
@@ -98,6 +98,20 @@ struct page_table_entry_t *create_page_table(size_t count) {
     table = kmalloc_a(sizeof(struct page_table_entry_t) * count, 4096);
     memset((void *)table, 0, sizeof(struct page_table_entry_t) * count);
     return table;
+}
+
+void *alloc_page(struct page_table_entry_t *pt, size_t liner_addr) {
+    // bind_page(pt, liner_addr, phys_addr);
+    for (int i = PHYS_TASKS_SPACE_START; i < PHYS_TASKS_SPACE_END; i += PAGE_SIZE) {
+        uint8_t x = (pages_bitmap[i >> (12 + 5)] >> ((i >> 12) & 0b11111)) & 0x1;
+        if (x)
+            continue;
+        bind_page(pt, liner_addr, i);
+        return (void *)i;
+        // printf("i: %x; a: %u; b: %x; c: %x\n", i, i >> (12 + 5), ((i >> 12) & 0b11111), );
+        // break;
+    }
+    return 0;
 }
 
 void bind_addr(struct page_directory_entry_t *pd, struct page_table_entry_t *pt, size_t liner_addr, size_t phys_addr) {
