@@ -167,9 +167,11 @@ void unbind_table(struct page_directory_entry_t *pd, size_t liner_addr) {
 }
 
 void free_page_directory(struct page_directory_entry_t *pd) {
-    kfree_a(pd);
+    if (pd != kernel_page_directory)
+        kfree_a(pd);
 }
 
 void free_page_table(struct page_table_entry_t *pt) {
-    kfree_a(pt);
+    if (pt != kernel_page_table)
+        kfree_a(pt);
 }

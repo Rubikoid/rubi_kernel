@@ -9,6 +9,8 @@
 #define PHYS(x) ((x)-VIRT_BASE)
 #define VIRT(x) ((x) + VIRT_BASE)
 
+#define TASK_QUOTA 3
+
 #ifdef _DEBUG
 #define DEBUG_ASM asm("xchg %bx, %bx");
 #else

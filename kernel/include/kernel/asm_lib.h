@@ -47,4 +47,6 @@ extern void idt_load(unsigned long *addr);
 
 extern void enable_paging(void *page_directory);
 extern void *get_cr3();
+extern uint32_t get_eflags(void);
+void switch_kcontext(uint32_t esp, uint32_t cr3);   
 #endif

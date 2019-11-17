@@ -1,6 +1,6 @@
 bits 32
 
-global enable_paging, get_cr3, reload_kernel_segments, disable_int, enable_int, outb, inb, gdt_load, idt_load, halt
+global switch_kcontext, enable_paging, get_cr3, get_eflags, reload_kernel_segments, disable_int, enable_int, outb, inb, gdt_load, idt_load, halt
 section .text
 ;push    ebp
     ;mov     ebp, esp
@@ -8,6 +8,18 @@ section .text
     ;mov     esp, ebp
     ;pop     ebp
     ;ret
+
+    ;void switch_kcontext(uint32_t esp, uint32_t cr3)
+    switch_kcontext:
+        mov ebp, [esp + 4] ; esp
+        mov eax, [esp + 8] ; cr3
+        mov cr3, eax
+        mov eax, cr0
+        or eax, 0x80000001
+        mov cr0, eax
+        mov esp, ebp
+        popad
+        iret
 
     ;void enable_paging(void *page_directory)
     enable_paging:
@@ -21,6 +33,12 @@ section .text
     ;void *get_cr3(void)
     get_cr3:
         mov eax, cr3
+        ret
+    
+    ;uint32_t get_eflags(void)
+    get_eflags:
+        pushfd
+        pop eax
         ret
 
     ;reload_kernel_segments(void); Load kernel segments data
@@ -83,19 +101,19 @@ section .text
 
     ;void outb(u16 port, u8 value);    
     outb:
-            mov     edx, [esp + 4]      ; port
-            mov     al, [esp + 4 + 4]   ; value
-            out     dx, al
-            nop             ;
-            nop
-            ret
+        mov     edx, [esp + 4]      ; port
+        mov     al, [esp + 4 + 4]   ; value
+        out     dx, al
+        nop             ;
+        nop
+        ret
 
     ;u8 inb(u16 port);
     inb:
-            mov     edx, [esp + 4]      ; port
-            xor     eax, eax
-            in      al, dx
-            nop                         ;
-            nop
-            ret
+        mov     edx, [esp + 4]      ; port
+        xor     eax, eax
+        in      al, dx
+        nop                         ;
+        nop
+        ret
 
