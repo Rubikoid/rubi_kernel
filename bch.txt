@@ -9,7 +9,7 @@ cpu:             count=1, ips=1000000
 magic_break:     enabled=1
 display_library: x, options="gui_debug"
 
-debug: action=ignore, pci=report
-info: action=report
+debug: action=ignore
+info: action=ignore
 error: action=warn
 panic: action=ask

@@ -25,9 +25,8 @@ typedef struct page_directory_entry_t *pdep_t;
 typedef struct page_table_entry_t *ptep_t;
 
 void test() {
-    DEBUG_ASM;
     for (uint32_t i = 0; i < 1000; i++)
-        printf("[%u] ", i);
+        printf("[%u]\n", i);
     __asm__("movl $1, %eax");
     __asm__("int $0x80");
 }
@@ -50,18 +49,35 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     term_print("[" G_GREEN "OK" G_WHITE "] RubiKernel " KERNEL_VERSION ": Init!\n");
     printf("Multiboot: 0x%x; StackStart: 0x%x; Mem_upper: %u\n", multiboot, kstack, multiboot->mem_upper);
 
+{
     pdep_t pde1 = create_page_directory();
-    ptep_t pte1 = create_page_table(2);
+    ptep_t pte1 = create_page_table(1);
     bind_table(pde1, pte1, 0x0);
     alloc_page(pte1, 0x0);
-    alloc_page(pte1, 0x0 + PAGE_SIZE);
     struct task_mem_t t = {
         .pages = 0,
         .pages_count = 2,
         .page_dir = pde1,
         .page_table = pte1,
     };
-    task_create(1, ddd, &t);
+    task_create(1, test, &t);
+ }   
+
+ {
+    pdep_t pde1 = create_page_directory();
+    ptep_t pte1 = create_page_table(1);
+    bind_table(pde1, pte1, 0x0);
+    alloc_page(pte1, 0x0);
+    struct task_mem_t t = {
+        .pages = 0,
+        .pages_count = 1,
+        .page_dir = pde1,
+        .page_table = pte1,
+    };
+    task_create(2, test, &t);
+ }
+
+    while (1) { printf("{inf}"); halt(); } // infiloop
     /*
     pdep_t pde1 = create_page_directory();
     ptep_t pte1 = create_page_table(2);
@@ -96,6 +112,5 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     printf("[" G_GREEN "OK" G_WHITE "] Switched to %x\n", pde2);
     printf("[" G_GREEN "OK" G_WHITE "] Scan value: %x\n", *((uint32_t *)10)); 
 */
-    while (1) { printf("k"); halt(); }
     return;
 }

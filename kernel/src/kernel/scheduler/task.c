@@ -24,7 +24,7 @@ void task_create(uint16_t tid, void* start_addr, struct task_mem_t* task_mem) {
     task->tid = tid;
     task->name[0] = 'F';
     task->name[1] = '\0';
-    task->status = TASK_RUNNING;//TASK_UNINTERRUPTABLE;
+    task->status = TASK_UNINTERRUPTABLE;
     memcpy(&task->task_mem, task_mem, sizeof(struct task_mem_t));
 
     *(uint32_t*)(&task->flags) = get_eflags() | 0x200;  // enabled interrupts
@@ -67,10 +67,11 @@ void sched_schedule(size_t* ret_addr, size_t* reg_addr) {
     struct task_t* next_task = NULL;
     if (current_task != NULL) {
         current_task->time += 1;
-        return;
-        if (current_task->time < TASK_QUOTA && !current_task->reschedule)
+        if (current_task->time < TASK_QUOTA && !current_task->reschedule) {
+            printf("{tcont}");
             return;  // continue
-
+        }
+        printf("{tsw}");
         current_task->time = 0;
         current_task->reschedule = 0;
 
@@ -85,16 +86,19 @@ void sched_schedule(size_t* ret_addr, size_t* reg_addr) {
         
     }
     next_task = (current_task == NULL) ? (struct task_t*)task_list.head : current_task;
-    if (next_task == NULL)
+    if (next_task == NULL) {
         return;
+    }
     for (int i = 0; i <= task_list.slots; i++) {
         if (next_task->status == TASK_RUNNING)
             break;
         next_task = (struct task_t*)next_task->list_head.next;
     }
 
-    if (current_task && current_task->status == TASK_KILLING)
+    if (current_task && current_task->status == TASK_KILLING) {
+        printf("Deletinig currnet task\n");
         task_delete(current_task);
+    }
     else {
         struct task_t* task = (struct task_t*)task_list.head;
         for (int i = 0; i <= task_list.slots; i++) {
@@ -102,8 +106,10 @@ void sched_schedule(size_t* ret_addr, size_t* reg_addr) {
             if (task->status == TASK_KILLING)
                 break;
         }
-        if (task && task->status == TASK_KILLING)
+        if (task && task->status == TASK_KILLING) {
+            printf("Deletinig next? task\n");
             task_delete(task);
+        }
     }
 
     next_task->op_registers.k_esp -= 4;
