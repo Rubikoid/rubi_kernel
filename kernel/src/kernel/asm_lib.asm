@@ -1,13 +1,19 @@
 bits 32
 
-global switch_kcontext, enable_paging, get_cr3, get_eflags, reload_kernel_segments, disable_int, enable_int, outb, inb, gdt_load, idt_load, halt
+global ddd, switch_kcontext, enable_paging, get_cr3, get_eflags, reload_kernel_segments, disable_int, enable_int, outb, inb, gdt_load, idt_load, halt
 section .text
-;push    ebp
+    ;push    ebp
     ;mov     ebp, esp
 
     ;mov     esp, ebp
     ;pop     ebp
     ;ret
+
+    ddd:
+        xchg bx, bx
+        mov eax, 1
+        int 80h
+        ret
 
     ;void switch_kcontext(uint32_t esp, uint32_t cr3)
     switch_kcontext:
@@ -20,6 +26,7 @@ section .text
         mov esp, ebp
         popad
         iret
+        ; ret
 
     ;void enable_paging(void *page_directory)
     enable_paging:

@@ -91,6 +91,7 @@ int_timer:
     mov ebp, esp
     mov ebx, ebp
     push ebx ; &reg
+    ; EAX (+0), ECX (+4), EDX (+8), EBX (+12), ESP (+16), EBP (+20), ESI (+24), EDI (+28), = 8 * 4 = 32 bytes before EIP
     add ebx, 32
     push ebx ; & ret addr
 	call cint_timer

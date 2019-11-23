@@ -25,6 +25,7 @@ typedef struct page_directory_entry_t *pdep_t;
 typedef struct page_table_entry_t *ptep_t;
 
 void test() {
+    DEBUG_ASM;
     for (uint32_t i = 0; i < 1000; i++)
         printf("[%u] ", i);
     __asm__("movl $1, %eax");
@@ -60,7 +61,7 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
         .page_dir = pde1,
         .page_table = pte1,
     };
-    task_create(1, test, &t);
+    task_create(1, ddd, &t);
     /*
     pdep_t pde1 = create_page_directory();
     ptep_t pte1 = create_page_table(2);
@@ -95,6 +96,6 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     printf("[" G_GREEN "OK" G_WHITE "] Switched to %x\n", pde2);
     printf("[" G_GREEN "OK" G_WHITE "] Scan value: %x\n", *((uint32_t *)10)); 
 */
-    while (1) halt();
+    while (1) { printf("k"); halt(); }
     return;
 }
