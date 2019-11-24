@@ -137,14 +137,14 @@ void *kmalloc_a(size_t count, uint32_t align) {
     void *p = kmalloc(count + align + sizeof(size_t));
     if (p == NULL)
         return NULL;
-    size_t addr=(size_t)p+align+sizeof(size_t);
-    void *ptr = (void *)(addr - (addr%align));
-    *((size_t *)ptr-1)=(size_t)p;
+    size_t addr = (size_t)p + align + sizeof(size_t);
+    void *ptr = (void *)(addr - (addr % align));
+    *((size_t *)ptr - 1) = (size_t)p;
     return ptr;
 }
 
 void kfree_a(void *ptr) {
-    void *p = (void *)(*((size_t *) ptr-1));
+    void *p = (void *)(*((size_t *)ptr - 1));
     kfree(p);
     return;
 }

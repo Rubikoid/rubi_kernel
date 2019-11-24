@@ -83,7 +83,7 @@ void clist_test() {
     clist_delete(&ct, a4);
     assert(a1->next == a3);
     assert(a3->next == a1);
-    assert(ct.head == a1); 
+    assert(ct.head == a1);
 
     // a3
     clist_delete(&ct, a1);

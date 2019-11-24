@@ -27,7 +27,7 @@ typedef struct page_table_entry_t *ptep_t;
 void test() {
     for (uint32_t i = 0; i < 100; i++)
         printf("[%u]\n", i);
-    fsyscall(1,0,0,0);
+    fsyscall(1, 0, 0, 0);
     // __asm__("movl $1, %eax");
     // __asm__("int $0x80");
 }
@@ -50,35 +50,38 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     term_print("[" G_GREEN "OK" G_WHITE "] RubiKernel " KERNEL_VERSION ": Init!\n");
     printf("Multiboot: 0x%x; StackStart: 0x%x; Mem_upper: %u\n", multiboot, kstack, multiboot->mem_upper);
 
-{
-    pdep_t pde1 = create_page_directory();
-    ptep_t pte1 = create_page_table(1);
-    bind_table(pde1, pte1, 0x0);
-    alloc_page(pte1, 0x0);
-    struct task_mem_t t = {
-        .pages = 0,
-        .pages_count = 2,
-        .page_dir = pde1,
-        .page_table = pte1,
-    };
-    task_create(1, test, &t);
- }   
+    {
+        pdep_t pde1 = create_page_directory();
+        ptep_t pte1 = create_page_table(1);
+        bind_table(pde1, pte1, 0x0);
+        alloc_page(pte1, 0x0);
+        struct task_mem_t t = {
+            .pages = 0,
+            .pages_count = 2,
+            .page_dir = pde1,
+            .page_table = pte1,
+        };
+        task_create(1, test, &t);
+    }
 
- {
-    pdep_t pde1 = create_page_directory();
-    ptep_t pte1 = create_page_table(1);
-    bind_table(pde1, pte1, 0x0);
-    alloc_page(pte1, 0x0);
-    struct task_mem_t t = {
-        .pages = 0,
-        .pages_count = 1,
-        .page_dir = pde1,
-        .page_table = pte1,
-    };
-    task_create(2, test, &t);
- }
+    {
+        pdep_t pde1 = create_page_directory();
+        ptep_t pte1 = create_page_table(1);
+        bind_table(pde1, pte1, 0x0);
+        alloc_page(pte1, 0x0);
+        struct task_mem_t t = {
+            .pages = 0,
+            .pages_count = 1,
+            .page_dir = pde1,
+            .page_table = pte1,
+        };
+        task_create(2, test, &t);
+    }
 
-    while (1) { printf("{inf}"); halt(); } // infiloop
+    while (1) {
+        printf("{inf}");
+        halt();
+    }  // infiloop
     /*
     pdep_t pde1 = create_page_directory();
     ptep_t pte1 = create_page_table(2);

@@ -35,7 +35,7 @@ void task_create(uint16_t tid, void* start_addr, struct task_mem_t* task_mem) {
     task->op_registers.ss = GDT_KSTACK_SELECTOR;
 
     task->op_registers.eip = (size_t)start_addr;
-    task->op_registers.cr3 = (size_t) get_cr3();//(size_t)task->task_mem.page_dir;
+    task->op_registers.cr3 = (size_t)get_cr3();  //(size_t)task->task_mem.page_dir;
     task->op_registers.k_esp = (uint32_t)task->kstack + 4096;
     printf("Task create tid: %u, esp:%x, eip:%x\n", tid, task->op_registers.k_esp, (size_t)start_addr);
 }
@@ -83,7 +83,6 @@ void sched_schedule(size_t* ret_addr, size_t* reg_addr) {
         current_task->op_registers.k_esp = current_task->gp_registers.esp;
         //(size_t)ret_addr + 16;
         // current_task->gp_registers.esp = current_task->op_registers.k_esp;
-        
     }
     next_task = (current_task == NULL) ? (struct task_t*)task_list.head : current_task;
     if (next_task == NULL) {
@@ -98,8 +97,7 @@ void sched_schedule(size_t* ret_addr, size_t* reg_addr) {
     if (current_task && current_task->status == TASK_KILLING) {
         printf("Deletinig currnet task\n");
         task_delete(current_task);
-    }
-    else {
+    } else {
         struct task_t* task = (struct task_t*)task_list.head;
         for (int i = 0; i <= task_list.slots; i++) {
             task = (struct task_t*)task->list_head.next;
@@ -121,7 +119,6 @@ void sched_schedule(size_t* ret_addr, size_t* reg_addr) {
     next_task->gp_registers.esp = next_task->op_registers.k_esp;
     next_task->op_registers.k_esp -= sizeof(struct gp_registers_t);
     memcpy((void*)next_task->op_registers.k_esp, (void*)&next_task->gp_registers, sizeof(struct gp_registers_t));
-
 
     printf("Task switch tid: %u, esp: %x, ret: %x, eip: %x\n", next_task->tid, next_task->op_registers.k_esp, *ret_addr, next_task->op_registers.eip);
     current_task = next_task;
