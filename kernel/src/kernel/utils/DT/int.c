@@ -30,7 +30,7 @@ void cint_page_fault(size_t addr, PUSHAD_C, uint32_t error_code, uint32_t in_eip
     kpanic("Kernel panic: page fault at %x, EIP: %x, Error_code: %x", addr, in_eip, error_code);
 }
 
-void cint_syscall(PUSHAD_C) {
+uint32_t cint_syscall(PUSHAD_C) {
     struct task_t* task = current_task;
     printf("Syscall %x from %x\n", in_eax, task == NULL ? 9999 : task->tid);
     disable_int();
@@ -39,6 +39,7 @@ void cint_syscall(PUSHAD_C) {
             printf("Task killing tid: %u\n", task == NULL ? 9999 : task->tid);
             current_task->status = TASK_KILLING;
             sched_yield();
+            return 0;
             break;
         }
         case 2: {
@@ -49,7 +50,7 @@ void cint_syscall(PUSHAD_C) {
             break;
     }
     enable_int();
-    return;
+    return 0;
 }
 
 // just handle the tmier and do't do anything

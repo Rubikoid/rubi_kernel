@@ -74,7 +74,8 @@ int_syscall:
     pushad
     cld
     call cint_syscall
-    popad
+    add esp, 32 ; we don't need to restore poped args
+    ; popad
     iret
 
 int_keyboard:

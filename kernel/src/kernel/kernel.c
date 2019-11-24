@@ -25,10 +25,11 @@ typedef struct page_directory_entry_t *pdep_t;
 typedef struct page_table_entry_t *ptep_t;
 
 void test() {
-    for (uint32_t i = 0; i < 1000; i++)
+    for (uint32_t i = 0; i < 100; i++)
         printf("[%u]\n", i);
-    __asm__("movl $1, %eax");
-    __asm__("int $0x80");
+    fsyscall(1,0,0,0);
+    // __asm__("movl $1, %eax");
+    // __asm__("int $0x80");
 }
 
 void kernel_main(struct multiboot_t *multiboot, void *kstack) {
