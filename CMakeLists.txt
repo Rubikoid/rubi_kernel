@@ -25,7 +25,7 @@ target_include_directories(kernel PRIVATE "kernel/include") # add includes
 
 target_compile_options(kernel PRIVATE $<$<COMPILE_LANGUAGE:C>:-std=gnu99> $<$<COMPILE_LANGUAGE:C>:-fno-stack-protector> $<$<COMPILE_LANGUAGE:C>:-ffreestanding> -g -Wall) # compile without linux gcc shit
 set(CMAKE_ASM_NASM_FLAGS_DEBUG "-Fdwarf") # some debug info, i hope
-target_compile_definitions(kernel PRIVATE "KERNEL=1" "_DEBUG=1" "KERNEL_VERSION=\"v0.0.10\"")
+target_compile_definitions(kernel PRIVATE "KERNEL=1" "_DEBUG=1" "KERNEL_VERSION=\"v0.0.14\"")
 target_link_options(kernel PRIVATE -ffreestanding -nostdlib -g -lgcc -T ${CMAKE_SOURCE_DIR}/loader/linker.ld) #link everything using linkerscript
 
 # generate iso file for bochs

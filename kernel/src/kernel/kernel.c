@@ -1,13 +1,14 @@
 #include <types.h>
 
+#include <kernel/DT/dt.h>
+#include <kernel/DT/int.h>
+#include <kernel/DT/syscall.h>
 #include <kernel/asm_lib.h>
 #include <kernel/defines.h>
 #include <kernel/memory/heap.h>
 #include <kernel/memory/mmu.h>
 #include <kernel/scheduler/task.h>
 #include <kernel/serial/serial.h>
-#include <kernel/DT/dt.h>
-#include <kernel/DT/int.h>
 #include <kernel/utils/utils.h>
 #include <kernel/vga/vga.h>
 #include <lib/clist.h>
@@ -25,11 +26,11 @@ typedef struct page_directory_entry_t *pdep_t;
 typedef struct page_table_entry_t *ptep_t;
 
 void test() {
-    for (uint32_t i = 0; i < 100; i++)
-        printf("[%u]\n", i);
-    fsyscall(1, 0, 0, 0);
-    // __asm__("movl $1, %eax");
-    // __asm__("int $0x80");
+    uint32_t e = 0;
+    for (uint32_t i = 0; i < 100; i++) {
+        e += i;
+    }
+    fsyscall(SYSCALL_EXIT, 0, 0, 0);
 }
 
 void kernel_main(struct multiboot_t *multiboot, void *kstack) {
@@ -65,56 +66,39 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     }
 
     {
-        pdep_t pde1 = create_page_directory();
-        ptep_t pte1 = create_page_table(1);
-        bind_table(pde1, pte1, 0x0);
-        alloc_page(pte1, 0x0);
         struct task_mem_t t = {
             .pages = 0,
-            .pages_count = 1,
-            .page_dir = pde1,
-            .page_table = pte1,
+            .pages_count = 0,
+            .page_dir = kernel_page_directory,
+            .page_table = kernel_page_table,
         };
         task_create(2, test, &t);
     }
+
+
+    {
+        struct task_mem_t t = {
+            .pages = 0,
+            .pages_count = 0,
+            .page_dir = kernel_page_directory,
+            .page_table = kernel_page_table,
+        };
+        task_create(3, test, &t);
+    }
+
+    /*
+    uint32_t eip = 0;  // very shit hack, how not to die, if there are no tasks
+    if (eip != 0) {
+    eip_setted:;
+    } else {
+        asm volatile("1: lea 1b, %0;"
+                     : "=a"(eip));
+        goto eip_setted;
+    } */
 
     while (1) {
         printf("{inf}");
         halt();
     }  // infiloop
-    /*
-    pdep_t pde1 = create_page_directory();
-    ptep_t pte1 = create_page_table(2);
-    bind_table(pde1, pte1, 0x0);
-    void *a1 = alloc_page(pte1, 0x0);
-    void *b1 = alloc_page(pte1, 0x0 + PAGE_SIZE);
-
-    pdep_t pde2 = create_page_directory();
-    ptep_t pte2 = create_page_table(2);
-    bind_table(pde2, pte2, 0x0);
-    void *a2 = alloc_page(pte2, 0x0);
-    void *b2 = alloc_page(pte2, 0x0 + PAGE_SIZE);
-
-    printf("[" G_GREEN "OK" G_WHITE "] Allocated (%x,%x), (%x,%x)\n", a1, b1, a2, b2);
-    printf("[" G_LGRAY "OK" G_WHITE "] Switching to %x\n", pde1);
-    enable_paging((void *)PHYS((size_t)pde1));
-    printf("[" G_GREEN "OK" G_WHITE "] Switched to %x\n", pde1);
-    *((uint32_t *)10) = 0x1337;
-
-    printf("[" G_LGRAY "OK" G_WHITE "] Switching to %x\n", pde2);
-    enable_paging((void *)PHYS((size_t)pde2));
-    printf("[" G_GREEN "OK" G_WHITE "] Switched to %x\n", pde2);
-    *((uint32_t *)10) = 0xdeadbeef;
-
-    printf("[" G_LGRAY "OK" G_WHITE "] Switching to %x\n", pde1);
-    enable_paging((void *)PHYS((size_t)pde1));
-    printf("[" G_GREEN "OK" G_WHITE "] Switched to %x\n", pde1);
-    printf("[" G_GREEN "OK" G_WHITE "] Scan value: %x\n", *((uint32_t *)10));
-
-    printf("[" G_LGRAY "OK" G_WHITE "] Switching to %x\n", pde2);
-    enable_paging((void *)PHYS((size_t)pde2));
-    printf("[" G_GREEN "OK" G_WHITE "] Switched to %x\n", pde2);
-    printf("[" G_GREEN "OK" G_WHITE "] Scan value: %x\n", *((uint32_t *)10)); 
-*/
     return;
 }

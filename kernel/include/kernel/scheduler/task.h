@@ -10,6 +10,9 @@
 #define TASK_RUNNING 1
 #define TASK_KILLING 2
 
+#define TASK_KSTACK_SIZE 1024
+#define TASK_USTACK_SIZE 4096-1024
+
 struct __attribute__((__packed__)) gp_registers_t {
     uint32_t edi;
     uint32_t esi;
@@ -25,7 +28,7 @@ struct __attribute__((__packed__)) op_registers_t {
     uint32_t eip;
     uint32_t cr3;   /* page directory */
     uint32_t k_esp; /* kernel stack */
-    // uint32_t u_esp; /* user stack */
+    uint32_t u_esp; /* user stack */
     uint16_t cs;
     uint16_t ds;
     uint16_t ss;
@@ -64,27 +67,33 @@ struct task_mem_t {
     struct page_table_entry_t* page_table;   /* page table */
 };
 
+struct message_t {
+    uint8_t type;                         /* message type */
+    uint32_t len;                         /* data length */
+    uint8_t data[IPC_MSG_DATA_BUFF_SIZE]; /* message data */
+};
+
 struct __attribute__((__packed__, __aligned__(4))) task_t {
-    struct clist_head_t list_head;      /* should be at first */
-    uint16_t tid;                       /* task id */
-    char name[8];                       /* task name */
-    struct gp_registers_t gp_registers; /* general purpose registers */
-    struct op_registers_t op_registers; /* other purpose registers */
-    struct flags_t flags;               /* processor flags */
-    uint32_t time;                      /* time of task execution */
-    uint8_t reschedule;                 /* whether task need to be rescheduled */
-    uint16_t status;                    /* task status */
-    // int msg_count_in;                   /* count of incomming messages */
-    // struct message_t msg_buff[10];      /* task message buffer */
-    void* kstack; /* kernel stack top */
-    // void* ustack;               /* user stack top */
-    struct task_mem_t task_mem; /* task memory */
+    struct clist_head_t list_head;                 /* should be at first */
+    uint16_t tid;                                  /* task id */
+    char name[8];                                  /* task name */
+    struct gp_registers_t gp_registers;            /* general purpose registers */
+    struct op_registers_t op_registers;            /* other purpose registers */
+    struct flags_t flags;                          /* processor flags */
+    uint32_t time;                                 /* time of task execution */
+    uint8_t reschedule;                            /* whether task need to be rescheduled */
+    uint16_t status;                               /* task status */
+    int msg_count_in;                              /* count of incomming messages */
+    struct message_t msg_buff[TASK_MSG_BUFF_SIZE]; /* task message buffer */
+    void* kstack;                                  /* kernel stack top */
+    void* ustack;                                  /* user stack top */
+    struct task_mem_t task_mem;                    /* task memory */
 };
 
 extern struct clist_def_t task_list;
 extern struct task_t* current_task;
 
-extern void task_create(uint16_t tid, void* address, struct task_mem_t* task_mem);
+extern struct task_t* task_create(uint16_t tid, void* address, struct task_mem_t* task_mem);
 extern void task_delete(struct task_t* task);
 extern void sched_schedule(size_t* ret_addr, size_t* reg_addr);
 extern void sched_yield();
