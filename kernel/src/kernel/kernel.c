@@ -6,8 +6,8 @@
 #include <kernel/memory/mmu.h>
 #include <kernel/scheduler/task.h>
 #include <kernel/serial/serial.h>
-#include <kernel/utils/DT/dt.h>
-#include <kernel/utils/DT/int.h>
+#include <kernel/DT/dt.h>
+#include <kernel/DT/int.h>
 #include <kernel/utils/utils.h>
 #include <kernel/vga/vga.h>
 #include <lib/clist.h>

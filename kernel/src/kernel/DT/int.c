@@ -2,7 +2,7 @@
 
 #include <kernel/asm_lib.h>
 #include <kernel/scheduler/task.h>
-#include <kernel/utils/DT/int.h>
+#include <kernel/DT/int.h>
 #include <kernel/vga/vga.h>
 #include <lib/stdio.h>
 

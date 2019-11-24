@@ -2,7 +2,7 @@
 #include <kernel/memory/heap.h>
 #include <kernel/memory/mmu.h>
 #include <kernel/scheduler/task.h>
-#include <kernel/utils/DT/dt.h>
+#include <kernel/DT/dt.h>
 #include <lib/stdio.h>
 #include <lib/string.h>
 

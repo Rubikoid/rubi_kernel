@@ -1,7 +1,7 @@
 #include <types.h>
 
-#ifndef KERNEL_UTILS_DT_DT_H_
-#define KERNEL_UTILS_DT_DT_H_
+#ifndef KERNEL_DT_DT_H_
+#define KERNEL_DT_DT_H_
 
 #define GDT_ENTRIES_COUNT 8
 #define IDT_ENTRIES_COUNT 256

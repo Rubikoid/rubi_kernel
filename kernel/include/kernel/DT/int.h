@@ -1,7 +1,7 @@
 #include <types.h>
 
-#ifndef KERNEL_UTILS_DT_INT_H_
-#define KERNEL_UTILS_DT_INT_H_
+#ifndef KERNEL_DT_INT_H_
+#define KERNEL_DT_INT_H_
 
 // PIC1/2 ports
 #define PIC1_CMD_PORT 0x20
