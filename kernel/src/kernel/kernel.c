@@ -7,6 +7,7 @@
 #include <kernel/defines.h>
 #include <kernel/memory/heap.h>
 #include <kernel/memory/mmu.h>
+#include <kernel/messages.h>
 #include <kernel/scheduler/task.h>
 #include <kernel/serial/serial.h>
 #include <kernel/utils/utils.h>
@@ -25,11 +26,18 @@
 typedef struct page_directory_entry_t *pdep_t;
 typedef struct page_table_entry_t *ptep_t;
 
+void infiloop() {
+    while (1) {
+        printf(MSG_INFINITY);
+        halt();
+    }  // infiloop
+}
+
 void test() {
     uint32_t e = 0;
-    for (uint32_t i = 0; i < 100; i++) {
-        e += i;
-    }
+    for (uint32_t i = 0; i < 10000; i++)
+        if ((e += i) % 2 == 0)
+            printf("[%u]\n", e);
     fsyscall(SYSCALL_EXIT, 0, 0, 0);
 }
 
@@ -50,7 +58,7 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
 
     term_print("[" G_GREEN "OK" G_WHITE "] RubiKernel " KERNEL_VERSION ": Init!\n");
     printf("Multiboot: 0x%x; StackStart: 0x%x; Mem_upper: %u\n", multiboot, kstack, multiboot->mem_upper);
-
+    disable_int();
     {
         pdep_t pde1 = create_page_directory();
         ptep_t pte1 = create_page_table(1);
@@ -64,7 +72,7 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
         };
         task_create(1, test, &t);
     }
-
+/*
     {
         struct task_mem_t t = {
             .pages = 0,
@@ -74,8 +82,7 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
         };
         task_create(2, test, &t);
     }
-
-
+*/
     {
         struct task_mem_t t = {
             .pages = 0,
@@ -86,6 +93,16 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
         task_create(3, test, &t);
     }
 
+    {
+        struct task_mem_t t = {
+            .pages = 0,
+            .pages_count = 0,
+            .page_dir = kernel_page_directory,
+            .page_table = kernel_page_table,
+        };
+        task_create(0, infiloop, &t);
+    }
+    enable_int();
     /*
     uint32_t eip = 0;  // very shit hack, how not to die, if there are no tasks
     if (eip != 0) {
@@ -97,7 +114,7 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     } */
 
     while (1) {
-        printf("{inf}");
+        printf(MSG_INFINITY);
         halt();
     }  // infiloop
     return;

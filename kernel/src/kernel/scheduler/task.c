@@ -2,6 +2,7 @@
 #include <kernel/asm_lib.h>
 #include <kernel/memory/heap.h>
 #include <kernel/memory/mmu.h>
+#include <kernel/messages.h>
 #include <kernel/scheduler/task.h>
 #include <lib/stdio.h>
 #include <lib/string.h>
@@ -39,7 +40,7 @@ struct task_t* task_create(uint16_t tid, void* start_addr, struct task_mem_t* ta
     task->op_registers.cr3 = PHYS((size_t)task->task_mem.page_dir);
     task->op_registers.k_esp = (uint32_t)task->kstack + TASK_KSTACK_SIZE;
     task->op_registers.u_esp = (uint32_t)task->ustack + TASK_USTACK_SIZE;
-    printf("Task create tid: %u, k_esp:%x, u_esp:%x, eip:%x\n", tid, task->op_registers.k_esp, task->op_registers.k_esp, (size_t)start_addr);
+    printf(MSG_TASK_CREATE, tid, task->op_registers.k_esp, task->op_registers.k_esp, (size_t)start_addr);
     return task;
 }
 
@@ -62,74 +63,26 @@ void task_delete(struct task_t* task) {
 
     clist_delete(&task_list, (struct clist_head_t*)task);
 }
-/*
-/|\  ...
- |   eip
- |   ret_addr
- |   reg_addr
-*/
-void sched_schedule(size_t* ret_addr, size_t* reg_addr) {
-    struct task_t* next_task = NULL;
-    if (current_task != NULL) {
-        current_task->time += 1;
-        if (current_task->time < TASK_QUOTA && !current_task->reschedule) {
-            printf("{tcont}");
-            return;  // continue
-        }
-        printf("{tsw}");
-        current_task->time = 0;
-        current_task->reschedule = 0;
 
-        current_task->op_registers.eip = *ret_addr;
-        current_task->op_registers.cs = *(uint16_t*)((size_t)ret_addr + 4);
-        *(uint32_t*)(&current_task->flags) = *(uint32_t*)((size_t)ret_addr + 6) | 0x200;
-
-        memcpy(&current_task->gp_registers, (void*)reg_addr, sizeof(struct gp_registers_t));
-        current_task->op_registers.u_esp = current_task->gp_registers.esp;
-    }
-    next_task = (current_task == NULL) ? (struct task_t*)task_list.head : current_task;
-    if (next_task == NULL) {
-        return;
-    }
+struct task_t* task_find_by_status(uint16_t status) {
+    return task_find_by_status_from((struct task_t*)task_list.head, status);
+}
+struct task_t* task_find_by_status_from(struct task_t* start, uint16_t status) {
+    if (start == NULL)
+        return NULL;
     for (int i = 0; i <= task_list.slots; i++) {
-        if (next_task->status == TASK_RUNNING)
-            break;
-        next_task = (struct task_t*)next_task->list_head.next;
+        if (start->status == status)
+            return start;
+        start = (struct task_t*)start->list_head.next;
     }
-
-    if (current_task && current_task->status == TASK_KILLING) {
-        task_delete(current_task);
-    } else {
-        struct task_t* task = (struct task_t*)task_list.head;
-        for (int i = 0; i <= task_list.slots; i++) {
-            task = (struct task_t*)task->list_head.next;
-            if (task->status == TASK_KILLING)
-                break;
-        }
-        if (task && task->status == TASK_KILLING) {
-            task_delete(task);
-        }
+    return start;
+}
+struct task_t* task_find_by_id(uint16_t tid) {
+    struct task_t* start = (struct task_t*)task_list.head;
+    for (int i = 0; i <= task_list.slots; i++) {
+        if (start->tid == tid)
+            return start;
+        start = (struct task_t*)start->list_head.next;
     }
-
-    next_task->op_registers.u_esp -= 4;
-    *(uint32_t*)(next_task->op_registers.u_esp) = (*(uint16_t*)(&next_task->flags)) | 0x200;
-    next_task->op_registers.u_esp -= 4;
-    *(uint32_t*)(next_task->op_registers.u_esp) = next_task->op_registers.cs;
-    next_task->op_registers.u_esp -= 4;
-    *(uint32_t*)(next_task->op_registers.u_esp) = next_task->op_registers.eip;
-    next_task->gp_registers.esp = next_task->op_registers.u_esp;
-    next_task->op_registers.u_esp -= sizeof(struct gp_registers_t);
-    memcpy((void*)next_task->op_registers.u_esp, (void*)&next_task->gp_registers, sizeof(struct gp_registers_t));
-
-    printf("Task switch tid: %u, from: %x esp: %x, ret: %x, eip: %x, kernel_esp: %x\n", next_task->tid, *ret_addr, next_task->op_registers.u_esp, *ret_addr, next_task->op_registers.eip, &reg_addr);
-    current_task = next_task;
-    switch_kcontext(next_task->op_registers.u_esp, next_task->op_registers.cr3);
+    return 0;
 }
-
-void sched_yield() {
-    if (current_task)
-        current_task->reschedule = 1;
-    // dangerous place, here we can leak memory
-    __asm__("int $0x20");  // launch scheduler
-}
-

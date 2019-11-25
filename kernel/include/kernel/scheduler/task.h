@@ -12,7 +12,7 @@
 #define TASK_INTERRUPTABLE 3
 
 #define TASK_KSTACK_SIZE 1024
-#define TASK_USTACK_SIZE 4096-1024
+#define TASK_USTACK_SIZE 4096 - 1024
 
 struct __attribute__((__packed__)) gp_registers_t {
     uint32_t edi;
@@ -69,9 +69,9 @@ struct task_mem_t {
 };
 
 struct message_t {
-    uint8_t type;                         /* message type */
-    uint32_t len;                         /* data length */
-    uint8_t *data; /* message data */
+    uint8_t type;  /* message type */
+    uint32_t len;  /* data length */
+    uint8_t* data; /* message data */
 };
 
 struct __attribute__((__packed__, __aligned__(4))) task_t {
@@ -95,7 +95,11 @@ extern struct clist_def_t task_list;
 extern struct task_t* current_task;
 
 extern struct task_t* task_create(uint16_t tid, void* address, struct task_mem_t* task_mem);
+extern struct task_t* task_find_by_status(uint16_t status);
+extern struct task_t* task_find_by_status_from(struct task_t* start, uint16_t status);
+extern struct task_t* task_find_by_id(uint16_t tid);
 extern void task_delete(struct task_t* task);
+
 extern void sched_schedule(size_t* ret_addr, size_t* reg_addr);
 extern void sched_yield();
 #endif
