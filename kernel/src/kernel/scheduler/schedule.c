@@ -29,7 +29,7 @@ void sched_schedule(size_t* ret_addr, size_t* reg_addr) {
         *(uint32_t*)(&current_task->flags) = *(uint32_t*)((size_t)ret_addr + 6) | 0x200;
         // get esp from interrupt instead of getting esp from registers.
         // idk, how it works before.
-        current_task->op_registers.u_esp = (size_t)ret_addr + 12; 
+        current_task->op_registers.u_esp = (size_t)ret_addr + 12;
         memcpy(&current_task->gp_registers, (void*)reg_addr, sizeof(struct gp_registers_t));
         //current_task->op_registers.u_esp = current_task->gp_registers.esp;
     }
@@ -71,4 +71,34 @@ void sched_yield() {
         current_task->reschedule = 1;
     // dangerous place, here we can leak memory
     __asm__("int $0x20");  // launch scheduler
+}
+
+void ksend(uint16_t tid, struct message_t* msg) {
+    struct task_t* task = task_find_by_id(tid);
+    if (!task || task->msg_count_in == TASK_MSG_BUFF_SIZE)
+        return;
+    memcpy(&task->msg_buff[task->msg_count_in], msg, sizeof(struct message_t));
+    task->msg_count_in++;
+    if (task->status == TASK_INTERRUPTABLE)
+        task->status == TASK_RUNNING;
+}
+
+void krecive(uint16_t tid, struct message_t* msg) {
+    struct task_t* task_before;
+    struct task_t* task_after;
+
+    task_before = current_task;
+    assert(tid == task_before->tid);
+    assert(task_before->status == TASK_RUNNING);
+
+    if (task_before->msg_count_in == 0)
+        task_before->status = TASK_INTERRUPTABLE;
+    sched_yield();
+    task_after = current_task;
+
+    assert(task_after == task_before);
+    assert(task_after->status == TASK_RUNNING);
+
+    memcpy(msg, &task_after->msg_buff[task_after->msg_count_in - 1], sizeof(struct message_t));
+    task_after->msg_count_in--;
 }

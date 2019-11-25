@@ -27,7 +27,17 @@ struct task_t* task_create(uint16_t tid, void* start_addr, struct task_mem_t* ta
     task->name[0] = 'F';
     task->name[1] = '\0';
     task->status = TASK_UNINTERRUPTABLE;
-    memcpy(&task->task_mem, task_mem, sizeof(struct task_mem_t));
+    if (task_mem != NULL) {
+        memcpy(&task->task_mem, task_mem, sizeof(struct task_mem_t));
+    } else {
+        struct task_mem_t t = {
+            .pages = 0,
+            .pages_count = 0,
+            .page_dir = kernel_page_directory,
+            .page_table = kernel_page_table,
+        };
+        memcpy(&task->task_mem, &t, sizeof(struct task_mem_t));
+    }
 
     *(uint32_t*)(&task->flags) = get_eflags() | 0x200;  // enabled interrupts
     memset(&task->gp_registers, 0, sizeof(struct gp_registers_t));
@@ -75,7 +85,7 @@ struct task_t* task_find_by_status_from(struct task_t* start, uint16_t status) {
             return start;
         start = (struct task_t*)start->list_head.next;
     }
-    return start;
+    return NULL;
 }
 struct task_t* task_find_by_id(uint16_t tid) {
     struct task_t* start = (struct task_t*)task_list.head;
@@ -84,5 +94,5 @@ struct task_t* task_find_by_id(uint16_t tid) {
             return start;
         start = (struct task_t*)start->list_head.next;
     }
-    return 0;
+    return NULL;
 }

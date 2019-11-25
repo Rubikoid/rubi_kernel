@@ -102,4 +102,8 @@ extern void task_delete(struct task_t* task);
 
 extern void sched_schedule(size_t* ret_addr, size_t* reg_addr);
 extern void sched_yield();
+
+extern void ksend(uint16_t tid, struct message_t* msg);
+extern void krecive(uint16_t tid, struct message_t* msg);
+
 #endif
