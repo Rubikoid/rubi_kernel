@@ -11,7 +11,7 @@
 
 #define TASK_QUOTA 3
 #define IPC_MSG_DATA_BUFF_SIZE 256
-#define TASK_MSG_BUFF_SIZE 256
+#define TASK_MSG_BUFF_SIZE 8
 
 #ifdef _DEBUG
 #define DEBUG_ASM asm("xchg %bx, %bx");

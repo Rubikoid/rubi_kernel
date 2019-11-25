@@ -9,6 +9,7 @@
 #define TASK_UNINTERRUPTABLE 0
 #define TASK_RUNNING 1
 #define TASK_KILLING 2
+#define TASK_INTERRUPTABLE 3
 
 #define TASK_KSTACK_SIZE 1024
 #define TASK_USTACK_SIZE 4096-1024
@@ -70,7 +71,7 @@ struct task_mem_t {
 struct message_t {
     uint8_t type;                         /* message type */
     uint32_t len;                         /* data length */
-    uint8_t data[IPC_MSG_DATA_BUFF_SIZE]; /* message data */
+    uint8_t *data; /* message data */
 };
 
 struct __attribute__((__packed__, __aligned__(4))) task_t {
