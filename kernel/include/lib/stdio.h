@@ -4,6 +4,16 @@
 #ifndef LIB_STDIO_H_
 #define LIB_STDIO_H_
 
+struct io_buf_t {
+    uint32_t fd;    // file descriptor
+    uint8_t *base;  // buffer start
+    uint8_t *ptr;   // pos in buff
+    uint8_t eof;    // if eof?
+    void *file;     // file defenition
+};
+
+typedef struct io_buf_t FILE;
+
 #ifdef KERNEL
 #define assert(expr) kassert(__FILE__, __func__, __LINE__, expr)
 #define printf(format, ...) kprintf(format, ##__VA_ARGS__)

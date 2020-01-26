@@ -15,11 +15,12 @@ set(CMAKE_ASM_NASM_OBJECT_FORMAT elf32)
 enable_language(ASM_NASM)
 
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/iso" "${CMAKE_BINARY_DIR}/iso/boot" "${CMAKE_BINARY_DIR}/iso/boot/grub")
-file(GLOB_RECURSE KERNEL_SRC ${PROJECT_SOURCE_DIR}/kernel/src *.c)
-file(GLOB_RECURSE KERNEL_ASM_SRC ${PROJECT_SOURCE_DIR}/kernel/src *.asm)
-file(GLOB_RECURSE KERNEL_HEAD ${PROJECT_SOURCE_DIR}/kernel/include *.h)
+file(GLOB_RECURSE KERNEL_SRC ${PROJECT_SOURCE_DIR}/kernel/src/*.c)
+file(GLOB_RECURSE KERNEL_ASM_SRC ${PROJECT_SOURCE_DIR}/kernel/src/*.asm)
+file(GLOB_RECURSE KERNEL_LOADER_ASM_SRC ${PROJECT_SOURCE_DIR}/loader/*.asm)
+file(GLOB_RECURSE KERNEL_HEAD ${PROJECT_SOURCE_DIR}/kernel/include/*.h)
 
-add_executable(kernel ${KERNEL_ASM_SRC} ${KERNEL_SRC} ${KERNEL_HEAD})
+add_executable(kernel ${KERNEL_LOADER_ASM_SRC} ${KERNEL_ASM_SRC} ${KERNEL_SRC} ${KERNEL_HEAD})
 
 target_include_directories(kernel PRIVATE "kernel/include") # add includes
 
