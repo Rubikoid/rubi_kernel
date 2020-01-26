@@ -50,6 +50,7 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
 
     disable_int();
     create_kernel_tasks();
+
     enable_int();
     // infiloop();
     return;
@@ -63,7 +64,7 @@ void infiloop() {
 }
 
 void create_kernel_tasks() {
-    // task_create(0, infiloop, NULL)->status = TASK_RUNNING;
+    task_create(0, infiloop, NULL)->status = TASK_RUNNING;
     // task_create(0, test1, NULL)->status = TASK_RUNNING;
     // task_create(0, test2, NULL)->status = TASK_RUNNING;
 }
