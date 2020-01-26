@@ -16,7 +16,7 @@
 #ifdef _DEBUG
 #define DEBUG_ASM asm("xchg %bx, %bx");
 #else
-#define DEBUG_ASM
+#define DEBUG_ASM ;
 #endif
 
 #ifndef KERNEL_VERSION

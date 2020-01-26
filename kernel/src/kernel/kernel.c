@@ -90,7 +90,7 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     task_create(2, test2, NULL)->status = TASK_RUNNING;
     task_create(1, test1, NULL)->status = TASK_RUNNING;
 
-    // task_create(0, infiloop, NULL)->status = TASK_RUNNING;
+    task_create(0, infiloop, NULL)->status = TASK_RUNNING;
     enable_int();
 
     while (1) {
