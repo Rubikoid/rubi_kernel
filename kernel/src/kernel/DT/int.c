@@ -3,6 +3,7 @@
 #include <kernel/DT/int.h>
 #include <kernel/asm_lib.h>
 #include <kernel/scheduler/task.h>
+#include <kernel/messages.h>
 #include <kernel/vga/vga.h>
 #include <lib/stdio.h>
 

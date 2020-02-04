@@ -4,6 +4,10 @@
 #ifndef LIB_QUEUE_H_
 #define LIB_QUEUE_H_
 
+/*
+	just queue
+*/
+
 struct queue_t {
     void *base;
     size_t front, rear, size, capacity;

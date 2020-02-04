@@ -4,7 +4,11 @@
 #ifndef LIB_CLIST_H_
 #define LIB_CLIST_H_
 
-typedef uint8_t (*clist_find_fn_t)(struct clist_head_t *entry, va_list list);
+/*
+	cyclic list.
+	must be dynamic, kernel implementation uses kmalloc
+	user-mode implementation also should use dynamic memory
+*/
 
 struct clist_head_t {
     struct clist_head_t *next;
@@ -16,6 +20,9 @@ struct clist_def_t {
     size_t slot_size;
     struct clist_head_t *head;
 };
+
+typedef uint8_t (*clist_find_fn_t)(struct clist_head_t *entry, va_list list);
+
 
 extern struct clist_head_t *clist_init(struct clist_def_t *ct);
 extern struct clist_head_t *clist_insert_after(struct clist_def_t *ct, struct clist_head_t *pos);

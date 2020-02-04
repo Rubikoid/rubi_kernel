@@ -14,6 +14,9 @@ struct file_t {
     struct dev_t *dev;
 };
 
+extern struct clist_def_t file_list;
+extern uint32_t next_fd;
+
 extern FILE *file_open(uint8_t *path, uint16_t mode_rw);
 
 #endif

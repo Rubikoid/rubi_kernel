@@ -36,5 +36,6 @@ struct ih_low_t {
 extern struct clist_def_t dev_list;
 
 extern struct dev_t *dev_create();
+extern struct dev_t *find_dev_by_name(char *name);
 
 #endif
