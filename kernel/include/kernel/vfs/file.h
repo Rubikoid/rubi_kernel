@@ -18,5 +18,6 @@ extern struct clist_def_t file_list;
 extern uint32_t next_fd;
 
 extern FILE *file_open(uint8_t *path, uint16_t mode_rw);
+extern size_t file_read(struct io_buf_t* io_buf, char *buff, uint32_t size);
 
 #endif
