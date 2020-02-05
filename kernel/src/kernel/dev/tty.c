@@ -1,6 +1,6 @@
+#include <kernel/DT/int.h>
 #include <kernel/dev/tty.h>
 #include <lib/string.h>
-#include <kernel/DT/int.h>
 
 const char *tty_dev_name = "TTY0";
 
@@ -23,11 +23,11 @@ void tty_init() {
 
     dev = dev_create();
 
-    memcpy(dev->name, tty_dev_name, strlen(tty_dev_name) + 1); // TODO: strcpy
+    memcpy(dev->name, tty_dev_name, strlen(tty_dev_name) + 1);  // TODO: strcpy
 
     dev->base_r = tty_input_buff;
     dev->base_w = tty_output_buff;
-    
+
     //dev->read_fn = tty_read; // TODO: implement
     //dev->write_fn = tty_write;
     //dev->cmd_fn = tty_cmd;
@@ -36,6 +36,6 @@ void tty_init() {
     dev->ih_list.slot_size = sizeof(struct ih_low_t);
     entry = clist_insert_after(&dev->ih_list, dev->ih_list.head);
 
-    ih_low = (struct ih_low_t*)entry->data;
+    ih_low = (struct ih_low_t *)entry->data;
     ih_low->number = INT_KEYBOARD;
 }

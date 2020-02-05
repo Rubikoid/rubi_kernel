@@ -93,9 +93,9 @@ struct __attribute__((__packed__, __aligned__(4))) task_t {
 
 extern struct clist_def_t task_list;
 extern struct task_t* current_task;
-extern uint32_t tid_counter; // TODO: do it normal
+extern uint32_t tid_counter;  // TODO: do it normal
 
-extern struct task_t* task_create(uint16_t tid, void* address, struct task_mem_t* task_mem); // creates new task. ignores tid param. if task_mem=null - uses kernel memory context;
+extern struct task_t* task_create(uint16_t tid, void* address, struct task_mem_t* task_mem);  // creates new task. ignores tid param. if task_mem=null - uses kernel memory context;
 extern struct task_t* task_find_by_status(uint16_t status);
 extern struct task_t* task_find_by_status_from(struct task_t* start, uint16_t status);
 extern struct task_t* task_find_by_id(uint16_t tid);
@@ -104,7 +104,7 @@ extern void task_delete(struct task_t* task);
 extern void sched_schedule(size_t* ret_addr, size_t* reg_addr);
 extern void sched_yield();
 
-extern void ksend(uint16_t tid, struct message_t* msg); // kernel internal func to send IPC
-extern void krecive(uint16_t tid, struct message_t* msg); // kernel internal func to recv IPC
+extern void ksend(uint16_t tid, struct message_t* msg);    // kernel internal func to send IPC
+extern void krecive(uint16_t tid, struct message_t* msg);  // kernel internal func to recv IPC
 
 #endif

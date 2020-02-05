@@ -43,7 +43,7 @@ FILE *file_open(uint8_t *path, uint16_t mod_rw) {
         }
     } else {
         file->dev = NULL;
-        printf("Wtf file dev\n"); // TODO: filesystem
+        printf("Wtf file dev\n");  // TODO: filesystem
     }
 
     file->mod_rw = mod_rw;
@@ -60,11 +60,10 @@ FILE *file_open(uint8_t *path, uint16_t mod_rw) {
 size_t file_read(struct io_buf_t *io_buf, char *buff, uint32_t size) {
     struct file_t *file;
     file = (struct file_t *)io_buf->file;
-    if(file->dev != NULL) {
+    if (file->dev != NULL) {
         return file->dev->read_fn(&file->io_buf, buff, size);
-    }
-    else {
-        printf("Wtf file read dev\n"); // TODO: filesystem
+    } else {
+        printf("Wtf file read dev\n");  // TODO: filesystem
     }
 
     return 0;

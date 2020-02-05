@@ -1,6 +1,6 @@
+#include <kernel/scheduler/task.h>
 #include <lib/clist.h>
 #include <lib/stdio.h>
-#include <kernel/scheduler/task.h>
 #include <types.h>
 
 #ifndef KERNEL_KTHREAD_KTASKS_H_

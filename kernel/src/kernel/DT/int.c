@@ -2,8 +2,8 @@
 
 #include <kernel/DT/int.h>
 #include <kernel/asm_lib.h>
-#include <kernel/scheduler/task.h>
 #include <kernel/messages.h>
+#include <kernel/scheduler/task.h>
 #include <kernel/vga/vga.h>
 #include <lib/stdio.h>
 
@@ -59,7 +59,7 @@ void pic_init() {
 
     outb(PIC1_DATA_PORT, PIC1_INT_OFFSET); /* IQW2 offset */
     outb(PIC2_DATA_PORT, PIC2_INT_OFFSET); /* IQW2 offset */
-    
+
     outb(PIC1_DATA_PORT, 0x00); /* IQW3 no cascade */
     outb(PIC2_DATA_PORT, 0x00); /* IQW3 no cascade */
 

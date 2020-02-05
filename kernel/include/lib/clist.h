@@ -23,7 +23,6 @@ struct clist_def_t {
 
 typedef uint8_t (*clist_find_fn_t)(struct clist_head_t *entry, va_list list);
 
-
 extern struct clist_head_t *clist_init(struct clist_def_t *ct);
 extern struct clist_head_t *clist_insert_after(struct clist_def_t *ct, struct clist_head_t *pos);
 extern struct clist_head_t *clist_find(struct clist_def_t *def, clist_find_fn_t func, ...);

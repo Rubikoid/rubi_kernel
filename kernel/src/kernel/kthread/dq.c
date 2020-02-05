@@ -1,7 +1,6 @@
+#include <kernel/DT/syscall.h>
 #include <kernel/kthread/dq.h>
 #include <kernel/scheduler/task.h>
-#include <kernel/DT/syscall.h>
-
 
 void dq_task() {
     struct message_t msg;

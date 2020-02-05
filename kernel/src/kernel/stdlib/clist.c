@@ -46,7 +46,7 @@ struct clist_head_t *clist_find(struct clist_def_t *ct, clist_find_fn_t func, ..
     for (uint32_t i = 0; i <= ct->slots; i++) {
         va_list list;
         va_start(list, func);
-        if(func(cur, list))
+        if (func(cur, list))
             return cur;
         cur = cur->next;
     }
