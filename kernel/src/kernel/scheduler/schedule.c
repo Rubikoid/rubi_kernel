@@ -70,6 +70,7 @@ void sched_yield() {
     if (current_task)
         current_task->reschedule = 1;
     // dangerous place, here we can leak memory
+    // or not
     __asm__("int $0x20");  // launch scheduler
 }
 
@@ -91,9 +92,10 @@ void krecive(uint16_t tid, struct message_t* msg) {
     assert(tid == task_before->tid);
     assert(task_before->status == TASK_RUNNING);
 
-    if (task_before->msg_count_in == 0)
+    if (task_before->msg_count_in == 0) {
         task_before->status = TASK_INTERRUPTABLE;
-    sched_yield();
+        sched_yield();
+    } // i think, if we have messages, we should't call scheduler
     task_after = current_task;
 
     assert(task_after == task_before);

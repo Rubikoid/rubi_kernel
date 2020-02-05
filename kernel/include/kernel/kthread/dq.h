@@ -6,6 +6,7 @@
 #define KERNEL_KTHREAD_DQ_H_
 
 #define IPC_MSG_TYPE_DQ_SCHED 0
+#define IPC_MSG_TYPE_DQ_TEST 1
 
 extern void dq_task();
 

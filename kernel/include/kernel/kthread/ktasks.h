@@ -11,4 +11,5 @@
 extern uint32_t ktasks_size;
 extern struct task_t **ktasks;
 
+extern void kernel_tasks_init();
 #endif

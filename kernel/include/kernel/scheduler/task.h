@@ -71,7 +71,7 @@ struct task_mem_t {
 struct message_t {
     uint8_t type;  /* message type */
     uint32_t len;  /* data length */
-    uint8_t* data; /* message data */
+    uint8_t* data; /* message data; reciver MUST clean data */
 };
 
 struct __attribute__((__packed__, __aligned__(4))) task_t {
@@ -95,7 +95,7 @@ extern struct clist_def_t task_list;
 extern struct task_t* current_task;
 extern uint32_t tid_counter;  // TODO: do it normal
 
-extern struct task_t* task_create(uint16_t tid, void* address, struct task_mem_t* task_mem);  // creates new task. ignores tid param. if task_mem=null - uses kernel memory context;
+extern struct task_t* task_create(uint16_t tid, void* address, struct task_mem_t* task_mem, char *name);  // creates new task. ignores tid param. if task_mem=null - uses kernel memory context;
 extern struct task_t* task_find_by_status(uint16_t status);
 extern struct task_t* task_find_by_status_from(struct task_t* start, uint16_t status);
 extern struct task_t* task_find_by_id(uint16_t tid);

@@ -9,7 +9,7 @@
 #define MSG_INFINITY ""
 #endif
 
-#define MSG_TASK_CREATE "Task create tid: %u, k_esp:%x, u_esp:%x, eip:%x\n"
+#define MSG_TASK_CREATE "Task create tid: %u, k_esp:%x, u_esp:%x, eip:%x, name: %s\n"
 
 #ifdef DEBUG_SCHED
 #define MSG_SCH_TC "{tcont}\n"
@@ -22,7 +22,7 @@
 #define MSG_SCH_TSW_SHORT ""
 #define MSG_SCH_TSW ""
 #define MSG_SCH_TSW_F ""
-#define MSG_SCH_UPTIME ""
+#define MSG_SCH_UPTIME "uptime_secs: %u\n"
 #endif
 
 #define MSG_SYSCALL "Syscall %x from %x\n"

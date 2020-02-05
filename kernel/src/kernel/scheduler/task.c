@@ -15,7 +15,7 @@ struct clist_def_t task_list = {
 struct task_t* current_task = 0;
 uint32_t tid_counter = 0;
 
-struct task_t* task_create(uint16_t tid, void* start_addr, struct task_mem_t* task_mem) {
+struct task_t* task_create(uint16_t tid_depricated, void* start_addr, struct task_mem_t* task_mem, char *name) {
     struct task_t* task;
     struct clist_head_t* entry;
 
@@ -25,8 +25,9 @@ struct task_t* task_create(uint16_t tid, void* start_addr, struct task_mem_t* ta
     task->kstack = kmalloc(TASK_KSTACK_SIZE);
     task->ustack = kmalloc(TASK_USTACK_SIZE);
     task->tid = tid_counter++;
-    task->name[0] = 'F';
-    task->name[1] = '\0';
+    //task->name[0] = 'F';
+    //task->name[1] = '\0';
+    strncpy(task->name, name, 7);
     task->status = TASK_UNINTERRUPTABLE;
     if (task_mem != NULL) {
         memcpy(&task->task_mem, task_mem, sizeof(struct task_mem_t));
@@ -51,7 +52,7 @@ struct task_t* task_create(uint16_t tid, void* start_addr, struct task_mem_t* ta
     task->op_registers.cr3 = PHYS((size_t)task->task_mem.page_dir);
     task->op_registers.k_esp = (uint32_t)task->kstack + TASK_KSTACK_SIZE;
     task->op_registers.u_esp = (uint32_t)task->ustack + TASK_USTACK_SIZE;
-    printf(MSG_TASK_CREATE, tid, task->op_registers.k_esp, task->op_registers.k_esp, (size_t)start_addr);
+    printf(MSG_TASK_CREATE, task->tid, task->op_registers.k_esp, task->op_registers.k_esp, (size_t)start_addr, task->name);
     return task;
 }
 

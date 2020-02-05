@@ -86,7 +86,7 @@ int_keyboard:
 	iret
 
 int_timer:
-    ; cli
+    cli ; i belive we should disallow interrupts?
 	pushad
 	cld
     mov ebp, esp
@@ -98,7 +98,7 @@ int_timer:
 	call cint_timer
     mov esp, ebp
 	popad
-    ; sti
+    sti ; i belive we should allow interrupts?
 	iret
 
 ;:

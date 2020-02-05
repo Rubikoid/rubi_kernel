@@ -29,6 +29,10 @@ uint32_t cint_syscall(PUSHAD_C) {
             krecive(task->tid, (struct message_t *)in_ebx);
             break;
         }
+        case SYSCALL_GETTID: {
+            ret = (uint32_t)task->tid;  // tid - 16, return - 32. вдруг что сломается?
+            break;
+        }
         case SYSCALL_TEST: {
             printf(MSG_SYSCALL_TEST);
             ret = in_ebx + in_ecx;

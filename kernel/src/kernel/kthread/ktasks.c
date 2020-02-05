@@ -11,6 +11,6 @@ void kernel_tasks_init() {
     ktasks_size = 1;
     ktasks = kmalloc(ktasks_size * sizeof(struct task_t *));
 
-    ktasks[KERNEL_DQ_TASK_ID] = task_create(0, dq_task, NULL);
+    ktasks[KERNEL_DQ_TASK_ID] = task_create(0, dq_task, NULL, "dq");
     ktasks[KERNEL_DQ_TASK_ID]->status = TASK_RUNNING;
 }
