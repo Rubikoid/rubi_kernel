@@ -3,6 +3,8 @@
 #ifndef KERNEL_DT_SYSCALL_H_
 #define KERNEL_DT_SYSCALL_H_
 
+#include <kernel/asm_lib.h>
+
 #define SYSCALL_EXIT 0x1
 #define SYSCALL_KSEND 0x2
 #define SYSCALL_KRECV 0x3

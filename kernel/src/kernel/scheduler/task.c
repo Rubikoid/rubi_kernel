@@ -13,6 +13,7 @@ struct clist_def_t task_list = {
     .head = 0,
 };
 struct task_t* current_task = 0;
+uint32_t tid_counter = 0;
 
 struct task_t* task_create(uint16_t tid, void* start_addr, struct task_mem_t* task_mem) {
     struct task_t* task;
@@ -23,7 +24,7 @@ struct task_t* task_create(uint16_t tid, void* start_addr, struct task_mem_t* ta
 
     task->kstack = kmalloc(TASK_KSTACK_SIZE);
     task->ustack = kmalloc(TASK_USTACK_SIZE);
-    task->tid = tid;
+    task->tid = tid_counter++;
     task->name[0] = 'F';
     task->name[1] = '\0';
     task->status = TASK_UNINTERRUPTABLE;
@@ -77,6 +78,7 @@ void task_delete(struct task_t* task) {
 struct task_t* task_find_by_status(uint16_t status) {
     return task_find_by_status_from((struct task_t*)task_list.head, status);
 }
+
 struct task_t* task_find_by_status_from(struct task_t* start, uint16_t status) {
     if (start == NULL)
         return NULL;

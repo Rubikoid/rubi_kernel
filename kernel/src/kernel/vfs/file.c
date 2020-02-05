@@ -25,9 +25,10 @@ FILE *file_open(uint8_t *path, uint16_t mod_rw) {
     struct dev_t *dev;
 
     entry = clist_find(&file_list, file_find_path_rw, path, mod_rw);
-    file = (struct file_t *)entry->data;
-    if (entry != NULL)
+    if (entry != NULL) {
+        file = (struct file_t *)entry->data;
         return &file->io_buf;
+    }
 
     entry = clist_insert_after(&file_list, file_list.head);
     file = (struct file_t *)entry->data;
