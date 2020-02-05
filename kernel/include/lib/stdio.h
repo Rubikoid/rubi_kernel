@@ -15,7 +15,13 @@ struct io_buf_t {
 typedef struct io_buf_t FILE;
 
 #ifdef KERNEL  // we are in kernel space
+
 #define assert(expr) kassert(__FILE__, __func__, __LINE__, expr)
+// so there are a hack with usage if kprintf for printing __LINE__, but i have no idea how do it staticly.
+#define klog(format, ...) kprintf( \
+    "["__MODULE_NAME__             \
+    "] " format,                   \
+    ##__VA_ARGS__)
 #define printf(format, ...) kprintf(format, ##__VA_ARGS__)
 #define vprintf(format, arg_list) kvprintf(format, arg_list)
 

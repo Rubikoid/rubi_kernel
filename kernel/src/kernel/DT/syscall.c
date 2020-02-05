@@ -8,9 +8,19 @@
 #include <kernel/vga/vga.h>
 #include <lib/stdio.h>
 
+#define __MODULE_NAME__ "SCALL"
+
+static const char *syscall_names[NORMAL_SYSCALL_COUNT] = {
+    "SYSCALL_NONE",
+    "SYSCALL_EXIT",
+    "SYSCALL_KSEND",
+    "SYSCALL_KRECV",
+    "SYSCALL_GETTID",
+};
+
 uint32_t cint_syscall(PUSHAD_C) {
     struct task_t *task = current_task;
-    printf(MSG_SYSCALL, in_eax, task == NULL ? 9999 : task->tid);
+    klog(MSG_SYSCALL, syscall_names[in_eax % NORMAL_SYSCALL_COUNT], in_eax, task == NULL ? ("NON") : (task->name), task == NULL ? 9999 : task->tid);
     uint32_t ret = 0;
     disable_int();
     switch (in_eax) {

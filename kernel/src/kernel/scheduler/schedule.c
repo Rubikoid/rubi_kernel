@@ -6,6 +6,9 @@
 #include <kernel/scheduler/task.h>
 #include <lib/stdio.h>
 #include <lib/string.h>
+
+#define __MODULE_NAME__ "SCHED"
+
 /*
 /|\  ...
  |   eip
@@ -33,8 +36,6 @@ void sched_schedule(size_t* ret_addr, size_t* reg_addr) {
         memcpy(&current_task->gp_registers, (void*)reg_addr, sizeof(struct gp_registers_t));
         //current_task->op_registers.u_esp = current_task->gp_registers.esp;
     }
-    
-    tasks_debug();
 
     if (current_task)
         next_task = task_find_by_status_from(current_task, TASK_RUNNING);
@@ -78,12 +79,14 @@ void sched_yield() {
 
 void ksend(uint16_t tid, struct message_t* msg) {
     struct task_t* task = task_find_by_id(tid);
-    if (!task || task->msg_count_in == TASK_MSG_BUFF_SIZE)
+    if (!task || task->msg_count_in == TASK_MSG_BUFF_SIZE) {
+        klog("Task id %x not found or his pool full\n", tid);
         return;
+    }
     memcpy(&task->msg_buff[task->msg_count_in], msg, sizeof(struct message_t));
     task->msg_count_in++;
     if (task->status == TASK_INTERRUPTABLE)
-        task->status == TASK_RUNNING;
+        task->status = TASK_RUNNING;
 }
 
 void krecive(uint16_t tid, struct message_t* msg) {
@@ -97,7 +100,7 @@ void krecive(uint16_t tid, struct message_t* msg) {
     if (task_before->msg_count_in == 0) {
         task_before->status = TASK_INTERRUPTABLE;
         sched_yield();
-    } // i think, if we have messages, we should't call scheduler
+    }  // i think, if we have messages, we should't call scheduler
     task_after = current_task;
 
     assert(task_after == task_before);

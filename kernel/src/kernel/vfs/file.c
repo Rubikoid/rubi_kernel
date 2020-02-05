@@ -30,7 +30,7 @@ FILE *file_open(uint8_t *path, uint16_t mod_rw) {
         return &file->io_buf;
     }
 
-    entry = clist_insert_after(&file_list, file_list.head);
+    entry = clist_insert_after(&file_list, file_list.tail);
     file = (struct file_t *)entry->data;
 
     dev = find_dev_by_name((char *)path);

@@ -34,7 +34,7 @@ void tty_init() {
 
     dev->ih_list.head = NULL;
     dev->ih_list.slot_size = sizeof(struct ih_low_t);
-    entry = clist_insert_after(&dev->ih_list, dev->ih_list.head);
+    entry = clist_insert_after(&dev->ih_list, dev->ih_list.tail);
 
     ih_low = (struct ih_low_t *)entry->data;
     ih_low->number = INT_KEYBOARD;

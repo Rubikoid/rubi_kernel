@@ -3,12 +3,13 @@
 #include <kernel/memory/heap.h>
 #include <kernel/scheduler/task.h>
 
+#define __MODULE_NAME__ "KDQ"
+
 void dq_task() {
     struct message_t msg;
-    printf("KernelDQ start\n");
+    klog("KernelDQ start\n");
     for (;;) {
         syscall_krecv(&msg);
-
         switch (msg.type) {
             case IPC_MSG_TYPE_DQ_SCHED: {
                 /* do deffered callback execution */

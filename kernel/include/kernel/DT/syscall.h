@@ -5,6 +5,8 @@
 
 #include <kernel/asm_lib.h>
 
+#define NORMAL_SYSCALL_COUNT 5
+
 #define SYSCALL_EXIT 0x1
 #define SYSCALL_KSEND 0x2
 #define SYSCALL_KRECV 0x3

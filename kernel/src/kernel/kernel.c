@@ -25,6 +25,8 @@
 //	#error "This code must be compiled with an x86-elf compiler"
 //#endif
 
+#define __MODULE_NAME__ "KERNEL"
+
 typedef struct page_directory_entry_t *pdep_t;
 typedef struct page_table_entry_t *ptep_t;
 
@@ -32,7 +34,7 @@ void infiloop();
 void create_kernel_tasks();
 
 void test1() {
-    printf("Running test1\n");
+    klog("Running test\n");
     uint16_t tid = syscall_gettid();
     struct message_t msg_out = {
         .type = 1,
@@ -45,8 +47,8 @@ void test1() {
     struct message_t msg_in;
     syscall_krecv(&msg_in);
 
-    printf("Recv message type: %x with len: %x and data: %x\n", msg_in.type, msg_in.len, *((uint32_t *)msg_in.data));
-
+    klog("Recv message type: 0x%x with len: 0x%x and data: 0x%x\n", msg_in.type, msg_in.len, *((uint32_t *)msg_in.data));
+    kfree(msg_in.data);
     syscall_exit();
 }
 
@@ -71,16 +73,11 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     disable_int();
 
     create_kernel_tasks();
-    
-    printf("Create tasks fin\n");
-    
 
     enable_int();
-    
-    printf("Allowd interrupts\n");
-    
+
     // infiloop();
-    sched_yield(); // strange shit.
+    sched_yield();  // strange shit. without first call scheduler going to break
     return;
 }
 

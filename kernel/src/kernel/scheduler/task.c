@@ -7,6 +7,8 @@
 #include <lib/stdio.h>
 #include <lib/string.h>
 
+#define __MODULE_NAME__ "TASK"
+
 struct clist_def_t task_list = {
     .slot_size = sizeof(struct task_t),
     .slots = 0,
@@ -15,19 +17,17 @@ struct clist_def_t task_list = {
 struct task_t* current_task = 0;
 uint32_t tid_counter = 0;
 
-struct task_t* task_create(uint16_t tid_depricated, void* start_addr, struct task_mem_t* task_mem, char *name) {
+struct task_t* task_create(uint16_t tid_depricated, void* start_addr, struct task_mem_t* task_mem, char* name) {
     struct task_t* task;
     struct clist_head_t* entry;
 
-    entry = clist_insert_after(&task_list, task_list.head);
+    entry = clist_insert_after(&task_list, task_list.tail);
     task = (struct task_t*)entry->data;
 
     task->kstack = kmalloc(TASK_KSTACK_SIZE);
     task->ustack = kmalloc(TASK_USTACK_SIZE);
     task->tid = tid_counter++;
-    //task->name[0] = 'F';
-    //task->name[1] = '\0';
-    strncpy(task->name, name, 7);
+    strncpy(task->name, name, sizeof(task->name) - 1);
     task->status = TASK_UNINTERRUPTABLE;
     if (task_mem != NULL) {
         memcpy(&task->task_mem, task_mem, sizeof(struct task_mem_t));
@@ -52,7 +52,7 @@ struct task_t* task_create(uint16_t tid_depricated, void* start_addr, struct tas
     task->op_registers.cr3 = PHYS((size_t)task->task_mem.page_dir);
     task->op_registers.k_esp = (uint32_t)task->kstack + TASK_KSTACK_SIZE;
     task->op_registers.u_esp = (uint32_t)task->ustack + TASK_USTACK_SIZE;
-    printf(MSG_TASK_CREATE, task->tid, task->op_registers.k_esp, task->op_registers.k_esp, (size_t)start_addr, task->name);
+    klog(MSG_TASK_CREATE, task->tid, task->op_registers.k_esp, task->op_registers.k_esp, (size_t)start_addr, task->name);
     return task;
 }
 
@@ -81,33 +81,46 @@ struct task_t* task_find_by_status(uint16_t status) {
 }
 
 struct task_t* task_find_by_status_from(struct task_t* start, uint16_t status) {
-    if (start == NULL)
+    if (start == NULL) {
+        klog("Start is null\n");
         return NULL;
+    }
     start = (struct task_t*)start->list_head.next;
-    for (int i = 0; i <= task_list.slots; i++) {
+    do {
         if (start->status == status)
             return start;
         start = (struct task_t*)start->list_head.next;
-    }
+    } while (start != (struct task_t*)task_list.head && start != NULL);
+    /*for (int i = 0; i <= task_list.slots; i++) {
+        if (start->status == status)
+            return start;
+        start = (struct task_t*)start->list_head.next;
+    }*/
     return NULL;
 }
 struct task_t* task_find_by_id(uint16_t tid) {
     struct task_t* start = (struct task_t*)task_list.head;
+    do {
+        if (start->tid == tid)
+            return start;
+        start = (struct task_t*)start->list_head.next;
+    } while (start != (struct task_t*)task_list.head && start != NULL);
+    /*
     for (int i = 0; i <= task_list.slots; i++) {
         if (start->tid == tid)
             return start;
         start = (struct task_t*)start->list_head.next;
-    }
+    }*/
     return NULL;
 }
 
 void tasks_debug() {
-    struct task_t *task = (struct task_t*)task_list.head;
-    printf("Tasks slots: %x\n", task_list.slots);
-    if(task == NULL)
+    struct task_t* task = (struct task_t*)task_list.head;
+    klog("Tasks slots: %x\n", task_list.slots);
+    if (task == NULL)
         return;
-    do{
-        printf("Task tid:%x, name:%s, state:%x time:%x, resched:%x\n", task->tid, task->name, task->status, task->time, task->reschedule);
-        task = (struct task_t*) task->list_head.next;
-    }while(task != (struct task_t*)task_list.head && task != NULL);
+    do {
+        klog("Task tid:%x, name:%s, state:%x time:%x, resched:%x\n", task->tid, task->name, task->status, task->time, task->reschedule);
+        task = (struct task_t*)task->list_head.next;
+    } while (task != (struct task_t*)task_list.head && task != NULL);
 }

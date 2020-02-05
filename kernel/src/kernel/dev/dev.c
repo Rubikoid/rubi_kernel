@@ -12,7 +12,7 @@ struct dev_t *dev_create() {
     struct clist_head_t *entry;
     struct dev_t *device;
 
-    entry = clist_insert_after(&dev_list, dev_list.head);
+    entry = clist_insert_after(&dev_list, dev_list.tail);
     device = (struct dev_t *)entry->data;
 
     return device;
