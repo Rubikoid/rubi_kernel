@@ -34,6 +34,26 @@ int strcmp(const char *s1, const char *s2) {
     return 0;
 }
 
+char *strcpy(char *dst, const char *src) {
+    int i=0;
+    int len = strlen(src);
+    for(; i < len; i++) {
+        dst[i] = src[i];
+    }
+    dst[i] = 0;
+    return dst;
+}
+
+char *strncpy(char *dst, const char *src, uint32_t n) {
+    int i=0;
+    int len = strlen(src);
+    for(; i < len && i <= n; i++) {
+        dst[i] = src[i];
+    }
+    dst[i] = 0;
+    return dst;
+}
+
 char *itoa(unsigned int value, char *str, unsigned int base) {
     uint32_t i = 0;
     uint32_t k = 0;
