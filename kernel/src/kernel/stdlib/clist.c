@@ -9,6 +9,7 @@ struct clist_head_t *clist_init(struct clist_def_t *ct) {
     n->next = n;
     n->data = n;
     ct->head = n;
+    ct->tail = n;
     ct->slots = 1;
     return n;
 }
@@ -20,15 +21,17 @@ struct clist_head_t *clist_insert_after(struct clist_def_t *ct, struct clist_hea
     n->next = pos->next;
     n->data = n;
     pos->next = n;
-
+    if(ct->tail == pos)
+        ct->tail = n;
     ct->slots += 1;
-    ct->head = n;
+    
+    // ct->head = n; // а это вот зачем блин
     return n;
 }
 
 void clist_delete(struct clist_def_t *ct, struct clist_head_t *pos) {
     struct clist_head_t *x = ct->head;
-    for (int i = 0; i <= ct->slots; i++) {
+    for (int i = 0; i <= ct->slots; i++) { // find previous list item
         //printf("%x->%x == %x\n", x, x->next, pos);
         if (x->next == pos)
             break;
@@ -36,6 +39,8 @@ void clist_delete(struct clist_def_t *ct, struct clist_head_t *pos) {
     }
     if (pos == ct->head)
         ct->head = x;
+    if (pos == ct->tail)
+        ct->tail = x;
     x->next = pos->next;
     ct->slots -= 1;
     kfree(pos);
@@ -67,13 +72,13 @@ void clist_test() {
     struct clist_head_t *a2 = clist_insert_after(&ct, a1);
     assert(a1->next == a2);
     assert(a2->next == a1);
-    assert(ct.head == a2);
+    assert(ct.head == a1); // это тоже вот зачем было a2
 
     struct clist_head_t *a3 = clist_insert_after(&ct, a2);
     assert(a1->next == a2);
     assert(a2->next == a3);
     assert(a3->next == a1);
-    assert(ct.head == a3);
+    assert(ct.head == a1);  // это тоже вот зачем было a3
 
     // a1 -> a2 -> a4 -> a3 -> a1
     struct clist_head_t *a4 = clist_insert_after(&ct, a2);
@@ -81,7 +86,7 @@ void clist_test() {
     assert(a2->next == a4);
     assert(a4->next == a3);
     assert(a3->next == a1);
-    assert(ct.head == a4);
+    assert(ct.head == a1);   // это тоже вот зачем было a4
     assert(ct.slots == 4);
 
     // a1 -> a4 -> a3 -> a1
@@ -89,7 +94,7 @@ void clist_test() {
     assert(a1->next == a4);
     assert(a4->next == a3);
     assert(a3->next == a1);
-    assert(ct.head == a4);
+    assert(ct.head == a1);   // это тоже вот зачем было a4
 
     // a1 -> a3 -> a1
     clist_delete(&ct, a4);

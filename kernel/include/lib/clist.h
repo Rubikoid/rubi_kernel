@@ -19,6 +19,7 @@ struct clist_def_t {
     uint32_t slots;
     size_t slot_size;
     struct clist_head_t *head;
+    struct clist_head_t *tail;
 };
 
 typedef uint8_t (*clist_find_fn_t)(struct clist_head_t *entry, va_list list);

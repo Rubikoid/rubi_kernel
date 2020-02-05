@@ -107,4 +107,7 @@ extern void sched_yield();
 extern void ksend(uint16_t tid, struct message_t* msg);    // kernel internal func to send IPC
 extern void krecive(uint16_t tid, struct message_t* msg);  // kernel internal func to recv IPC
 
+
+extern void tasks_debug();
+
 #endif

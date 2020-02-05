@@ -83,6 +83,7 @@ struct task_t* task_find_by_status(uint16_t status) {
 struct task_t* task_find_by_status_from(struct task_t* start, uint16_t status) {
     if (start == NULL)
         return NULL;
+    start = (struct task_t*)start->list_head.next;
     for (int i = 0; i <= task_list.slots; i++) {
         if (start->status == status)
             return start;
@@ -98,4 +99,15 @@ struct task_t* task_find_by_id(uint16_t tid) {
         start = (struct task_t*)start->list_head.next;
     }
     return NULL;
+}
+
+void tasks_debug() {
+    struct task_t *task = (struct task_t*)task_list.head;
+    printf("Tasks slots: %x\n", task_list.slots);
+    if(task == NULL)
+        return;
+    do{
+        printf("Task tid:%x, name:%s, state:%x time:%x, resched:%x\n", task->tid, task->name, task->status, task->time, task->reschedule);
+        task = (struct task_t*) task->list_head.next;
+    }while(task != (struct task_t*)task_list.head && task != NULL);
 }

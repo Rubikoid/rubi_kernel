@@ -20,8 +20,8 @@
 #else
 #define MSG_SCH_TC ""
 #define MSG_SCH_TSW_SHORT ""
-#define MSG_SCH_TSW ""
-#define MSG_SCH_TSW_F ""
+#define MSG_SCH_TSW "Tsw to tid: %u, from: %x esp: %x, eip: %x, kernel_esp: %x\n"
+#define MSG_SCH_TSW_F "Tsw from tid: %u, from: %x esp: %x, eip: %x, kernel_esp: %x\n"
 #define MSG_SCH_UPTIME "uptime_secs: %u\n"
 #endif
 

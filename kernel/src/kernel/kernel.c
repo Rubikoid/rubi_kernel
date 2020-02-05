@@ -40,7 +40,7 @@ void test1() {
         .data = kmalloc(2),
     };
     (*(uint16_t *)msg_out.data) = tid;
-    ksend(ktasks[KERNEL_DQ_TASK_ID]->tid, &msg_out);
+    syscall_ksend(ktasks[KERNEL_DQ_TASK_ID]->tid, &msg_out);
 
     struct message_t msg_in;
     syscall_krecv(&msg_in);
@@ -95,7 +95,7 @@ void create_kernel_tasks() {
     task_create(0, infiloop, NULL, "ifinity")->status = TASK_RUNNING;
     kernel_tasks_init();
     task_create(0, test1, NULL, "test1")->status = TASK_RUNNING;
-
+    tasks_debug();
     // task_create(0, test1, NULL)->status = TASK_RUNNING;
     // task_create(0, test2, NULL)->status = TASK_RUNNING;
 }

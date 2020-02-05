@@ -33,6 +33,8 @@ void sched_schedule(size_t* ret_addr, size_t* reg_addr) {
         memcpy(&current_task->gp_registers, (void*)reg_addr, sizeof(struct gp_registers_t));
         //current_task->op_registers.u_esp = current_task->gp_registers.esp;
     }
+    
+    tasks_debug();
 
     if (current_task)
         next_task = task_find_by_status_from(current_task, TASK_RUNNING);
