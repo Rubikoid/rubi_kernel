@@ -47,7 +47,7 @@ char *strcpy(char *dst, const char *src) {
 char *strncpy(char *dst, const char *src, uint32_t n) {
     int i=0;
     int len = strlen(src);
-    for(; i < len && i <= n; i++) {
+    for(; i < len && i < n; i++) {
         dst[i] = src[i];
     }
     dst[i] = 0;
