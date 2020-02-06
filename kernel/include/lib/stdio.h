@@ -9,6 +9,7 @@ struct io_buf_t {
     uint8_t *base;  // buffer start
     uint8_t *ptr;   // pos in buff
     uint8_t eof;    // if eof?
+    uint8_t eol;    // if eof?
     void *file;     // file defenition
 };
 

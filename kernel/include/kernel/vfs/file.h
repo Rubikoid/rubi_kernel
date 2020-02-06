@@ -6,6 +6,7 @@
 #ifndef KERNEL_VFS_FILE_H_
 #define KERNEL_VFS_FILE_H_
 
+// this is a kernel-only struct, used for tracking open file descriptors and their assoc with devices.
 struct file_t {
     struct clist_head_t list_head;
     FILE io_buf;

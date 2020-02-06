@@ -13,11 +13,10 @@ void dq_task() {
         switch (msg.type) {
             case IPC_MSG_TYPE_DQ_SCHED: {
                 /* do deffered callback execution */
-                // assert(msg.len == 4);
-                /*dq_handler_t handler = (dq_handler_t)*((size_t*)msg.data);
-                assert((size_t)handler < KERNEL_CODE_END_ADDR);
-                printf(MSG_DQ_SCHED, handler);
-                handler(msg);*/
+                assert(msg.len == 4);
+                dq_handler_t handler = (dq_handler_t)*((size_t*)msg.data);
+                // printf(MSG_DQ_SCHED, handler);
+                handler(&msg);
                 break;
             }
             case IPC_MSG_TYPE_DQ_TEST: {

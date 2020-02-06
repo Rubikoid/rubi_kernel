@@ -91,7 +91,7 @@ void infiloop() {
 void create_kernel_tasks() {
     task_create(0, infiloop, NULL, "ifinity")->status = TASK_RUNNING;
     kernel_tasks_init();
-    task_create(0, test1, NULL, "test1")->status = TASK_RUNNING;
+    // task_create(0, test1, NULL, "test1")->status = TASK_RUNNING;
     tasks_debug();
     // task_create(0, test1, NULL)->status = TASK_RUNNING;
     // task_create(0, test2, NULL)->status = TASK_RUNNING;
