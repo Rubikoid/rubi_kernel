@@ -35,6 +35,7 @@ void kpanic(char *message, ...) {
     vga_state.term_col = 0;
     vga_state.term_row = 0;
     vga_state.term_color = V_BLACK << 4 | V_WHITE;
+    vga_state.allow_legacy_vga_functions = 1;
 
     kvprintf(message, va);
     va_end(va);

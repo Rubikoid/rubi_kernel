@@ -39,7 +39,8 @@
 #define G_YELLOW "\e\x0E"
 #define G_WHITE "\e\x0F"
 
-#define TERM_COUNT 2
+// i think there this is useless
+#define TERM_COUNT 0
 // x
 #define VGA_COLS 80
 // y
@@ -52,6 +53,8 @@ struct VGA_state_t {
     uint8_t screen;
     uint16_t *term_buffer;
     uint8_t term_color;
+    uint8_t allow_legacy_vga_functions; // this is a little shitcode solution, but why not.
+    // this VGA funcs we need only in case of panic or during startup.
 };
 
 extern volatile uint16_t *vga_buffer;

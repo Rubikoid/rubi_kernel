@@ -5,6 +5,9 @@
 #ifndef KERNEL_DEV_DEV_H_
 #define KERNEL_DEV_DEV_H_
 
+#define IOCTL_INIT 0
+#define IOCTL_FLUSH 1
+
 typedef uint32_t (*dev_read_fn_t)(FILE *io_buf, void *buf, uint32_t size);
 typedef void (*dev_write_fn_t)(FILE *io_buf, void *buf, uint32_t size);
 typedef void (*dev_cmd_fn_t)(FILE *io_buf, uint32_t command);
