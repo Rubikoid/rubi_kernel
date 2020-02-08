@@ -14,6 +14,7 @@
 #include <kernel/serial/serial.h>
 #include <kernel/utils/utils.h>
 #include <kernel/vga/vga.h>
+#include <kernel/dev/tty.h>
 #include <lib/clist.h>
 #include <lib/slist.h>
 #include <lib/stdio.h>
@@ -55,15 +56,21 @@ void test1() {
 void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     init_com(0);
     term_init();
-    term_print("[" G_GREEN "OK" G_WHITE "] Serial and terminal\n");
+    term_print("Serial and terminal [" G_GREEN "OK" G_WHITE "]\n");
 
+    term_print("MemoryManager");
     init_memory_manager();
-    term_print("[" G_GREEN "OK" G_WHITE "] MemoryManager\n");
+    term_print(" [" G_GREEN "OK" G_WHITE "]\n");
 
+    term_print("TTY Driver init");
+    tty_init();
+    term_print(" [" G_GREEN "OK" G_WHITE "]\n");
+
+    term_print("GDT, IDT, PIC");
     gdt_init();
     idt_init();
     pic_enable();
-    term_print("[" G_GREEN "OK" G_WHITE "] GDT, IDT, PIC\n");
+    term_print(" [" G_GREEN "OK" G_WHITE "]\n");
 
     multiboot = (struct multiboot_t *)(((size_t)multiboot) + 0xC0000000);  // make virtual ptr to multiboot structure
 

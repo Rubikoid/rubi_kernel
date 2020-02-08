@@ -47,6 +47,11 @@ void cint_keyboard(PUSHAD_C) {
     if (status & 0x1) {
         uint8_t keycode = inb(KB_PORT);
         if (keycode >= 1) {
+            struct ih_low_data_t ih_low_data;
+            ih_low_data.number = INT_KEYBOARD;
+            ih_low_data.data = &keycode;
+
+            dev_for_each(dev_each_low_ih_cb, &ih_low_data);
             // printf("Keyboard interrupt: %u 0x%x\n", keycode, keycode);
         }
     }
@@ -75,4 +80,17 @@ void pic_enable() {
 
     // io_wait();
     // uint8_t x1 = inb(KB_PORT);
+}
+
+void dev_each_low_ih_cb(struct dev_t* entry, void* data) {
+    struct ih_low_data_t* low_data = data;
+    struct clist_head_t* current = entry->ih_list.head;
+    struct ih_low_t* ih_low;
+
+    //for (current = ; current != null; current = current->next) {
+    do {
+        ih_low = (struct ih_low_t*)current->data;
+        if (ih_low->number == low_data->number)
+            ih_low->handler(low_data->number, low_data);
+    } while(current != entry->ih_list.head && current != NULL);
 }

@@ -2,9 +2,43 @@
 #include <kernel/dev/tty.h>
 #include <kernel/kthread/dq.h>
 #include <kernel/kthread/ktasks.h>
+#include <kernel/memory/heap.h>
 #include <lib/string.h>
 
 const char *tty_dev_name = "TTY0";
+
+unsigned char keyboard_map[KEYBOARD_MAP_SIZE] = {
+    0, 27, '1', '2', '3', '4', '5', '6', '7', '8', /* 9 */
+    '9', '0', '-', '=', '\b', /* Backspace */
+    '\t', /* Tab */
+    'q', 'w', 'e', 'r', /* 19 */
+    't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', /* Enter key */
+    0, /* 29   - Control */
+    'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', /* 39 */
+    '\'', '`', 0, /* Left shift */
+    '\\', 'z', 'x', 'c', 'v', 'b', 'n', /* 49 */
+    'm', ',', '.', '/', 0, /* Right shift */
+    '*', 0, /* Alt */
+    ' ', /* Space bar */
+    0, /* Caps lock */
+    0, /* 59 - F1 key ... > */
+    0, 0, 0, 0, 0, 0, 0, 0, 0, /* < ... F10 */
+    0, /* 69 - Num lock*/
+    0, /* Scroll Lock */
+    0, /* Home key */
+    0, /* Up Arrow */
+    0, /* Page Up */
+    '-', 0, /* Left Arrow */
+    0, 0, /* Right Arrow */
+    '+', 0, /* 79 - End key*/
+    0, /* Down Arrow */
+    0, /* Page Down */
+    0, /* Insert Key */
+    0, /* Delete Key */
+    0, 0, 0, 0, /* F11 Key */
+    0, /* F12 Key */
+    0, /* All other keys are undefined */
+};
 
 char tty_output_buff[1];
 char tty_input_buff[VGA_COLS];
@@ -49,7 +83,7 @@ void tty_keyboard_ih_low(uint32_t number, struct ih_low_data_t* data) {
     char* keycode = data->data;
     int index = *keycode;
     assert(index < 128);
-    char ch = index; // TODO: keyboard_map;
+    char ch = keyboard_map[index]; // TODO: keyboard_map;
 
     if(tty_input_ptr < tty_input_buff + VGA_COLS) { // so we don't want to have memory leak
         if(ch != '\b' || !read_line_mode) { // not \b or not read line mode
@@ -74,6 +108,7 @@ void tty_keyboard_ih_low(uint32_t number, struct ih_low_data_t* data) {
     struct message_t msg; // create update task
     msg.type = IPC_MSG_TYPE_DQ_SCHED;
     msg.len = 4;
+    msg.data = kmalloc(4);
     *((size_t *)msg.data) = (size_t)tty_keyboard_ih_high;
     ksend(ktasks[KERNEL_DQ_TASK_ID]->tid, &msg);
 }

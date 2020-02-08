@@ -13,6 +13,9 @@
 #define TTY_IOCTL_READ_MODE_ECHO_ON 	(3 << 8)
 #define TTY_IOCTL_READ_MODE_LINE_OFF 	(4 << 8)
 #define TTY_IOCTL_READ_MODE_ECHO_OFF 	(5 << 8)
+#define KEYBOARD_MAP_SIZE 128
+
+extern unsigned char keyboard_map[KEYBOARD_MAP_SIZE];
 
 extern const char *tty_dev_name;
 extern char tty_output_buff[1];

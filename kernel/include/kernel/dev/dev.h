@@ -29,6 +29,7 @@ struct ih_low_data_t {
 };
 
 typedef void (*ih_low_fn_t)(uint32_t number, struct ih_low_data_t *data);
+typedef void (*dev_each_callback_t)(struct dev_t* entry, void* data);
 
 struct ih_low_t {
     struct clist_head_t list_head;
@@ -39,6 +40,6 @@ struct ih_low_t {
 extern struct clist_def_t dev_list;
 
 extern struct dev_t *dev_create();
+extern void dev_for_each(dev_each_callback_t callback, void* data);
 extern struct dev_t *find_dev_by_name(char *name);
-
 #endif

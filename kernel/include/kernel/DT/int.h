@@ -3,6 +3,8 @@
 #ifndef KERNEL_DT_INT_H_
 #define KERNEL_DT_INT_H_
 
+#include <kernel/dev/dev.h>
+
 // PIC1/2 ports
 #define PIC1_CMD_PORT 0x20
 #define PIC1_DATA_PORT 0x21
@@ -56,6 +58,8 @@ extern void cint_timer(size_t* ret_addr, size_t* reg_addr, PUSHAD_C);
 extern uint32_t cint_syscall(PUSHAD_C);
 extern void cint_keyboard(PUSHAD_C);
 
+extern void dev_each_low_ih_cb(struct dev_t* entry, void* data);
+
 // from asm handlers
 extern void int_division_by_zero();
 extern void int_double_fail();
@@ -66,5 +70,6 @@ extern void int_page_fault();
 extern uint32_t int_syscall();
 extern void int_timer();
 extern void int_keyboard();
+
 
 #endif
