@@ -43,5 +43,6 @@ add_custom_command(TARGET kernel POST_BUILD COMMAND bash -c "nm ${CMAKE_BINARY_D
 
 add_custom_target(run COMMAND qemu-system-x86_64 -m 64 -kernel ./kernel DEPENDS kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 add_custom_target(rung COMMAND qemu-system-x86_64 -s -m 64 -kernel ./kernel DEPENDS kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(rungs COMMAND qemu-system-x86_64 -s -S -m 64 -kernel ./kernel DEPENDS kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 add_custom_target(runc COMMAND qemu-system-x86_64 -m 64 -nographic -kernel ./kernel DEPENDS kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 add_custom_target(runcr COMMAND qemu-system-x86_64 -m 64 -nographic -no-reboot -kernel ./kernel DEPENDS kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})

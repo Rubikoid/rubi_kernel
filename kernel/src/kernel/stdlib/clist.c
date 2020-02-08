@@ -54,13 +54,16 @@ void clist_delete(struct clist_def_t *ct, struct clist_head_t *pos) {
 
 struct clist_head_t *clist_find(struct clist_def_t *ct, clist_find_fn_t func, ...) {
     struct clist_head_t *cur = ct->head;
-    for (uint32_t i = 0; i <= ct->slots; i++) {
+    if(cur == NULL)
+        return NULL;
+    //for (uint32_t i = 0; i <= ct->slots; i++) {
+    do {
         va_list list;
         va_start(list, func);
         if (func(cur, list))
             return cur;
         cur = cur->next;
-    }
+    } while(cur != ct->head && cur != NULL);
     return NULL;
 }
 

@@ -5,7 +5,7 @@
 #include <kernel/memory/heap.h>
 #include <lib/string.h>
 
-const char *tty_dev_name = "TTY0";
+const char *tty_dev_name = "TTY";
 
 unsigned char keyboard_map[KEYBOARD_MAP_SIZE] = {
     0, 27, '1', '2', '3', '4', '5', '6', '7', '8', /* 9 */
@@ -46,7 +46,7 @@ char tty_input_buff[VGA_COLS];
 char *tty_output_ptr = tty_output_buff;
 char *tty_input_ptr = tty_input_buff;
 
-uint8_t read_line_mode = 0;
+uint8_t read_line_mode = 1;
 uint8_t is_echo = 1;
 
 
@@ -91,16 +91,16 @@ void tty_keyboard_ih_low(uint32_t number, struct ih_low_data_t* data) {
         }
     }
 
-    if(tty_output_ptr < tty_output_buff + VGA_COLS) { // so we don't want to have memory leak
-        if(is_echo && ch != '\n' && ch != '\b') {
+    //if(tty_output_ptr < tty_output_buff + VGA_COLS) { // so we don't want to have memory leak
+        if(is_echo && ch != '\0') { // ch != '\n' && ch != '\b'
             //*tty_output_ptr++ = ch;
             term_putc(ch, FALSE); // if not \n, not \b and echo enabled
         }
-    }
+    //}
     if(read_line_mode && ch == '\b') { // if lines and \b
         if(tty_input_ptr > tty_input_buff) { // and we not on the start of buffer
             *--tty_input_ptr = '\0';
-            term_putc(ch, FALSE); // we should handle \b
+            //term_putc(ch, FALSE); // we should handle \b
             //*--tty_output_ptr = ' ';
         }
     }
@@ -216,14 +216,18 @@ uint32_t tty_read(FILE* io_buf, void *buffer, uint32_t size) {
         if (ch != '\0') {
             *ptr++ = ch;
             size -= 1;
+            // printf("New symb: %x %x\n", ch, size);
         }
-    } while(size > 0 && (read_line_mode ? (!io_buf->eol && !io_buf->eof) : (!io_buf->eof)));
-
+        else {
+            sched_yield();
+        }
+    } while(size > 0 && (read_line_mode ? (!io_buf->eol) : (!io_buf->eof))); //  && !io_buf->eof
+    printf("Reason of death: %x %x %x\n", size, io_buf->eof, io_buf->eol);
     return (size_t)ptr - (size_t)buffer;
 }
 
 char tty_read_ch(FILE* io_buf) {
-    io_buf->eof = (size_t)io_buf->ptr >= (size_t)tty_input_ptr;
+    io_buf->eof = (size_t)io_buf->ptr >= (size_t)tty_input_ptr; // pointer in file bigger than pointer in data;
     io_buf->eol = 0; // idk
 
     // there are some strange shit
@@ -244,7 +248,9 @@ char tty_read_ch(FILE* io_buf) {
             io_buf->eol = 1;
             tty_input_ptr = tty_input_buff; // reset to start
             io_buf->ptr = (uint8_t *)tty_input_ptr;
+            return '\0';
         }
+        return ch;
     }
     else {
         io_buf->ptr = (uint8_t *)tty_input_ptr;

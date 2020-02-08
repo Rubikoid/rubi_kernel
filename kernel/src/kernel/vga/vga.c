@@ -114,8 +114,8 @@ void term_putc(char c, uint8_t flush) {
 }
 
 void term_print(const char *str) {
-    if(!vga_state.allow_legacy_vga_functions)
-        return;
+    //if(!vga_state.allow_legacy_vga_functions)
+    //    return;
     for (size_t i = 0; str[i] != '\0'; i++) {
         switch (str[i]) {
             case '\e': {
