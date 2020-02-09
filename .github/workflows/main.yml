@@ -26,8 +26,11 @@ jobs:
       run: |
         wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/gcc_cross.7z -O ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
         7z x -o${{runner.workspace}}/gcc_cross/ ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
-        wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/toolchain.cmake -O ${{runner.workspace}}/gcc_cross/toolchain.cmake
-    
+        wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/toolchain.cmake -O ${{runner.workspace}}/gcc_cross/toolchain.cmake &&
+        chmod +x ${{runner.workspace}}/gcc_cross/opt/bin/* && 
+        chmod +x ${{runner.workspace}}/gcc_cross/opt/i686-elf/bin/* &&
+        chmod +x ${{runner.workspace}}/gcc_cross/opt/libexec/gcc/i686-elf/9.2.0/*
+        
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
