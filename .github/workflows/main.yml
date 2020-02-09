@@ -18,19 +18,32 @@ jobs:
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
     
-    - name: Create Download Environment
-      run: cmake -E make_directory ${{runner.workspace}}/gcc_cross
+    - name: Install nasm and genisoimage
+      shell: bash
+      run: sudo apt-get install -y nasm genisoimage
     
+    - name: Cache compiler
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-compiler
+      with:
+        path: ~/gcc_cross
+        key: ${{ runner.os }}-build-${{ env.cache-name }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+      
     - name: Prepare compiler
       shell: bash
       run: |
-        sudo apt-get install -y nasm genisoimage &&
-        wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/gcc_cross.7z -O ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
-        7z x -o${{runner.workspace}}/gcc_cross/ ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
-        wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/toolchain.cmake -O ${{runner.workspace}}/gcc_cross/toolchain.cmake &&
-        chmod +x ${{runner.workspace}}/gcc_cross/opt/bin/* && 
-        chmod +x ${{runner.workspace}}/gcc_cross/opt/i686-elf/bin/* &&
-        chmod +x ${{runner.workspace}}/gcc_cross/opt/libexec/gcc/i686-elf/9.2.0/*
+        mkdir ~/gcc_cross &&
+        wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/gcc_cross.7z -O ~/gcc_cross/gcc_cross.7z &&
+        7z x -o~/gcc_cross/ ~/gcc_cross/gcc_cross.7z &&
+        wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/toolchain.cmake -O ~/gcc_cross/toolchain.cmake &&
+        chmod +x ~/gcc_cross/opt/bin/* && 
+        chmod +x ~/gcc_cross/opt/i686-elf/bin/* &&
+        chmod +x ~/gcc_cross/opt/libexec/gcc/i686-elf/9.2.0/*
         
     - name: Configure CMake
       shell: bash
@@ -41,3 +54,15 @@ jobs:
       working-directory: ${{runner.workspace}}/build
       shell: bash
       run: cmake --build . --config $BUILD_TYPE
+    
+    - name: Save entire kernel
+      uses: actions/upload-artifact@v1
+      with:
+        name: kernel.elf
+        path: ${{runner.workspace}}/build/kernel
+        
+    - name: Save boot image
+      uses: actions/upload-artifact@v1
+      with:
+        name: kernel.iso
+        path: ${{runner.workspace}}/build/rubiKernel.iso
