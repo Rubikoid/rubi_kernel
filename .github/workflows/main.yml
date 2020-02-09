@@ -14,14 +14,23 @@ jobs:
       #with:
       #  from-source: false
     - uses: actions/checkout@v1
-
+      
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
-
+    
+    - name: Create Download Environment
+      run: cmake -E make_directory ${{runner.workspace}}/gcc_cross
+    
+    - name: Prepare compiler
+      shell: bash
+      run: |
+        wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/gcc_cross.7z -O ${{runner.workspace}}/gcc_cross/gcc_cross.7z
+        7z x -o ${{runner.workspace}}/gcc_cross/ ${{runner.workspace}}/gcc_cross/gcc_cross.7z
+    
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=${{runner.workspace}}/gcc_cross/toolchain.cmake
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
