@@ -36,7 +36,7 @@ jobs:
           ${{ runner.os }}-
       
     - name: Prepare compiler
-      if: steps.compiler_cacher_step_id.cache-hit == false
+      if: steps.compiler_cacher_step_id.outputs.cache-hit == false
       shell: bash
       run: |
         mkdir -vp ${{runner.workspace}}/gcc_cross/ &&
