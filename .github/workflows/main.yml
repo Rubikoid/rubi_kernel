@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: ilammy/setup-nasm@v1
+    #- uses: ilammy/setup-nasm@v1
       #with:
       #  from-source: false
     - uses: actions/checkout@v1
@@ -24,6 +24,7 @@ jobs:
     - name: Prepare compiler
       shell: bash
       run: |
+        sudo apt-get install -y nasm genisoimage &&
         wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/gcc_cross.7z -O ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
         7z x -o${{runner.workspace}}/gcc_cross/ ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
         wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/toolchain.cmake -O ${{runner.workspace}}/gcc_cross/toolchain.cmake &&
