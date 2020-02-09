@@ -1,5 +1,3 @@
-#include <types.h>
-
 #include <kernel/DT/dt.h>
 #include <kernel/DT/int.h>
 #include <kernel/DT/syscall.h>
@@ -20,6 +18,7 @@
 #include <lib/slist.h>
 #include <lib/stdio.h>
 #include <lib/string.h>
+#include <types.h>
 
 //#if defined(__linux__)
 //	#error "This code must be compiled with a cross-compiler"

@@ -1,0 +1,80 @@
+#include <kernel/DT/int.h>
+#include <kernel/dev/driver_base.h>
+#include <kernel/kthread/dq.h>
+#include <kernel/kthread/ktasks.h>
+#include <kernel/memory/heap.h>
+#include <lib/string.h>
+
+const char *driver_dev_name = "DRIVER_DEV_NAME";
+
+void driver_init() {
+    struct clist_head_t *entry;
+    struct dev_t *dev;
+    struct ih_low_t *ih_low;
+
+    dev = dev_create();
+
+    memcpy(dev->name, driver_dev_name, strlen(driver_dev_name) + 1);  // TODO: strcpy
+
+    dev->base_r = 0;
+    dev->base_w = 1;
+
+    dev->read_fn = driver_read;  // TODO: implement
+    dev->write_fn = driver_write;
+    dev->cmd_fn = driver_ioctl;
+
+    dev->ih_list.head = NULL;
+    dev->ih_list.slot_size = sizeof(struct ih_low_t);
+    entry = clist_insert_after(&dev->ih_list, dev->ih_list.tail);
+
+    ih_low = (struct ih_low_t *)entry->data;
+    ih_low->number = 0;
+    ih_low->subnumber = 0;
+    ih_low->handler = driver_ih_low;
+}
+
+void driver_ih_low(uint32_t number, struct ih_low_data_t *data) {
+    struct message_t msg;  // create update task
+    msg.type = IPC_MSG_TYPE_DQ_SCHED;
+    msg.len = 4;
+    msg.data = kmalloc(4);
+    *((size_t *)msg.data) = (size_t)driver_ih_high;
+    ksend(ktasks[KERNEL_DQ_TASK_ID]->tid, &msg);
+}
+
+void driver_ih_high(struct message_t *msg) {
+}
+
+void driver_ioctl(struct io_buf_t *io_buf, uint32_t command) {
+    switch (command) {
+        case IOCTL_INIT: {
+            break;
+        }
+        case IOCTL_FLUSH: {
+        }
+        case DRIVER_IOCTL_XXX: {
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+}
+
+void driver_write(struct io_buf_t *io_buf, void *data, uint32_t size) {
+}
+
+/*
+void driver_write_ch(struct io_buf_t *io_buf, char ch) {
+}
+*/
+
+uint32_t driver_read(FILE *io_buf, void *buffer, uint32_t size) {
+    return 0;
+}
+
+/*
+char driver_read_ch(FILE *io_buf) {
+    return '\0';
+}
+*/

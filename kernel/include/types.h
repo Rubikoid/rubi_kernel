@@ -1,9 +1,9 @@
 #ifndef TYPES_H_
 #define TYPES_H_
 
-#define NULL 0
+#define NULL  0
 #define FALSE 0
-#define TRUE 1
+#define TRUE  1
 
 /* Convenience types.  */
 typedef unsigned char __u_char;

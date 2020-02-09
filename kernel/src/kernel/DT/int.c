@@ -1,11 +1,10 @@
-#include <types.h>
-
 #include <kernel/DT/int.h>
 #include <kernel/asm_lib.h>
 #include <kernel/messages.h>
 #include <kernel/scheduler/task.h>
 #include <kernel/vga/vga.h>
 #include <lib/stdio.h>
+#include <types.h>
 
 void cint_double_fail(PUSHAD_C) {
     kpanic(G_RED "Kernel panic: Double fail");
@@ -42,22 +41,6 @@ void cint_timer(size_t* ret_addr, size_t* reg_addr, PUSHAD_C) {
     sched_schedule(ret_addr, reg_addr);
 }
 
-void cint_keyboard(PUSHAD_C) {
-    uint8_t status = inb(KB_CMD_PORT);
-    if (status & 0x1) {
-        uint8_t keycode = inb(KB_PORT);
-        if (keycode >= 1) {
-            struct ih_low_data_t ih_low_data;
-            ih_low_data.number = INT_KEYBOARD;
-            ih_low_data.data = &keycode;
-
-            dev_for_each(dev_each_low_ih_cb, &ih_low_data);
-            // printf("Keyboard interrupt: %u 0x%x\n", keycode, keycode);
-        }
-    }
-    outb(PIC1_CMD_PORT, PIC_EOI);
-}
-
 void pic_init() {
     outb(PIC1_CMD_PORT, ICW1_INIT | ICW1_ICW4); /* init PIC1 */
     outb(PIC2_CMD_PORT, ICW1_INIT | ICW1_ICW4); /* init PIC2 */
@@ -90,7 +73,9 @@ void dev_each_low_ih_cb(struct dev_t* entry, void* data) {
     //for (current = ; current != null; current = current->next) {
     do {
         ih_low = (struct ih_low_t*)current->data;
-        if (ih_low->number == low_data->number)
-            ih_low->handler(low_data->number, low_data);
+        if (ih_low->number == low_data->number) {
+            if (ih_low->subnumber & low_data->subnumber != 0)
+                ih_low->handler(low_data->number, low_data);
+        }
     } while (current != entry->ih_list.head && current != NULL);
 }

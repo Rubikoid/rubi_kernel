@@ -8,12 +8,12 @@
 #ifndef KERNEL_DEV_TTY_H_
 #define KERNEL_DEV_TTY_H_
 
-#define TTY_IOCTL_CLEAR (1 << 8)
-#define TTY_IOCTL_READ_MODE_LINE_ON (2 << 8)
-#define TTY_IOCTL_READ_MODE_ECHO_ON (3 << 8)
+#define TTY_IOCTL_CLEAR              (1 << 8)
+#define TTY_IOCTL_READ_MODE_LINE_ON  (2 << 8)
+#define TTY_IOCTL_READ_MODE_ECHO_ON  (3 << 8)
 #define TTY_IOCTL_READ_MODE_LINE_OFF (4 << 8)
 #define TTY_IOCTL_READ_MODE_ECHO_OFF (5 << 8)
-#define KEYBOARD_MAP_SIZE 128
+#define KEYBOARD_MAP_SIZE            128
 
 extern unsigned char keyboard_map[KEYBOARD_MAP_SIZE];
 
@@ -36,7 +36,7 @@ extern void tty_ioctl(struct io_buf_t* io_buf, uint32_t command);
 extern void tty_write(struct io_buf_t* io_buf, void* data, uint32_t size);
 extern void tty_write_ch(struct io_buf_t* io_buf, char ch);
 
-extern char tty_read_ch(FILE* io_buf);
 extern uint32_t tty_read(FILE* io_buf, void* buffer, uint32_t size);
+extern char tty_read_ch(FILE* io_buf);
 
 #endif

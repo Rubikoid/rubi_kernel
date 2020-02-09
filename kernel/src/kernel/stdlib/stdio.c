@@ -1,7 +1,6 @@
-#include <lib/stdio.h>
-
 #include <kernel/asm_lib.h>
 #include <kernel/vga/vga.h>
+#include <lib/stdio.h>
 #include <lib/string.h>
 
 void kvprintf(char *format, va_list arg_list) {

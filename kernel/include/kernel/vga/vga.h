@@ -3,41 +3,41 @@
 #ifndef KERNEL_VGA_VGA_H_
 #define KERNEL_VGA_VGA_H_
 
-#define V_BLACK 0x00
-#define V_BLUE 0x01
-#define V_GREEN 0x02
-#define V_CYAN 0x03
-#define V_RED 0x04
+#define V_BLACK   0x00
+#define V_BLUE    0x01
+#define V_GREEN   0x02
+#define V_CYAN    0x03
+#define V_RED     0x04
 #define V_MAGENTA 0x05
-#define V_BROWN 0x06
-#define V_LGRAY 0x07
+#define V_BROWN   0x06
+#define V_LGRAY   0x07
 
-#define V_DGRAY 0x08
-#define V_LBLUE 0x09
-#define V_LGREEN 0x0A
-#define V_LCYAN 0x0B
-#define V_LRED 0x0C
+#define V_DGRAY    0x08
+#define V_LBLUE    0x09
+#define V_LGREEN   0x0A
+#define V_LCYAN    0x0B
+#define V_LRED     0x0C
 #define V_LMAGENTA 0x0D
-#define V_YELLOW 0x0E
-#define V_WHITE 0x0F
+#define V_YELLOW   0x0E
+#define V_WHITE    0x0F
 
-#define G_BLACK "\e\x00"
-#define G_BLUE "\e\x01"
-#define G_GREEN "\e\x02"
-#define G_CYAN "\e\x03"
-#define G_RED "\e\x04"
+#define G_BLACK   "\e\x00"
+#define G_BLUE    "\e\x01"
+#define G_GREEN   "\e\x02"
+#define G_CYAN    "\e\x03"
+#define G_RED     "\e\x04"
 #define G_MAGENTA "\e\x05"
-#define G_BROWN "\e\x06"
-#define G_LGRAY "\e\x07"
+#define G_BROWN   "\e\x06"
+#define G_LGRAY   "\e\x07"
 
-#define G_DGRAY "\e\x08"
-#define G_LBLUE "\e\x09"
-#define G_LGREEN "\e\x0A"
-#define G_LCYAN "\e\x0B"
-#define G_LRED "\e\x0C"
+#define G_DGRAY    "\e\x08"
+#define G_LBLUE    "\e\x09"
+#define G_LGREEN   "\e\x0A"
+#define G_LCYAN    "\e\x0B"
+#define G_LRED     "\e\x0C"
 #define G_LMAGENTA "\e\x0D"
-#define G_YELLOW "\e\x0E"
-#define G_WHITE "\e\x0F"
+#define G_YELLOW   "\e\x0E"
+#define G_WHITE    "\e\x0F"
 
 // i think there this is useless
 #define TERM_COUNT 0

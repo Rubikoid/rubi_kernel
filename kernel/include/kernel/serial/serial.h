@@ -10,17 +10,17 @@
 #define COM4_PORT 0x2E8
 
 #define COM_DATA 0
-#define COM_INT 1
+#define COM_INT  1
 
 #define COM_D_LSB_DIV 0
 #define COM_D_MSB_DIV 1
 
-#define COM_INT_FIFO 2
-#define COM_D_MSB 3
+#define COM_INT_FIFO   2
+#define COM_D_MSB      3
 #define COM_MODEM_CTRL 4
-#define COM_LINE_STAT 5
+#define COM_LINE_STAT  5
 #define COM_MODEM_STAT 6
-#define COM_SCATCH 7
+#define COM_SCATCH     7
 
 extern void init_com(uint16_t com_id);
 extern void write_com(uint16_t com_id, uint8_t data);

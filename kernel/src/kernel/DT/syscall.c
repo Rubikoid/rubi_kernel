@@ -1,5 +1,3 @@
-#include <types.h>
-
 #include <kernel/DT/int.h>
 #include <kernel/DT/syscall.h>
 #include <kernel/asm_lib.h>
@@ -8,6 +6,7 @@
 #include <kernel/vfs/file.h>
 #include <kernel/vga/vga.h>
 #include <lib/stdio.h>
+#include <types.h>
 
 #define __MODULE_NAME__ "SCALL"
 

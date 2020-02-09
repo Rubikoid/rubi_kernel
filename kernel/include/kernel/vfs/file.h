@@ -6,7 +6,7 @@
 #ifndef KERNEL_VFS_FILE_H_
 #define KERNEL_VFS_FILE_H_
 
-#define FILE_READ 0
+#define FILE_READ  0
 #define FILE_WRITE 1
 
 // this is a kernel-only struct, used for tracking open file descriptors and their assoc with devices.

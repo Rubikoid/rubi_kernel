@@ -5,7 +5,7 @@
 #ifndef KERNEL_DEV_DEV_H_
 #define KERNEL_DEV_DEV_H_
 
-#define IOCTL_INIT 0
+#define IOCTL_INIT  0
 #define IOCTL_FLUSH 1
 
 typedef uint32_t (*dev_read_fn_t)(FILE *io_buf, void *buf, uint32_t size);
@@ -25,6 +25,7 @@ struct dev_t {
 
 struct ih_low_data_t {
     uint32_t number;
+    uint32_t subnumber;
     void *data;
 };
 
@@ -34,6 +35,7 @@ typedef void (*dev_each_callback_t)(struct dev_t *entry, void *data);
 struct ih_low_t {
     struct clist_head_t list_head;
     uint32_t number;
+    uint32_t subnumber;
     ih_low_fn_t handler;
 };
 

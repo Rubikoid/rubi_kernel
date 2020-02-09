@@ -23,7 +23,7 @@ typedef struct io_buf_t FILE;
     "["__MODULE_NAME__             \
     "] " format,                   \
     ##__VA_ARGS__)
-#define printf(format, ...) kprintf(format, ##__VA_ARGS__)
+#define printf(format, ...)       kprintf(format, ##__VA_ARGS__)
 #define vprintf(format, arg_list) kvprintf(format, arg_list)
 
 extern void kvprintf(char *format, va_list arg_list);  // kernel printf, works with magic vga.h and vsprintf from stdlib

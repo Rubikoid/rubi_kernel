@@ -47,8 +47,7 @@ struct queue_head_t *queue_pop(struct queue_def_t *ct, struct queue_head_t *buff
     if (entry != NULL) {
         memcpy(buff, entry, ct->clist_head.slot_size);
         clist_delete(&ct->clist_head, entry);
-    }
-    else
+    } else
         return NULL;
     return buff;
 }

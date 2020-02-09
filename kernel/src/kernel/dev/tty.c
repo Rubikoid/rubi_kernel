@@ -74,6 +74,7 @@ void tty_init() {
 
     ih_low = (struct ih_low_t *)entry->data;
     ih_low->number = INT_KEYBOARD;
+    ih_low->subnumber = INT_KEYBOARD_NEW_KEY;
     ih_low->handler = tty_keyboard_ih_low;
 }
 

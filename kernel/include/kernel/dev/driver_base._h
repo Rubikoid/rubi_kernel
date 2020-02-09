@@ -1,0 +1,26 @@
+#include <kernel/dev/dev.h>
+#include <kernel/scheduler/task.h>
+#include <lib/clist.h>
+#include <lib/stdio.h>
+#include <types.h>
+
+#ifndef KERNEL_DEV_DRIVER_BASE_H_
+#define KERNEL_DEV_DRIVER_BASE_H_
+
+#define DRIVER_IOCTL_XXX (1 << 8)
+
+extern const char* driver_dev_name;
+
+extern void driver_init();
+extern void driver_ih_low(uint32_t number, struct ih_low_data_t* data);
+extern void driver_ih_high(struct message_t *msg);
+
+extern void driver_ioctl(struct io_buf_t* io_buf, uint32_t command);
+
+extern void driver_write(struct io_buf_t* io_buf, void* data, uint32_t size);
+// extern void driver_write_ch(struct io_buf_t* io_buf, char ch);
+
+extern uint32_t driver_read(FILE* io_buf, void* buffer, uint32_t size);
+//extern char driver_read_ch(FILE* io_buf);
+
+#endif

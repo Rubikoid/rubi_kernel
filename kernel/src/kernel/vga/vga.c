@@ -1,10 +1,9 @@
-#include <types.h>
-
 #include <kernel/asm_lib.h>
 #include <kernel/serial/serial.h>
 #include <kernel/utils/utils.h>
 #include <kernel/vga/vga.h>
 #include <lib/string.h>
+#include <types.h>
 
 volatile uint16_t *vga_buffer = (uint16_t *)(0xC0000000 + 0xB8000);
 
