@@ -64,6 +64,8 @@ void term_putc(char c, uint8_t flush) {
             break;
         }
         case '\n': {
+            write_com(0, c);
+            write_com(0, '\r');
             vga_state.term_col = 0;
             vga_state.term_row++;
             break;
@@ -74,6 +76,7 @@ void term_putc(char c, uint8_t flush) {
             break;
         }
         default: {
+            write_com(0, c);
             term_setc(vga_state.term_col, vga_state.term_row, vga_state.term_color, c);
             vga_state.term_col++;
             break;
@@ -105,15 +108,15 @@ void term_putc(char c, uint8_t flush) {
             vga_state.term_buffer[(VGA_COLS * (VGA_ROWS - 1)) + x] = ((uint16_t)vga_state.term_color << 8) | ' ';
         }
         vga_state.term_row = VGA_ROWS - 1;
-        if (flush || vga_state.allow_legacy_vga_functions)
-            term_flush();
+    //    if (flush || vga_state.allow_legacy_vga_functions)
+    //        term_flush();
     }
-    if (flush)
-        term_flush();
+    //if (flush)
+    //    term_flush();
 }
 
 void term_print(const char *str) {
-    //if(!vga_state.allow_legacy_vga_functions)
+    // if(!vga_state.allow_legacy_vga_functions)
     //    return;
     for (size_t i = 0; str[i] != '\0'; i++) {
         switch (str[i]) {
@@ -122,9 +125,9 @@ void term_print(const char *str) {
                 break;
             }
             default: {
-                write_com(0, str[i]);
-                if (str[i] == '\n')
-                    write_com(0, '\r');  // we ignore \r character, but seems like serial need to have it
+                //write_com(0, str[i]);
+                //if (str[i] == '\n')
+                //    write_com(0, '\r');  // we ignore \r character, but seems like serial need to have it
                 term_putc(str[i], 0);
                 break;
             }

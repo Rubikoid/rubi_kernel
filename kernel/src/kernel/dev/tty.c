@@ -4,6 +4,7 @@
 #include <kernel/kthread/dq.h>
 #include <kernel/kthread/ktasks.h>
 #include <kernel/memory/heap.h>
+#include <kernel/serial/serial.h>
 #include <lib/string.h>
 
 const char *tty_dev_name = "TTY";
@@ -128,7 +129,7 @@ void tty_ioctl(struct io_buf_t *io_buf, uint32_t command) {
                 term_print("Migrate to tty driver");
                 io_buf->ptr = (uint8_t *)tty_output_ptr;
                 vga_state.allow_legacy_vga_functions = 0;
-                tty_write(io_buf, "... [OK]", 8);
+                tty_write(io_buf, "... [OK]\n", 9);
                 term_flush();
             }
             break;
@@ -184,7 +185,11 @@ void tty_write(struct io_buf_t *io_buf, void *data, uint32_t size) {
     char *ptr = data;
 
     for (int i = 0; i < size && !io_buf->eof; ++i) {
-        tty_write_ch(io_buf, *ptr++);
+        char ch = *ptr++;
+        tty_write_ch(io_buf, ch);
+        //write_com(0, ch);
+        //if (ch == '\n')
+        //    write_com(0, '\r');  // we ignore \r character, but seems like serial need to have it
     }
 }
 
