@@ -24,7 +24,7 @@ jobs:
     - name: Prepare compiler
       shell: bash
       run: |
-        wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/gcc_cross.7z -O ${{runner.workspace}}/gcc_cross/gcc_cross.7z
+        wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/gcc_cross.7z -O ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
         7z x -o ${{runner.workspace}}/gcc_cross/ ${{runner.workspace}}/gcc_cross/gcc_cross.7z
     
     - name: Configure CMake
