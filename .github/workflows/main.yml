@@ -23,6 +23,7 @@ jobs:
       run: sudo apt-get install -y nasm genisoimage
     
     - name: Cache compiler
+      id: compiler_cacher_step_id
       uses: actions/cache@v1
       env:
         cache-name: cache-compiler
@@ -35,6 +36,7 @@ jobs:
           ${{ runner.os }}-
       
     - name: Prepare compiler
+      if: steps.compiler_cacher_step_id.cache-hit == false
       shell: bash
       run: |
         mkdir -vp ${{runner.workspace}}/gcc_cross/ &&
