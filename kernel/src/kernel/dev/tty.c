@@ -8,6 +8,7 @@
 
 const char *tty_dev_name = "TTY";
 
+// keyboard map for char set 1
 unsigned char keyboard_map[KEYBOARD_MAP_SIZE] = {
     0, 27, '1', '2', '3', '4', '5', '6', '7', '8',    /* 9 */
     '9', '0', '-', '=', '\b',                         /* Backspace */
@@ -48,7 +49,7 @@ char *tty_output_ptr = tty_output_buff;
 char *tty_input_ptr = tty_input_buff;
 
 uint8_t read_line_mode = 1;
-uint8_t is_echo = 1;
+uint8_t is_echo = 0;
 
 void tty_init() {
     struct clist_head_t *entry;
@@ -60,13 +61,12 @@ void tty_init() {
 
     dev = dev_create();
 
-    //memcpy(dev->name, tty_dev_name, strlen(tty_dev_name) + 1);  // TODO: strcpy
     strncpy(dev->name, tty_dev_name, sizeof(dev->name) - 1);
 
     dev->base_r = tty_input_buff;
     dev->base_w = tty_output_buff;
 
-    dev->read_fn = tty_read;  // TODO: implement
+    dev->read_fn = tty_read;
     dev->write_fn = tty_write;
     dev->cmd_fn = tty_ioctl;
 
@@ -85,7 +85,7 @@ void tty_keyboard_ih_low(uint32_t number, struct ih_low_data_t *data) {
     struct keyboard_status_t *keycode = data->data;
     int index = keycode->keycode;
     //assert(index < 128);
-    if (index >= 128) // this meant that key was released
+    if (index >= 128)  // this meant that key was released
         return;
     char ch = keyboard_map[index];  // TODO: keyboard_map;
 

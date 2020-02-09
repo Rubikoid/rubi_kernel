@@ -24,9 +24,13 @@ extern char *memext(void *buff_dst, uint32_t n, const void *buff_src, char sym);
 extern char *itoa(unsigned int value, char *str, unsigned int base);
 extern unsigned int atou(char *str);
 extern void strinv(char *str, uint32_t size);
+
 extern unsigned int sprintf(char *dst, const char *format, ...);
 // extern unsigned int snprintf(char *s1, uint32_t n, const char *s2, ...);
 extern unsigned int vsprintf(char *dst, const char *format, va_list list);
 // extern unsigned int vsnprintf(char *s1, unsigned int n, const char *s2, va_list list);
+
+extern unsigned int sscanf(char *src, const char *format, ...);
+extern unsigned int vsscanf(char *src, const char *format, va_list list);
 
 #endif

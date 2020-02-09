@@ -69,8 +69,8 @@ void term_putc(char c, uint8_t flush) {
             break;
         }
         case '\b': {
-            term_setc(vga_state.term_col, vga_state.term_row, vga_state.term_color, ' ');
             vga_state.term_col--;
+            term_setc(vga_state.term_col, vga_state.term_row, vga_state.term_color, ' ');
             break;
         }
         default: {

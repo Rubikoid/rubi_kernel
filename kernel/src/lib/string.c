@@ -110,6 +110,7 @@ unsigned int vsprintf(char *s1, const char *s2, va_list list) {
                         src_i += 2;
                         break;
                     }
+                    case 'd':  // fuck this modifier i don't care about signed data ;D
                     case 'u': {
                         num = va_arg(list, uint32_t);
                         itoa(num, rt, 10);
@@ -148,4 +149,76 @@ unsigned int vsprintf(char *s1, const char *s2, va_list list) {
     }
     s1[dst_i] = 0;
     return dst_i;
+}
+
+unsigned int sscanf(char *src, const char *format, ...) {
+    va_list va;
+    va_start(va, format);
+    return vsscanf(src, format, va);
+}
+
+unsigned int vsscanf(char *src, const char *format, va_list list) {
+    uint32_t format_i = 0, dst_i = 0;
+
+    char rt[32];
+    uint32_t num = 0;
+    void *ptr = 0;
+
+    while (format[format_i] != 0) {
+        switch (format[format_i]) {
+            case '%': {
+                switch (format[format_i + 1]) {  // FIXME: i think, that we can't have more than uint32_t
+                    /*case 'x': {
+                        num = va_arg(list, uint32_t);
+                        itoa(num, rt, 16);
+                        memcpy((uint8_t *)(dst + dst_i), (uint8_t *)rt, strlen(rt));
+                        dst_i += strlen(rt);
+                        format_i += 2;
+                        break;
+                    }
+                    case 'd':  // fuck this modifier i don't care about signed data ;D
+                    case 'u': {
+                        num = va_arg(list, uint32_t);
+                        itoa(num, rt, 10);
+                        memcpy((uint8_t *)(dst + dst_i), (uint8_t *)rt, strlen(rt));
+                        dst_i += strlen(rt);
+                        format_i += 2;
+                        break;
+                    }*/
+                    case 's': {
+                        ptr = va_arg(list, void *);
+                        while (*(char *)(src + dst_i) != '\0' && *(char *)(src + dst_i) != ' ' && *(char *)(src + dst_i) != '\n' && *(char *)(src + dst_i) != '\t') {
+                            *(uint8_t *)ptr = (uint8_t *)(src + dst_i);
+                            ptr++;
+                            dst_i++;
+                        }
+                        *(uint8_t *)ptr = '\0';
+                        // memcpy((uint8_t *)(dst + dst_i), (uint8_t *)ptr, strlen(ptr));
+                        // dst_i += strlen(ptr);
+                        format_i += 2;
+                        break;
+                    }
+                    /*case 'c': {
+                        // num = va_arg(list, uint32_t);
+                        // dst[dst_i] = (uint8_t)num;
+                        dst_i += 1;
+                        format_i += 2;
+                    }*/
+                    default: {
+                        format_i += 1;
+                        break;
+                    }
+                }
+                break;
+            }
+            default: {
+                // dst[dst_i] = format[format_i];
+                format_i++;
+                dst_i++;
+                break;
+            }
+        }
+    }
+    // dst[dst_i] = 0;
+    return 0;
 }
