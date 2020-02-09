@@ -27,7 +27,7 @@ jobs:
       env:
         cache-name: cache-compiler
       with:
-        path: ~/gcc_cross
+        path: ${{runner.workspace}}/gcc_cross
         key: ${{ runner.os }}-build-${{ env.cache-name }}
         restore-keys: |
           ${{ runner.os }}-build-${{ env.cache-name }}-
@@ -37,13 +37,13 @@ jobs:
     - name: Prepare compiler
       shell: bash
       run: |
-        mkdir ~/gcc_cross &&
-        wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/gcc_cross.7z -O ~/gcc_cross/gcc_cross.7z &&
-        7z x -o~/gcc_cross/ ~/gcc_cross/gcc_cross.7z &&
-        wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/toolchain.cmake -O ~/gcc_cross/toolchain.cmake &&
-        chmod +x ~/gcc_cross/opt/bin/* && 
-        chmod +x ~/gcc_cross/opt/i686-elf/bin/* &&
-        chmod +x ~/gcc_cross/opt/libexec/gcc/i686-elf/9.2.0/*
+        mkdir -vp ${{runner.workspace}}/gcc_cross/ &&
+        wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/gcc_cross.7z -O ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
+        7z x -o${{runner.workspace}}/gcc_cross/ ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
+        wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/toolchain.cmake -O ${{runner.workspace}}/gcc_cross/toolchain.cmake &&
+        chmod +x ${{runner.workspace}}/gcc_cross/opt/bin/* && 
+        chmod +x ${{runner.workspace}}/gcc_cross/opt/i686-elf/bin/* &&
+        chmod +x ${{runner.workspace}}/gcc_cross/opt/libexec/gcc/i686-elf/9.2.0/*
         
     - name: Configure CMake
       shell: bash
