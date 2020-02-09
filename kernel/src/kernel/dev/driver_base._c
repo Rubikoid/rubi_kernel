@@ -14,7 +14,7 @@ void driver_init() {
 
     dev = dev_create();
 
-    memcpy(dev->name, driver_dev_name, strlen(driver_dev_name) + 1);  // TODO: strcpy
+    strncpy(dev->name, driver_dev_name, sizeof(dev->name) - 1);
 
     dev->base_r = 0;
     dev->base_w = 1;
@@ -51,6 +51,7 @@ void driver_ioctl(struct io_buf_t *io_buf, uint32_t command) {
             break;
         }
         case IOCTL_FLUSH: {
+            break;
         }
         case DRIVER_IOCTL_XXX: {
             break;

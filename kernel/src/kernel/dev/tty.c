@@ -1,4 +1,5 @@
 #include <kernel/DT/int.h>
+#include <kernel/DT/keyboard.h>
 #include <kernel/dev/tty.h>
 #include <kernel/kthread/dq.h>
 #include <kernel/kthread/ktasks.h>
@@ -59,7 +60,8 @@ void tty_init() {
 
     dev = dev_create();
 
-    memcpy(dev->name, tty_dev_name, strlen(tty_dev_name) + 1);  // TODO: strcpy
+    //memcpy(dev->name, tty_dev_name, strlen(tty_dev_name) + 1);  // TODO: strcpy
+    strncpy(dev->name, tty_dev_name, sizeof(dev->name) - 1);
 
     dev->base_r = tty_input_buff;
     dev->base_w = tty_output_buff;
@@ -80,9 +82,11 @@ void tty_init() {
 
 void tty_keyboard_ih_low(uint32_t number, struct ih_low_data_t *data) {
     /* write character to input buffer */
-    char *keycode = data->data;
-    int index = *keycode;
-    assert(index < 128);
+    struct keyboard_status_t *keycode = data->data;
+    int index = keycode->keycode;
+    //assert(index < 128);
+    if (index >= 128) // this meant that key was released
+        return;
     char ch = keyboard_map[index];  // TODO: keyboard_map;
 
     if (tty_input_ptr < tty_input_buff + VGA_COLS) {  // so we don't want to have memory leak
@@ -133,6 +137,7 @@ void tty_ioctl(struct io_buf_t *io_buf, uint32_t command) {
             if ((size_t)io_buf->base == (size_t)tty_output_buff) {
                 term_flush();
             }
+            break;
         }
         case TTY_IOCTL_CLEAR: {
             if ((size_t)io_buf->base == (size_t)tty_output_buff) {

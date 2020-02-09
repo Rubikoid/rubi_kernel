@@ -20,6 +20,7 @@ static const char *syscall_names[NORMAL_SYSCALL_COUNT + 1] = {
     "SYSCALL_CLOSE",
     "SYSCALL_READ",
     "SYSCALL_WRITE",
+    "SYSCALL_IOCTL",
 };
 
 uint32_t cint_syscall(PUSHAD_C) {
@@ -70,6 +71,10 @@ uint32_t cint_syscall(PUSHAD_C) {
         }
         case SYSCALL_WRITE: {  // write file
             file_write((FILE *)in_ebx, (char *)in_ecx, in_edx);
+            break;
+        }
+        case SYSCALL_IOCTL: {  // ioctl file
+            file_ioctl((FILE *)in_ebx, in_ecx);
             break;
         }
         case SYSCALL_TEST: {  // test syscalls works, just sum first and second params

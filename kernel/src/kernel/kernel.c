@@ -1,8 +1,10 @@
 #include <kernel/DT/dt.h>
 #include <kernel/DT/int.h>
+#include <kernel/DT/keyboard.h>
 #include <kernel/DT/syscall.h>
 #include <kernel/asm_lib.h>
 #include <kernel/defines.h>
+#include <kernel/dev/kb_driver.h>
 #include <kernel/dev/tty.h>
 #include <kernel/kthread/dq.h>
 #include <kernel/kthread/ktasks.h>
@@ -54,12 +56,20 @@ void test1() {
 }
 
 void test2() {
-    klog("Running test\n");
-    FILE *f = syscall_open("TTY", FILE_READ);
+    klog("Running test2\n");
+    FILE *f = syscall_open(tty_dev_name, FILE_READ);
     uint8_t *test = kmalloc(32);
     syscall_read(f, test, 32);
     klog("Readed msg: %s\n", test);
     kfree(test);
+    syscall_exit();
+}
+
+void test3() {
+    klog("Running test3\n");
+    FILE *f = syscall_open(keyboard_dev_name, FILE_READ);
+    syscall_ioctl(f, KEYBOARD_IOCTL_ECHO);
+    syscall_ioctl(f, IOCTL_FLUSH);
     syscall_exit();
 }
 
@@ -70,6 +80,10 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
 
     term_print("MemoryManager");
     init_memory_manager();
+    term_print(" [" G_GREEN "OK" G_WHITE "]\n");
+
+    term_print("KB Driver init");
+    keyboard_init();
     term_print(" [" G_GREEN "OK" G_WHITE "]\n");
 
     term_print("TTY Driver init");
@@ -84,7 +98,7 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
 
     multiboot = (struct multiboot_t *)(((size_t)multiboot) + 0xC0000000);  // make virtual ptr to multiboot structure
 
-    term_print("[" G_GREEN "OK" G_WHITE "] RubiKernel " KERNEL_VERSION ": Init!\n");
+    term_print("RubiKernel " KERNEL_VERSION ": Init! [" G_GREEN "OK" G_WHITE "]\n");
     printf("Multiboot: 0x%x; StackStart: 0x%x; Mem_upper: %u\n", multiboot, kstack, multiboot->mem_upper);
 
     disable_int();
@@ -109,7 +123,8 @@ void create_kernel_tasks() {
     task_create(0, infiloop, NULL, "ifinity")->status = TASK_RUNNING;
     kernel_tasks_init();
     //task_create(0, test1, NULL, "test1")->status = TASK_RUNNING;
-    task_create(0, test2, NULL, "test2")->status = TASK_RUNNING;
+    //task_create(0, test2, NULL, "test2")->status = TASK_RUNNING;
+    task_create(0, test3, NULL, "test3")->status = TASK_RUNNING;
     tasks_debug();
     // task_create(0, test1, NULL)->status = TASK_RUNNING;
     // task_create(0, test2, NULL)->status = TASK_RUNNING;

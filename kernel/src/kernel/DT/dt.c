@@ -1,5 +1,6 @@
 #include <kernel/DT/dt.h>
 #include <kernel/DT/int.h>
+#include <kernel/DT/keyboard.h>
 #include <kernel/asm_lib.h>
 #include <kernel/defines.h>
 #include <types.h>

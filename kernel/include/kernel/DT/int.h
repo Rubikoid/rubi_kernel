@@ -10,8 +10,6 @@
 #define PIC1_DATA_PORT 0x21
 #define PIC2_CMD_PORT  0xA0
 #define PIC2_DATA_PORT 0xA1
-#define KB_PORT        0x60
-#define KB_CMD_PORT    0x64
 
 // PIC initialization/... codes
 #define ICW1_ICW4      0x01 /* ICW4 (not) needed */
@@ -31,10 +29,6 @@
 #define PIC1_INT_OFFSET 0x20
 #define PIC2_INT_OFFSET 0x28
 #define INT_TIMER       PIC1_INT_OFFSET + 0x00
-#define INT_KEYBOARD    PIC1_INT_OFFSET + 0x01
-
-#define INT_KEYBOARD_NEW_DATA 0x1
-#define INT_KEYBOARD_NEW_KEY  0x2
 
 #define PUSHAD_C uint32_t in_edi, uint32_t in_esi, uint32_t in_ebp, uint32_t in_esp, uint32_t in_ebx, uint32_t in_edx, uint32_t in_ecx, uint32_t in_eax
 
