@@ -7,9 +7,9 @@
 #define KERNEL_SCHEDULER_TASK_H_
 
 #define TASK_UNINTERRUPTABLE 0
-#define TASK_RUNNING 1
-#define TASK_KILLING 2
-#define TASK_INTERRUPTABLE 3
+#define TASK_RUNNING         1
+#define TASK_KILLING         2
+#define TASK_INTERRUPTABLE   3
 
 #define TASK_KSTACK_SIZE 1024
 #define TASK_USTACK_SIZE 4096 - 1024
@@ -71,7 +71,7 @@ struct task_mem_t {
 struct message_t {
     uint8_t type;  /* message type */
     uint32_t len;  /* data length */
-    uint8_t* data; /* message data */
+    uint8_t* data; /* message data; reciver MUST clean data */
 };
 
 struct __attribute__((__packed__, __aligned__(4))) task_t {
@@ -93,8 +93,9 @@ struct __attribute__((__packed__, __aligned__(4))) task_t {
 
 extern struct clist_def_t task_list;
 extern struct task_t* current_task;
+extern uint32_t tid_counter;  // TODO: do it normal
 
-extern struct task_t* task_create(uint16_t tid, void* address, struct task_mem_t* task_mem);
+extern struct task_t* task_create(uint16_t tid, void* address, struct task_mem_t* task_mem, char* name);  // creates new task. ignores tid param. if task_mem=null - uses kernel memory context;
 extern struct task_t* task_find_by_status(uint16_t status);
 extern struct task_t* task_find_by_status_from(struct task_t* start, uint16_t status);
 extern struct task_t* task_find_by_id(uint16_t tid);
@@ -103,7 +104,9 @@ extern void task_delete(struct task_t* task);
 extern void sched_schedule(size_t* ret_addr, size_t* reg_addr);
 extern void sched_yield();
 
-extern void ksend(uint16_t tid, struct message_t* msg);
-extern void krecive(uint16_t tid, struct message_t* msg);
+extern void ksend(uint16_t tid, struct message_t* msg);    // kernel internal func to send IPC
+extern void krecive(uint16_t tid, struct message_t* msg);  // kernel internal func to recv IPC
+
+extern void tasks_debug();
 
 #endif

@@ -4,6 +4,10 @@
 #ifndef LIB_SLIST_H_
 #define LIB_SLIST_H_
 
+/*
+	static list, two-direction linked.
+*/
+
 struct slist_head_t {
     struct slist_head_t *prev;
     struct slist_head_t *next;

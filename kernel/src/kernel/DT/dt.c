@@ -1,9 +1,9 @@
-#include <types.h>
-
-#include <kernel/asm_lib.h>
-#include <kernel/defines.h>
 #include <kernel/DT/dt.h>
 #include <kernel/DT/int.h>
+#include <kernel/DT/keyboard.h>
+#include <kernel/asm_lib.h>
+#include <kernel/defines.h>
+#include <types.h>
 
 struct GDT_raw_entry_t gdt[GDT_ENTRIES_COUNT];
 struct GDT_normal_entry_t normal_gdt[GDT_ENTRIES_COUNT];

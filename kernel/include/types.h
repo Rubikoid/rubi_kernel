@@ -1,7 +1,9 @@
 #ifndef TYPES_H_
 #define TYPES_H_
 
-#define NULL 0
+#define NULL  0
+#define FALSE 0
+#define TRUE  1
 
 /* Convenience types.  */
 typedef unsigned char __u_char;
@@ -34,6 +36,8 @@ typedef __uint64_t size_t;
 #else
 typedef __uint32_t size_t;
 #endif
+
+// typedef uint8_t bool;
 
 typedef uint8_t *va_list;
 
