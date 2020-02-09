@@ -53,7 +53,7 @@ struct VGA_state_t {
     uint8_t screen;
     uint16_t *term_buffer;
     uint8_t term_color;
-    uint8_t allow_legacy_vga_functions; // this is a little shitcode solution, but why not.
+    uint8_t allow_legacy_vga_functions;  // this is a little shitcode solution, but why not.
     // this VGA funcs we need only in case of panic or during startup.
 };
 

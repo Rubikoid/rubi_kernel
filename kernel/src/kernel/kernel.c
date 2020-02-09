@@ -5,6 +5,7 @@
 #include <kernel/DT/syscall.h>
 #include <kernel/asm_lib.h>
 #include <kernel/defines.h>
+#include <kernel/dev/tty.h>
 #include <kernel/kthread/dq.h>
 #include <kernel/kthread/ktasks.h>
 #include <kernel/memory/heap.h>
@@ -13,9 +14,8 @@
 #include <kernel/scheduler/task.h>
 #include <kernel/serial/serial.h>
 #include <kernel/utils/utils.h>
-#include <kernel/vga/vga.h>
-#include <kernel/dev/tty.h>
 #include <kernel/vfs/file.h>
+#include <kernel/vga/vga.h>
 #include <lib/clist.h>
 #include <lib/slist.h>
 #include <lib/stdio.h>

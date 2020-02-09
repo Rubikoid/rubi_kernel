@@ -43,7 +43,7 @@ void term_clear() {
     }
     vga_state.term_col = 0;
     vga_state.term_row = 0;
-    if(vga_state.allow_legacy_vga_functions)
+    if (vga_state.allow_legacy_vga_functions)
         term_flush();
 }
 
@@ -51,7 +51,7 @@ void term_clear() {
 void term_setc(uint16_t x, uint16_t y, uint8_t color, char c) {
     //if(!vga_state.allow_legacy_vga_functions)
     //    return;
-    if (c != '\n') { // check for newline
+    if (c != '\n') {  // check for newline
         const size_t index = (VGA_COLS * y) + x;
         vga_state.term_buffer[index] = (color << 8) | c;
     }
@@ -91,9 +91,9 @@ void term_putc(char c, uint8_t flush) {
         vga_state.term_row--;
     }
 
-    if (vga_state.term_row < 0) // so we don't have buffer for that shit...
+    if (vga_state.term_row < 0)  // so we don't have buffer for that shit...
         vga_state.term_row = 0;
-    
+
     if (vga_state.term_row >= VGA_ROWS) {
         // vga_state.term_col = 0;
         // vga_state.term_row = 0;
@@ -135,7 +135,7 @@ void term_print(const char *str) {
 }
 
 void term_change(uint8_t term_id) {
-    if(!vga_state.allow_legacy_vga_functions)
+    if (!vga_state.allow_legacy_vga_functions)
         return;
     vga_state.screen = 0;
     vga_state.term_buffer = (uint16_t *)term_buffers + (VGA_SIZE * vga_state.screen);
@@ -143,5 +143,5 @@ void term_change(uint8_t term_id) {
 }
 
 void term_flush() {
-    memcpy((void *)vga_buffer, vga_state.term_buffer, VGA_SIZE * 2); // * 2 because uint16
+    memcpy((void *)vga_buffer, vga_state.term_buffer, VGA_SIZE * 2);  // * 2 because uint16
 }

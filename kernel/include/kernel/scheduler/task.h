@@ -95,7 +95,7 @@ extern struct clist_def_t task_list;
 extern struct task_t* current_task;
 extern uint32_t tid_counter;  // TODO: do it normal
 
-extern struct task_t* task_create(uint16_t tid, void* address, struct task_mem_t* task_mem, char *name);  // creates new task. ignores tid param. if task_mem=null - uses kernel memory context;
+extern struct task_t* task_create(uint16_t tid, void* address, struct task_mem_t* task_mem, char* name);  // creates new task. ignores tid param. if task_mem=null - uses kernel memory context;
 extern struct task_t* task_find_by_status(uint16_t status);
 extern struct task_t* task_find_by_status_from(struct task_t* start, uint16_t status);
 extern struct task_t* task_find_by_id(uint16_t tid);
@@ -106,7 +106,6 @@ extern void sched_yield();
 
 extern void ksend(uint16_t tid, struct message_t* msg);    // kernel internal func to send IPC
 extern void krecive(uint16_t tid, struct message_t* msg);  // kernel internal func to recv IPC
-
 
 extern void tasks_debug();
 

@@ -54,7 +54,7 @@ void clist_delete(struct clist_def_t *ct, struct clist_head_t *pos) {
 
 struct clist_head_t *clist_find(struct clist_def_t *ct, clist_find_fn_t func, ...) {
     struct clist_head_t *cur = ct->head;
-    if(cur == NULL)
+    if (cur == NULL)
         return NULL;
     //for (uint32_t i = 0; i <= ct->slots; i++) {
     do {
@@ -63,7 +63,7 @@ struct clist_head_t *clist_find(struct clist_def_t *ct, clist_find_fn_t func, ..
         if (func(cur, list))
             return cur;
         cur = cur->next;
-    } while(cur != ct->head && cur != NULL);
+    } while (cur != ct->head && cur != NULL);
     return NULL;
 }
 

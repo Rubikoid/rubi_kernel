@@ -92,5 +92,5 @@ void dev_each_low_ih_cb(struct dev_t* entry, void* data) {
         ih_low = (struct ih_low_t*)current->data;
         if (ih_low->number == low_data->number)
             ih_low->handler(low_data->number, low_data);
-    } while(current != entry->ih_list.head && current != NULL);
+    } while (current != entry->ih_list.head && current != NULL);
 }

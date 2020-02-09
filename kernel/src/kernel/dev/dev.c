@@ -18,17 +18,16 @@ struct dev_t *dev_create() {
     return device;
 }
 
-void dev_for_each(dev_each_callback_t callback, void* data) {
-    struct clist_head_t* current = dev_list.head;
-    struct dev_t* dev;
+void dev_for_each(dev_each_callback_t callback, void *data) {
+    struct clist_head_t *current = dev_list.head;
+    struct dev_t *dev;
 
     do {
-        dev = (struct dev_t*)current->data;
+        dev = (struct dev_t *)current->data;
         callback(dev, data);
         current = current->next;
-    } while(current != dev_list.head && current != NULL);
+    } while (current != dev_list.head && current != NULL);
 }
-
 
 uint8_t dev_by_name_finder(struct clist_head_t *entry, va_list list) {
     struct dev_t *dev = (struct dev_t *)entry->data;

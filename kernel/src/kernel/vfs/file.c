@@ -61,7 +61,7 @@ FILE *file_open(uint8_t *path, uint16_t mod_rw) {
 size_t file_read(struct io_buf_t *io_buf, char *buff, uint32_t size) {
     struct file_t *file;
     file = (struct file_t *)io_buf->file;
-    if (file->dev != NULL) { // TODO: check for mod
+    if (file->dev != NULL) {  // TODO: check for mod
         return file->dev->read_fn(&file->io_buf, buff, size);
     } else {
         printf("Wtf file read dev\n");  // TODO: filesystem
@@ -73,9 +73,9 @@ size_t file_read(struct io_buf_t *io_buf, char *buff, uint32_t size) {
 size_t file_write(struct io_buf_t *io_buf, char *buff, uint32_t size) {
     struct file_t *file;
     file = (struct file_t *)io_buf->file;
-    if (file->dev != NULL) { // TODO: check for mod
+    if (file->dev != NULL) {  // TODO: check for mod
         file->dev->write_fn(&file->io_buf, buff, size);
-        return 0; // todo: return really writed data.
+        return 0;  // todo: return really writed data.
     } else {
         printf("Wtf file write dev\n");  // TODO: filesystem
     }

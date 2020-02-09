@@ -71,5 +71,4 @@ extern uint32_t int_syscall();
 extern void int_timer();
 extern void int_keyboard();
 
-
 #endif
