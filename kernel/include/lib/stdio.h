@@ -17,8 +17,7 @@ typedef struct io_buf_t FILE;
 
 #ifdef KERNEL  // we are in kernel space
 
-#define assert(expr) kassert(__FILE__, __func__, __LINE__, expr)
-// so there are a hack with usage if kprintf for printing __LINE__, but i have no idea how do it staticly.
+#define assert(expr)      kassert(__FILE__, __func__, __LINE__, expr)
 #define klog(format, ...) kprintf( \
     "["__MODULE_NAME__             \
     "] " format,                   \
@@ -36,5 +35,12 @@ extern void kpanic(char *message, ...);  // panic function, resets vga state and
 extern void vprintf(char *format, va_list arg_list);
 extern void printf(char *format, ...);
 #endif
+
+extern FILE *stdin;
+extern FILE *stdout;
+
+extern void vscanf(char *format, va_list arg_list);
+extern void scanf(char *format, ...);
+// extern FILE *stderr; // not exist
 
 #endif

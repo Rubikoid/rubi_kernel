@@ -159,6 +159,7 @@ unsigned int sscanf(char *src, const char *format, ...) {
 
 unsigned int vsscanf(char *src, const char *format, va_list list) {
     uint32_t format_i = 0, dst_i = 0;
+    uint32_t count = 0;
 
     char rt[32];
     uint32_t num = 0;
@@ -195,6 +196,7 @@ unsigned int vsscanf(char *src, const char *format, va_list list) {
                         *(uint8_t *)ptr = '\0';
                         // memcpy((uint8_t *)(dst + dst_i), (uint8_t *)ptr, strlen(ptr));
                         // dst_i += strlen(ptr);
+                        count += 1;
                         format_i += 2;
                         break;
                     }
@@ -214,11 +216,11 @@ unsigned int vsscanf(char *src, const char *format, va_list list) {
             default: {
                 // dst[dst_i] = format[format_i];
                 format_i++;
-                dst_i++;
+                // dst_i++;
                 break;
             }
         }
     }
     // dst[dst_i] = 0;
-    return 0;
+    return count;
 }

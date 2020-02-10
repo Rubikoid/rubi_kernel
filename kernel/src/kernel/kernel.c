@@ -73,6 +73,24 @@ void test3() {
     syscall_exit();
 }
 
+void test4() {
+    klog("Running test4\n");
+    FILE *f = syscall_open(tty_dev_name, FILE_WRITE);
+    syscall_ioctl(f, IOCTL_INIT);
+    syscall_write(f, "kek1\n", 5);
+    syscall_ioctl(f, IOCTL_FLUSH);
+    //kfree(test);
+    syscall_exit();
+}
+
+void test5() {
+    klog("Running test5\n");
+    char buff[128] = {0};
+    scanf("%s", &buff);
+    printf("Readen %s\n", buff);
+    syscall_exit();
+}
+
 void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     init_com(0);
     term_init();
@@ -124,7 +142,8 @@ void create_kernel_tasks() {
     kernel_tasks_init();
     //task_create(0, test1, NULL, "test1")->status = TASK_RUNNING;
     //task_create(0, test2, NULL, "test2")->status = TASK_RUNNING;
-    task_create(0, test3, NULL, "test3")->status = TASK_RUNNING;
+    //task_create(0, test4, NULL, "test4")->status = TASK_RUNNING;
+    task_create(0, test4, NULL, "test4")->status = TASK_RUNNING;
     tasks_debug();
     // task_create(0, test1, NULL)->status = TASK_RUNNING;
     // task_create(0, test2, NULL)->status = TASK_RUNNING;

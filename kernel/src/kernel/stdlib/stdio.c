@@ -1,7 +1,14 @@
+#include <kernel/DT/syscall.h>
 #include <kernel/asm_lib.h>
+#include <kernel/dev/tty.h>
+#include <kernel/memory/heap.h>
+#include <kernel/vfs/file.h>
 #include <kernel/vga/vga.h>
 #include <lib/stdio.h>
 #include <lib/string.h>
+
+extern FILE *stdin = 0;
+extern FILE *stdout = 0;
 
 void kvprintf(char *format, va_list arg_list) {
     char ret[256];
@@ -39,4 +46,31 @@ void kpanic(char *message, ...) {
     kvprintf(message, va);
     va_end(va);
     halt();
+}
+
+void vscanf(char *format, va_list arg_list) {
+    if (stdin == NULL) {
+        stdin = syscall_open(tty_dev_name, FILE_READ);
+        syscall_ioctl(stdin, IOCTL_INIT);
+    }
+
+    uint32_t count = 0, realcount = 0;
+    uint8_t buff[128] = {0};
+
+    for (int i = 0; i < strlen(format); i++) {  // FIXME: crazy solution
+        if (format[i] == '%')
+            realcount += 1;
+    }
+
+    while (count < realcount) {
+        syscall_read(stdin, buff, sizeof(buff) - 1);
+        buff[sizeof(buff) - 1] = '\0';
+        count += vsscanf(buff, format, arg_list);
+    }
+}
+void scanf(char *format, ...) {
+    va_list va;
+    va_start(va, format);
+    vscanf(format, va);
+    va_end(va);
 }
