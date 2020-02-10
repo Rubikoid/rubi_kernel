@@ -94,6 +94,20 @@ void test5() {
     syscall_exit();
 }
 
+void repl() {
+    klog("Running repl\n");
+    char buff[128] = {0};
+    while(TRUE) {
+        printf("$ ");
+        scanf("%s", &buff);
+        if(!strcmp(buff, "exit"))
+            break; 
+        if(!strcmp(buff, "ps"))
+            tasks_debug();
+    }
+    syscall_exit();
+}
+
 void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     init_com(0);
     term_init();
@@ -143,13 +157,13 @@ void infiloop() {
 void create_kernel_tasks() {
     task_create(0, infiloop, NULL, "ifinity")->status = TASK_RUNNING;
     kernel_tasks_init();
-    // task_create(0, test5, NULL, "test5")->status = TASK_RUNNING;
+    task_create(0, repl, NULL, "repl")->status = TASK_RUNNING;
     //task_create(0, test1, NULL, "test1")->status = TASK_RUNNING;
     //task_create(0, test2, NULL, "test2")->status = TASK_RUNNING;
     //task_create(0, test3, NULL, "test3")->status = TASK_RUNNING;
     //task_create(0, test4, NULL, "test4")->status = TASK_RUNNING;
     //task_create(0, test5, NULL, "test5")->status = TASK_RUNNING;
-    tasks_debug();
+    //tasks_debug();
     // task_create(0, test1, NULL)->status = TASK_RUNNING;
     // task_create(0, test2, NULL)->status = TASK_RUNNING;
 }
