@@ -32,12 +32,18 @@ extern void kassert(const char *file, const char *func, uint32_t line, uint8_t e
 extern void kpanic(char *message, ...);  // panic function, resets vga state and write some error maybe with kprintf, so kpvrintf must not contain bugs!!
 
 #else  // we are in user space
-extern void vprintf(char *format, va_list arg_list);
-extern void printf(char *format, ...);
+
+#define assert(expr) ;
+#define printf(format, ...)       uprintf(format, ##__VA_ARGS__)
+#define vprintf(format, arg_list) uvprintf(format, arg_list)
+
 #endif
 
 extern FILE *stdin;
 extern FILE *stdout;
+
+extern void uvprintf(char *format, va_list arg_list);
+extern void uprintf(char *format, ...);
 
 extern void vscanf(char *format, va_list arg_list);
 extern void scanf(char *format, ...);

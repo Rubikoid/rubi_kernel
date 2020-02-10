@@ -1,10 +1,10 @@
-#include <kernel/memory/heap.h>
+#include <lib/syscall.h>
 #include <lib/clist.h>
 #include <lib/stdio.h>
 #include <lib/string.h>
 
 struct clist_head_t *clist_init(struct clist_def_t *ct) {
-    struct clist_head_t *n = kmalloc(ct->slot_size);
+    struct clist_head_t *n = syscall_malloc(ct->slot_size);
     memset(n, 0, ct->slot_size);
     n->next = n;
     n->data = n;
@@ -18,7 +18,7 @@ struct clist_head_t *clist_insert_after(struct clist_def_t *ct, struct clist_hea
     if (pos == NULL || ct->slots == 0)
         return clist_init(ct);
     assert(ct->slots != 0);
-    struct clist_head_t *n = kmalloc(ct->slot_size);
+    struct clist_head_t *n = syscall_malloc(ct->slot_size);
     n->next = pos->next;
     n->data = n;
     pos->next = n;
@@ -49,7 +49,7 @@ void clist_delete(struct clist_def_t *ct, struct clist_head_t *pos) {
         x->next = pos->next;
     }
     ct->slots -= 1;
-    kfree(pos);
+    syscall_free(pos);
 }
 
 struct clist_head_t *clist_find(struct clist_def_t *ct, clist_find_fn_t func, ...) {

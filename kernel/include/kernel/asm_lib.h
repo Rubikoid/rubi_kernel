@@ -51,7 +51,7 @@ extern void *get_cr3();
 extern uint32_t get_eflags(void);
 
 extern void switch_kcontext(uint32_t esp, uint32_t cr3);
-extern uint32_t fsyscall(uint32_t id, uint32_t arg1, uint32_t arg2, uint32_t arg3);
+// extern uint32_t fsyscall(uint32_t id, uint32_t arg1, uint32_t arg2, uint32_t arg3);
 
 extern void ddd();
 #endif

@@ -1,7 +1,6 @@
 #include <kernel/DT/dt.h>
 #include <kernel/DT/int.h>
 #include <kernel/DT/keyboard.h>
-#include <kernel/DT/syscall.h>
 #include <kernel/asm_lib.h>
 #include <kernel/defines.h>
 #include <kernel/dev/kb_driver.h>
@@ -16,6 +15,7 @@
 #include <kernel/utils/utils.h>
 #include <kernel/vfs/file.h>
 #include <kernel/vga/vga.h>
+#include <lib/syscall.h>
 #include <lib/clist.h>
 #include <lib/slist.h>
 #include <lib/stdio.h>
@@ -98,12 +98,18 @@ void repl() {
     klog("Running repl\n");
     char buff[128] = {0};
     while(TRUE) {
-        printf("$ ");
+        uprintf("$ ");
         scanf("%s", &buff);
         if(!strcmp(buff, "exit"))
             break; 
-        if(!strcmp(buff, "ps"))
+        else if(!strcmp(buff, "ps"))
             tasks_debug();
+        else if(!strcmp(buff, "clear")) {
+            if(stdout != NULL) {
+                syscall_ioctl(stdout, TTY_IOCTL_CLEAR);
+            }
+        }
+
     }
     syscall_exit();
 }
@@ -117,6 +123,16 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     init_memory_manager();
     term_print(" [" G_GREEN "OK" G_WHITE "]\n");
 
+    term_print("GDT, IDT, PIC");
+    gdt_init();
+    idt_init();
+    pic_enable();
+    term_print(" [" G_GREEN "OK" G_WHITE "]\n");
+
+    /*
+        We should firstly initialize gdt-idt-pic due to possible need in syscalls in driver inits
+    */
+
     term_print("KB Driver init");
     keyboard_init();
     term_print(" [" G_GREEN "OK" G_WHITE "]\n");
@@ -125,24 +141,15 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     tty_init();
     term_print(" [" G_GREEN "OK" G_WHITE "]\n");
 
-    term_print("GDT, IDT, PIC");
-    gdt_init();
-    idt_init();
-    pic_enable();
-    term_print(" [" G_GREEN "OK" G_WHITE "]\n");
-
     multiboot = (struct multiboot_t *)(((size_t)multiboot) + 0xC0000000);  // make virtual ptr to multiboot structure
 
     term_print("RubiKernel " KERNEL_VERSION ": Init! [" G_GREEN "OK" G_WHITE "]\n");
     printf("Multiboot: 0x%x; StackStart: 0x%x; Mem_upper: %u\n", multiboot, kstack, multiboot->mem_upper);
 
     disable_int();
-
     create_kernel_tasks();
-
     enable_int();
 
-    // infiloop();
     sched_yield();  // strange shit. without first call scheduler going to break
     return;
 }

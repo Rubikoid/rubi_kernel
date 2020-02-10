@@ -1,4 +1,4 @@
-#include <kernel/DT/syscall.h>
+#include <lib/syscall.h>
 #include <kernel/kthread/dq.h>
 #include <kernel/kthread/ktasks.h>
 #include <kernel/memory/heap.h>

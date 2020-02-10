@@ -1,4 +1,3 @@
-#include <kernel/memory/heap.h>
 #include <lib/queue.h>
 #include <lib/string.h>
 

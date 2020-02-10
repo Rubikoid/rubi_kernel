@@ -1,11 +1,12 @@
 #include <kernel/DT/int.h>
-#include <kernel/DT/syscall.h>
 #include <kernel/asm_lib.h>
 #include <kernel/messages.h>
 #include <kernel/scheduler/task.h>
 #include <kernel/vfs/file.h>
 #include <kernel/vga/vga.h>
+#include <kernel/memory/heap.h>
 #include <lib/stdio.h>
+#include <lib/syscall.h>
 #include <types.h>
 
 #define __MODULE_NAME__ "SCALL"
@@ -21,6 +22,8 @@ static const char *syscall_names[NORMAL_SYSCALL_COUNT + 1] = {
     "SYSCALL_READ",
     "SYSCALL_WRITE",
     "SYSCALL_IOCTL",
+    "SYSCALL_MALLOC",
+    "SYSCALL_FREE",
 };
 
 uint32_t cint_syscall(PUSHAD_C) {
@@ -75,6 +78,14 @@ uint32_t cint_syscall(PUSHAD_C) {
         }
         case SYSCALL_IOCTL: {  // ioctl file
             file_ioctl((FILE *)in_ebx, in_ecx);
+            break;
+        }
+        case SYSCALL_MALLOC: {
+            ret = (uint32_t)kmalloc(in_ebx);
+            break;
+        }
+        case SYSCALL_FREE: {
+            kfree((void *)in_ebx);
             break;
         }
         case SYSCALL_TEST: {  // test syscalls works, just sum first and second params

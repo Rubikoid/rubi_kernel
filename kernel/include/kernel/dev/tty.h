@@ -17,7 +17,9 @@
 
 extern unsigned char keyboard_map[KEYBOARD_MAP_SIZE];
 
-extern const char* tty_dev_name;
+// extern const char* tty_dev_name;
+#define tty_dev_name "TTY"
+
 extern char tty_output_buff[1];
 extern char tty_input_buff[VGA_COLS];
 

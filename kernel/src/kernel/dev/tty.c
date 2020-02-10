@@ -7,7 +7,7 @@
 #include <kernel/serial/serial.h>
 #include <lib/string.h>
 
-const char *tty_dev_name = "TTY";
+// const char *tty_dev_name = "TTY";
 
 // keyboard map for char set 1
 unsigned char keyboard_map[KEYBOARD_MAP_SIZE] = {
@@ -88,7 +88,15 @@ void tty_keyboard_ih_low(uint32_t number, struct ih_low_data_t *data) {
     //assert(index < 128);
     if (index >= 128)  // this meant that key was released
         return;
+    
     char ch = keyboard_map[index];  // TODO: keyboard_map;
+
+    if(index == 59) { // F1, just for debug.
+        printf("\nCurrent input array: (%x, %x) %s\n", strlen(tty_input_buff), tty_input_ptr - tty_input_buff, tty_input_buff);
+    }
+    
+    if(ch == 0)
+        return;
 
     if (tty_input_ptr < tty_input_buff + VGA_COLS) {  // so we don't want to have memory leak
         if (ch != '\b' || !read_line_mode) {          // not \b or not read line mode
@@ -99,7 +107,9 @@ void tty_keyboard_ih_low(uint32_t number, struct ih_low_data_t *data) {
     //if(tty_output_ptr < tty_output_buff + VGA_COLS) { // so we don't want to have memory leak
     if (is_echo && ch != '\0') {  // ch != '\n' && ch != '\b'
         //*tty_output_ptr++ = ch;
-        term_putc(ch, FALSE);  // if not \n, not \b and echo enabled
+        if (tty_input_ptr > tty_input_buff) {  // and we not on the start of buffer
+            term_putc(ch, FALSE);  // if not \n, not \b and echo enabled
+        }
     }
     //}
     if (read_line_mode && ch == '\b') {        // if lines and \b
@@ -183,6 +193,7 @@ void tty_ioctl(struct io_buf_t *io_buf, uint32_t command) {
 
 void tty_write(struct io_buf_t *io_buf, void *data, uint32_t size) {
     char *ptr = data;
+    io_buf->eof = 0; // FIXME: i think this is a strange fix, but now it will work, so...
 
     for (int i = 0; i < size && !io_buf->eof; ++i) {
         char ch = *ptr++;
@@ -212,7 +223,10 @@ void tty_write_ch(struct io_buf_t *io_buf, char ch) {
             }
         }*/
     //}
-    term_putc(ch, FALSE);
+    if(ch == '\0')
+        io_buf->eof = 1; // WTF: also, here.
+    else 
+        term_putc(ch, FALSE);
 }
 
 uint32_t tty_read(FILE *io_buf, void *buffer, uint32_t size) {
