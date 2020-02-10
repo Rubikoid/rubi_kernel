@@ -228,7 +228,7 @@ uint32_t tty_read(FILE *io_buf, void *buffer, uint32_t size) {
             sched_yield();
         }
     } while (size > 0 && (read_line_mode ? (!io_buf->eol) : (!io_buf->eof)));  //  && !io_buf->eof
-    printf("Reason of death: %x %x %x\n", size, io_buf->eof, io_buf->eol);
+    // printf("Reason of death: %x %x %x\n", size, io_buf->eof, io_buf->eol);
     return (size_t)ptr - (size_t)buffer;
 }
 
@@ -254,7 +254,7 @@ char tty_read_ch(FILE *io_buf) {
             io_buf->eol = 1;
             tty_input_ptr = tty_input_buff;  // reset to start
             io_buf->ptr = (uint8_t *)tty_input_ptr;
-            return '\0';
+            // return '\0';
         }
         return ch;
     } else {

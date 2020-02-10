@@ -1,4 +1,5 @@
 #include <lib/string.h>
+#include <lib/stdio.h>
 
 int strlen(const char *s) {
     uint32_t ret = 0;
@@ -161,11 +162,12 @@ unsigned int vsscanf(char *src, const char *format, va_list list) {
     uint32_t format_i = 0, dst_i = 0;
     uint32_t count = 0;
 
-    char rt[32];
-    uint32_t num = 0;
+    //char rt[32];
+    //uint32_t num = 0;
     void *ptr = 0;
 
-    while (format[format_i] != 0) {
+    while (format[format_i] != '\0' && src[dst_i] != '\0') {
+        // printf("%x:%x\n", dst_i, src[dst_i]);
         switch (format[format_i]) {
             case '%': {
                 switch (format[format_i + 1]) {  // FIXME: i think, that we can't have more than uint32_t
@@ -188,11 +190,13 @@ unsigned int vsscanf(char *src, const char *format, va_list list) {
                     }*/
                     case 's': {
                         ptr = va_arg(list, void *);
-                        while (*(char *)(src + dst_i) != '\0' && *(char *)(src + dst_i) != ' ' && *(char *)(src + dst_i) != '\n' && *(char *)(src + dst_i) != '\t') {
-                            *(uint8_t *)ptr = (uint8_t *)(src + dst_i);
+                        while (src[dst_i] != '\0' && src[dst_i] != ' ' && src[dst_i] != '\n' && src[dst_i] != '\t') {
+                            *(uint8_t *)ptr = src[dst_i];
                             ptr++;
                             dst_i++;
                         }
+                        if(src[dst_i] == ' ' || src[dst_i] == '\n' || src[dst_i] == '\t')
+                            dst_i++;
                         *(uint8_t *)ptr = '\0';
                         // memcpy((uint8_t *)(dst + dst_i), (uint8_t *)ptr, strlen(ptr));
                         // dst_i += strlen(ptr);

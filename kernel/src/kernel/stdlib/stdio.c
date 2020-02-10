@@ -7,8 +7,8 @@
 #include <lib/stdio.h>
 #include <lib/string.h>
 
-extern FILE *stdin = 0;
-extern FILE *stdout = 0;
+FILE *stdin = 0;
+FILE *stdout = 0;
 
 void kvprintf(char *format, va_list arg_list) {
     char ret[256];
@@ -52,22 +52,32 @@ void vscanf(char *format, va_list arg_list) {
     if (stdin == NULL) {
         stdin = syscall_open(tty_dev_name, FILE_READ);
         syscall_ioctl(stdin, IOCTL_INIT);
+        syscall_ioctl(stdin, TTY_IOCTL_READ_MODE_ECHO_ON);
     }
 
     uint32_t count = 0, realcount = 0;
+    uint32_t readen = 0;
     uint8_t buff[128] = {0};
 
     for (int i = 0; i < strlen(format); i++) {  // FIXME: crazy solution
         if (format[i] == '%')
             realcount += 1;
+        //if(format[i+1] == '%') {
+        //    realcount -= 1;
+        //    i += 1;
+        //}
     }
 
     while (count < realcount) {
-        syscall_read(stdin, buff, sizeof(buff) - 1);
-        buff[sizeof(buff) - 1] = '\0';
-        count += vsscanf(buff, format, arg_list);
+        readen = syscall_read(stdin, buff, sizeof(buff) - 1);
+        buff[readen] = '\0';
+        count += vsscanf((char *)buff, format, arg_list);
+        for(int i=0;i<count;i++) {
+            void *_ = va_arg(arg_list, void *);
+        }
     }
 }
+
 void scanf(char *format, ...) {
     va_list va;
     va_start(va, format);

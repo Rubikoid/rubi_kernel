@@ -86,8 +86,11 @@ void test4() {
 void test5() {
     klog("Running test5\n");
     char buff[128] = {0};
-    scanf("%s", &buff);
+    char buff2[128] = {0};
+    printf("Write something: ");
+    scanf("%s %s", &buff, &buff2);
     printf("Readen %s\n", buff);
+    printf("Readen %s\n", buff2);
     syscall_exit();
 }
 
@@ -140,10 +143,12 @@ void infiloop() {
 void create_kernel_tasks() {
     task_create(0, infiloop, NULL, "ifinity")->status = TASK_RUNNING;
     kernel_tasks_init();
+    // task_create(0, test5, NULL, "test5")->status = TASK_RUNNING;
     //task_create(0, test1, NULL, "test1")->status = TASK_RUNNING;
     //task_create(0, test2, NULL, "test2")->status = TASK_RUNNING;
+    //task_create(0, test3, NULL, "test3")->status = TASK_RUNNING;
     //task_create(0, test4, NULL, "test4")->status = TASK_RUNNING;
-    task_create(0, test4, NULL, "test4")->status = TASK_RUNNING;
+    //task_create(0, test5, NULL, "test5")->status = TASK_RUNNING;
     tasks_debug();
     // task_create(0, test1, NULL)->status = TASK_RUNNING;
     // task_create(0, test2, NULL)->status = TASK_RUNNING;

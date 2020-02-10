@@ -66,7 +66,7 @@ uint32_t cint_syscall(PUSHAD_C) {
             break;
         }
         case SYSCALL_READ: {  // read file
-            file_read((FILE *)in_ebx, (char *)in_ecx, in_edx);
+            ret = file_read((FILE *)in_ebx, (char *)in_ecx, in_edx);
             break;
         }
         case SYSCALL_WRITE: {  // write file
