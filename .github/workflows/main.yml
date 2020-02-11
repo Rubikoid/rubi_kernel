@@ -62,7 +62,13 @@ jobs:
       with:
         name: kernel.elf
         path: ${{runner.workspace}}/build/kernel
-        
+    
+    - name: Save shell elf
+      uses: actions/upload-artifact@v1
+      with:
+        name: kernel.iso
+        path: ${{runner.workspace}}/build/prog/shell/prog
+
     - name: Save boot image
       uses: actions/upload-artifact@v1
       with:

@@ -13,13 +13,14 @@
 #include <kernel/scheduler/task.h>
 #include <kernel/serial/serial.h>
 #include <kernel/utils/utils.h>
+#include <kernel/vfs/elf.h>
 #include <kernel/vfs/file.h>
 #include <kernel/vga/vga.h>
-#include <lib/syscall.h>
 #include <lib/clist.h>
 #include <lib/slist.h>
 #include <lib/stdio.h>
 #include <lib/string.h>
+#include <lib/syscall.h>
 #include <types.h>
 
 //#if defined(__linux__)
@@ -97,19 +98,18 @@ void test5() {
 void repl() {
     klog("Running repl\n");
     char buff[128] = {0};
-    while(TRUE) {
+    while (TRUE) {
         uprintf("$ ");
         scanf("%s", &buff);
-        if(!strcmp(buff, "exit"))
-            break; 
-        else if(!strcmp(buff, "ps"))
+        if (!strcmp(buff, "exit"))
+            break;
+        else if (!strcmp(buff, "ps"))
             tasks_debug();
-        else if(!strcmp(buff, "clear")) {
-            if(stdout != NULL) {
+        else if (!strcmp(buff, "clear")) {
+            if (stdout != NULL) {
                 syscall_ioctl(stdout, TTY_IOCTL_CLEAR);
             }
         }
-
     }
     syscall_exit();
 }
@@ -129,8 +129,10 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     pic_enable();
     term_print(" [" G_GREEN "OK" G_WHITE "]\n");
 
+    disable_int();
     /*
         We should firstly initialize gdt-idt-pic due to possible need in syscalls in driver inits
+        And also we disable interrupts, because i hate timer that triggers to early;
     */
 
     term_print("KB Driver init");
@@ -141,13 +143,16 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     tty_init();
     term_print(" [" G_GREEN "OK" G_WHITE "]\n");
 
-    multiboot = (struct multiboot_t *)(((size_t)multiboot) + 0xC0000000);  // make virtual ptr to multiboot structure
+    multiboot = (struct multiboot_t *)(((size_t)multiboot) + 0xC0000000);                       // make virtual ptr to multiboot structure
+    multiboot->mods_addr = (struct mod_addr_t *)(((size_t)multiboot->mods_addr) + 0xC0000000);  // make virtual ptr to multiboot structure
 
     term_print("RubiKernel " KERNEL_VERSION ": Init! [" G_GREEN "OK" G_WHITE "]\n");
     printf("Multiboot: 0x%x; StackStart: 0x%x; Mem_upper: %u\n", multiboot, kstack, multiboot->mem_upper);
+    printf("Multiboot modules count: %x\n", multiboot->mods_count);
+    printf("Starting addr: %x -> %x\n", multiboot->mods_addr[0].start, multiboot->mods_addr[0].end);
 
-    disable_int();
     create_kernel_tasks();
+    elf_exec(VIRT(multiboot->mods_addr[0].start));
     enable_int();
 
     sched_yield();  // strange shit. without first call scheduler going to break
@@ -164,7 +169,7 @@ void infiloop() {
 void create_kernel_tasks() {
     task_create(0, infiloop, NULL, "ifinity")->status = TASK_RUNNING;
     kernel_tasks_init();
-    task_create(0, repl, NULL, "repl")->status = TASK_RUNNING;
+    // task_create(0, repl, NULL, "repl")->status = TASK_RUNNING;
     //task_create(0, test1, NULL, "test1")->status = TASK_RUNNING;
     //task_create(0, test2, NULL, "test2")->status = TASK_RUNNING;
     //task_create(0, test3, NULL, "test3")->status = TASK_RUNNING;

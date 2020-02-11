@@ -1,10 +1,10 @@
 #include <kernel/DT/int.h>
 #include <kernel/asm_lib.h>
+#include <kernel/memory/heap.h>
 #include <kernel/messages.h>
 #include <kernel/scheduler/task.h>
 #include <kernel/vfs/file.h>
 #include <kernel/vga/vga.h>
-#include <kernel/memory/heap.h>
 #include <lib/stdio.h>
 #include <lib/syscall.h>
 #include <types.h>
@@ -36,7 +36,7 @@ uint32_t cint_syscall(PUSHAD_C) {
     // edi - 5 param
     // something else in structures or on stack.
 
-    //klog(MSG_SYSCALL, syscall_names[in_eax % NORMAL_SYSCALL_COUNT], in_eax, task == NULL ? ("NON") : (task->name), task == NULL ? 9999 : task->tid);
+    // klog(MSG_SYSCALL, syscall_names[in_eax % (NORMAL_SYSCALL_COUNT + 1)], in_eax, task == NULL ? ("NON") : (task->name), task == NULL ? 9999 : task->tid);
 
     uint32_t ret = 0;
     disable_int();

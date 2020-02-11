@@ -92,6 +92,7 @@ void *kmalloc(size_t size) {
         kheap_alloc_addr = current_entry->addr + current_entry->size;
     }
     if (kheap_alloc_addr >= kheap_start_addr + kheap_size) {
+        printf("kmalloc shit 1\n");
         return NULL;
     }
 

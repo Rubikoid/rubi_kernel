@@ -52,7 +52,7 @@ struct task_t* task_create(uint16_t tid_depricated, void* start_addr, struct tas
     task->op_registers.cr3 = PHYS((size_t)task->task_mem.page_dir);
     task->op_registers.k_esp = (uint32_t)task->kstack + TASK_KSTACK_SIZE;
     task->op_registers.u_esp = (uint32_t)task->ustack + TASK_USTACK_SIZE;
-    klog(MSG_TASK_CREATE, task->tid, task->op_registers.k_esp, task->op_registers.k_esp, (size_t)start_addr, task->name);
+    klog(MSG_TASK_CREATE, task->tid, task->op_registers.k_esp, task->op_registers.u_esp, (size_t)start_addr, task->name);
     return task;
 }
 
@@ -62,15 +62,16 @@ void task_delete(struct task_t* task) {
 
     kfree(task->kstack);
     kfree(task->ustack);
-    
+
     task->kstack = NULL;
     task->ustack = NULL;
 
     if (task->task_mem.pages_count > 0) {
         for (int i = 0; i < task->task_mem.pages_count; i++)
-            unbind_page(task->task_mem.page_table, (size_t)(task->task_mem.pages + i * PAGE_SIZE));
+            unbind_page(task->task_mem.page_table, (size_t)(task->task_mem.pages[i]));
+        kfree(task->task_mem.pages);
     }
-    unbind_table(task->task_mem.page_dir, 0x0);
+    unbind_table(task->task_mem.page_dir, 0x0);  // WTF: what a magic constant
     free_page_table(task->task_mem.page_table);
     free_page_directory(task->task_mem.page_dir);
 
@@ -86,12 +87,12 @@ struct task_t* task_find_by_status_from(struct task_t* start, uint16_t status) {
         klog("Start is null\n");
         return NULL;
     }
-    start = (struct task_t*)start->list_head.next;
+    struct task_t* work = (struct task_t*)start->list_head.next;
     do {
-        if (start->status == status)
-            return start;
-        start = (struct task_t*)start->list_head.next;
-    } while (start != (struct task_t*)task_list.head && start != NULL);
+        if (work->status == status)
+            return work;
+        work = (struct task_t*)work->list_head.next;
+    } while (work != start && work != NULL);
     /*for (int i = 0; i <= task_list.slots; i++) {
         if (start->status == status)
             return start;

@@ -100,7 +100,7 @@ void krecive(uint16_t tid, struct message_t* msg) {
     if (task_before->msg_count_in == 0) {
         task_before->status = TASK_INTERRUPTABLE;
         sched_yield();
-    }  // i think, if we have messages, we should't call scheduler
+    }
     task_after = current_task;
 
     assert(task_after == task_before);

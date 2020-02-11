@@ -49,8 +49,8 @@ add_custom_command(TARGET kernel POST_BUILD COMMAND genisoimage -R -b boot/grub/
 add_custom_command(TARGET kernel POST_BUILD COMMAND objcopy --only-keep-debug $<TARGET_FILE:kernel> ${CMAKE_BINARY_DIR}/kernel.sym.bin)
 add_custom_command(TARGET kernel POST_BUILD COMMAND bash -c "nm ${CMAKE_BINARY_DIR}/kernel.sym.bin | grep \" [Tbt] \" | awk '{ print \$1\" \"\$3 }' > ${CMAKE_BINARY_DIR}/kernel.sym " VERBATIM)
 
-add_custom_target(run COMMAND qemu-system-x86_64 -m 64 -kernel ./kernel DEPENDS kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-add_custom_target(rung COMMAND qemu-system-x86_64 -s -m 64 -kernel ./kernel DEPENDS kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-add_custom_target(rungs COMMAND qemu-system-x86_64 -s -S -m 64 -kernel ./kernel DEPENDS kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-add_custom_target(runc COMMAND qemu-system-x86_64 -m 64 -nographic -kernel ./kernel DEPENDS kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-add_custom_target(runcr COMMAND qemu-system-x86_64 -m 64 -nographic -no-reboot -kernel ./kernel DEPENDS kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(run   COMMAND qemu-system-x86_64          -m 64                       -kernel ./kernel -initrd ./prog/shell/prog DEPENDS prog kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(rung  COMMAND qemu-system-x86_64 -s       -m 64                       -kernel ./kernel -initrd ./prog/shell/prog DEPENDS prog kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(rungs COMMAND qemu-system-x86_64 -s -S    -m 64                       -kernel ./kernel -initrd ./prog/shell/prog DEPENDS prog kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(runc  COMMAND qemu-system-x86_64          -m 64 -nographic            -kernel ./kernel -initrd ./prog/shell/prog DEPENDS prog kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(runcr COMMAND qemu-system-x86_64          -m 64 -nographic -no-reboot -kernel ./kernel -initrd ./prog/shell/prog DEPENDS prog kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})

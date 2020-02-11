@@ -1,4 +1,3 @@
-#include <lib/syscall.h>
 #include <kernel/asm_lib.h>
 #include <kernel/dev/tty.h>
 #include <kernel/memory/heap.h>
@@ -6,14 +5,15 @@
 #include <kernel/vga/vga.h>
 #include <lib/stdio.h>
 #include <lib/string.h>
+#include <lib/syscall.h>
 
-FILE *stdin = 0;
-FILE *stdout = 0;
+FILE *stdin = 0;   // __attribute__ ((section (".data")))
+FILE *stdout = 0;  // __attribute__ ((section (".data")))
 
 #ifdef KERNEL
 
 void kvprintf(char *format, va_list arg_list) {
-    char ret[256]; // FIXME: possible memory leak
+    char ret[256];  // FIXME: possible memory leak
     vsprintf(ret, format, arg_list);
     term_print(ret);
 }
@@ -52,19 +52,26 @@ void kpanic(char *message, ...) {
 
 #endif
 
+void stdio_init() {
+    stdout = syscall_open(tty_dev_name, FILE_WRITE);
+    syscall_ioctl(stdout, IOCTL_INIT);
+
+    stdin = syscall_open(tty_dev_name, FILE_READ);
+    syscall_ioctl(stdin, IOCTL_INIT);
+    syscall_ioctl(stdin, TTY_IOCTL_READ_MODE_ECHO_ON);
+}
 
 void uvprintf(char *format, va_list arg_list) {
     if (stdout == NULL) {
-        stdout = syscall_open(tty_dev_name, FILE_WRITE);
-        syscall_ioctl(stdout, IOCTL_INIT);
+        stdio_init();
     }
-    char ret[256]; // FIXME: possible memory leak
+    char ret[256];  // FIXME: possible memory leak
     vsprintf(ret, format, arg_list);
     syscall_write(stdout, ret, sizeof(ret));
     syscall_ioctl(stdout, IOCTL_FLUSH);
 }
 
-void uprintf(char *format, ...) { 
+void uprintf(char *format, ...) {
     va_list va;
     va_start(va, format);
     uvprintf(format, va);
@@ -73,9 +80,7 @@ void uprintf(char *format, ...) {
 
 void vscanf(char *format, va_list arg_list) {
     if (stdin == NULL) {
-        stdin = syscall_open(tty_dev_name, FILE_READ);
-        syscall_ioctl(stdin, IOCTL_INIT);
-        syscall_ioctl(stdin, TTY_IOCTL_READ_MODE_ECHO_ON);
+        stdio_init();
     }
 
     uint32_t count = 0, realcount = 0;
@@ -95,8 +100,11 @@ void vscanf(char *format, va_list arg_list) {
         readen = syscall_read(stdin, buff, sizeof(buff) - 1);
         buff[readen] = '\0';
         count += vsscanf((char *)buff, format, arg_list);
-        for(int i=0;i<count;i++) {
-            void *_ = va_arg(arg_list, void *); 
+        {
+            void *_;
+            for (int i = 0; i < count; i++) {
+                _ = va_arg(arg_list, void *);
+            }
         }
     }
 }

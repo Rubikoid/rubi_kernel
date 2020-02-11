@@ -62,7 +62,7 @@ struct __attribute__((__packed__)) flags_t {
 };
 
 struct task_mem_t {
-    void* pages;                             /* task physical pages */
+    void** pages;                            /* task physical pages */
     uint32_t pages_count;                    /* task physical pages count */
     struct page_directory_entry_t* page_dir; /* page directory */
     struct page_table_entry_t* page_table;   /* page table */
