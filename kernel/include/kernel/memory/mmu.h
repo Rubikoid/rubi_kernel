@@ -63,7 +63,7 @@ extern void init_memory_manager();
 extern void mmu_dump(struct page_directory_entry_t *pd);
 
 extern struct page_directory_entry_t *create_page_directory();
-extern struct page_table_entry_t *create_page_table(size_t count);
+extern struct page_table_entry_t *create_page_table(size_t count); // count of tables
 
 extern void *alloc_page(struct page_table_entry_t *pt, size_t liner_addr);
 extern void bind_addr(struct page_directory_entry_t *pd, struct page_table_entry_t *pt, size_t liner_addr, size_t phys_addr);

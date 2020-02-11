@@ -26,6 +26,7 @@ uint8_t kernel_pages_operations = 0;
 +------------------------+------------------------+------+----------------------------------------------------+
     one page is 4kb
     one table is 4mb
+    so one table contains 1024 pages;
     VIRT_BASE is 3gb
 */
 

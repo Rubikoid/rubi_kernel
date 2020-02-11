@@ -62,6 +62,7 @@ void task_delete(struct task_t* task) {
 
     kfree(task->kstack);
     kfree(task->ustack);
+    
     task->kstack = NULL;
     task->ustack = NULL;
 
