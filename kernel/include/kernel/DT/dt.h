@@ -41,8 +41,7 @@
 #define INT_PAGE_FAULT          0xE
 #define INT_FPU                 0x10
 #define INT_ALIGNMENT_CHECK     0x11
-
-// #define INT_SYSCALL 0x80
+#define INT_SYSCALL             0x80
 
 #define INTERRUPT_GATE 0x8e
 
