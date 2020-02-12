@@ -100,10 +100,11 @@ void vscanf(char *format, va_list arg_list) {
         readen = syscall_read(stdin, buff, sizeof(buff) - 1);
         buff[readen] = '\0';
         count += vsscanf((char *)buff, format, arg_list);
-        {
-            void *_;
+        { // i hate this crazy solution, but these warnings makes me cry 
+            size_t _ = 0;
+            _ = (size_t) _;
             for (int i = 0; i < count; i++) {
-                _ = va_arg(arg_list, void *);
+                _ = (size_t) va_arg(arg_list, void *);
             }
         }
     }
