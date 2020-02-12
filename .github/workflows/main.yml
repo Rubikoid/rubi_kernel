@@ -20,7 +20,7 @@ jobs:
     
     - name: Install nasm and genisoimage
       shell: bash
-      run: sudo apt-get install -y nasm genisoimage
+      run: sudo apt-get install -y nasm genisoimage libfl-dev
     
     - name: Cache compiler
       id: compiler_cacher_step_id
