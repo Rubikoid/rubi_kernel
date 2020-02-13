@@ -1,7 +1,7 @@
-#include <lib/syscall.h>
 #include <lib/clist.h>
 #include <lib/stdio.h>
 #include <lib/string.h>
+#include <lib/syscall.h>
 
 struct clist_head_t *clist_init(struct clist_def_t *ct) {
     struct clist_head_t *n = syscall_malloc(ct->slot_size);
@@ -50,6 +50,15 @@ void clist_delete(struct clist_def_t *ct, struct clist_head_t *pos) {
     }
     ct->slots -= 1;
     syscall_free(pos);
+}
+
+struct clist_head_t *clist_get(struct clist_def_t *def, uint32_t index) {
+    if (index >= def->slots)
+        return NULL;
+    struct clist_head_t *start = def->head;  // idk, i think where are no way to do it on O(1), or we need smth like other table with indexes, maybe.
+    for (int i = 0; i < index; i++)
+        start = start->next;
+    return start;
 }
 
 struct clist_head_t *clist_find(struct clist_def_t *ct, clist_find_fn_t func, ...) {

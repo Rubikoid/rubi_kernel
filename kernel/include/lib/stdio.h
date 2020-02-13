@@ -4,16 +4,19 @@
 #ifndef LIB_STDIO_H_
 #define LIB_STDIO_H_
 
+/*
 struct io_buf_t {
     uint32_t fd;    // file descriptor
-    uint8_t *base;  // buffer start
-    uint8_t *ptr;   // pos in buff
+
     uint8_t eof;    // if eof?
     uint8_t eol;    // if eof?
     void *file;     // file defenition
 };
 
 typedef struct io_buf_t FILE;
+*/
+
+
 
 #ifdef KERNEL  // we are in kernel space
 

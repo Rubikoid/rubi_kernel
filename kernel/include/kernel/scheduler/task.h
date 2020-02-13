@@ -14,6 +14,8 @@
 #define TASK_KSTACK_SIZE 1024
 #define TASK_USTACK_SIZE 4096 - 1024
 
+#define TASK_NAME_SIZE 8
+
 struct __attribute__((__packed__)) gp_registers_t {
     uint32_t edi;
     uint32_t esi;
@@ -75,20 +77,29 @@ struct message_t {
 };
 
 struct __attribute__((__packed__, __aligned__(4))) task_t {
-    struct clist_head_t list_head;                 /* should be at first */
-    uint16_t tid;                                  /* task id */
-    char name[8];                                  /* task name */
-    struct gp_registers_t gp_registers;            /* general purpose registers */
-    struct op_registers_t op_registers;            /* other purpose registers */
-    struct flags_t flags;                          /* processor flags */
-    uint32_t time;                                 /* time of task execution */
-    uint8_t reschedule;                            /* whether task need to be rescheduled */
-    uint16_t status;                               /* task status */
+    struct clist_head_t list_head; /* should be at first */
+
+    // general purpose
+    uint16_t tid;              /* task id */
+    char name[TASK_NAME_SIZE]; /* task name */
+
+    // scheduler
+    struct gp_registers_t gp_registers; /* general purpose registers */
+    struct op_registers_t op_registers; /* other purpose registers */
+    struct flags_t flags;               /* processor flags */
+    uint32_t time;                      /* time of task execution */
+    uint8_t reschedule;                 /* whether task need to be rescheduled */
+    uint16_t status;                    /* task status */
+    void* kstack;                       /* kernel stack top */
+    void* ustack;                       /* user stack top */
+    struct task_mem_t task_mem;         /* task memory */
+
+    // IPC
     int msg_count_in;                              /* count of incomming messages */
     struct message_t msg_buff[TASK_MSG_BUFF_SIZE]; /* task message buffer */
-    void* kstack;                                  /* kernel stack top */
-    void* ustack;                                  /* user stack top */
-    struct task_mem_t task_mem;                    /* task memory */
+
+    // I/O
+    struct clist_def_t fd_table;
 };
 
 extern struct clist_def_t task_list;
