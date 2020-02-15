@@ -8,6 +8,13 @@ file(GLOB_RECURSE PROG_HEAD ${PROJECT_SOURCE_DIR}/prog/lib/lib/include/*.h)
 
 add_library(libc_library STATIC ${PROG_ASM_SRC} ${PROG_SRC} ${PROG_HEAD} ${KERNEL_LIB_ASM_SRC} ${KERNEL_LIB_SRC} ${KERNEL_HEAD})
 
+set_target_properties(libc_library
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/initrd/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/initrd/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/initrd/bin"
+)
+
 target_include_directories(libc_library PRIVATE "lib/include") # add includes
 target_include_directories(libc_library PRIVATE "${CMAKE_SOURCE_DIR}/kernel/include") # add includes
 

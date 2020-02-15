@@ -1,3 +1,4 @@
+#include <kernel/vfs/file.h>
 #include <lib/clist.h>
 #include <lib/stdio.h>
 #include <types.h>
@@ -19,8 +20,8 @@
 struct fs_node_t;
 struct dirent_t;
 
-typedef void (*fs_open_func_t)(struct fs_node* node);
-typedef void (*fs_close_func_t)(struct fs_node* node);
+typedef void (*fs_open_func_t)(struct fs_node* node, struct file_t* file);
+typedef void (*fs_close_func_t)(struct fs_node* node, struct file_t* file);
 
 typedef struct dirent_t* (*readdir_func_t)(struct fs_node* node, uint32_t num);
 typedef struct fs_node* (*finddir_func_t)(struct fs_node* node, char* name);

@@ -1,27 +1,24 @@
 #include <kernel/asm_lib.h>
 #include <kernel/memory/mmu.h>
+#include <kernel/scheduler/task.h>
 #include <kernel/vfs/file.h>
 #include <lib/string.h>
 
-struct clist_def_t file_list = {
-    .slot_size = sizeof(struct file_t),
-    .slots = 0,
-    .head = 0,
-};
-
-uint32_t next_fd = 4;
+// uint32_t next_fd = 4;
 
 uint8_t file_find_path_rw(struct clist_head_t *entry, va_list list) {
     struct file_t *file = (struct file_t *)entry;
     uint8_t *path = va_arg(list, uint8_t *);
     uint16_t mode = va_arg(list, uint16_t);
-    if (!strcmp((char *)path, file->name) && mode == file->mod_rw)
-        return 1;
-    else
-        return 0;
+    //if (!strcmp((char *)path, file->name) && mode == file->mod_rw)
+    //    return 1;
+    //else
+    //    return 0;
+    return 0;
 }
 
-FILE *file_open(uint8_t *path, uint16_t mod_rw) {
+uint32_t file_open(uint8_t *path, uint16_t mod_rw) {
+    /*
     struct clist_head_t *entry;
     struct file_t *file;
     struct dev_t *dev;
@@ -59,22 +56,40 @@ FILE *file_open(uint8_t *path, uint16_t mod_rw) {
     memcpy(file->name, path, strlen((char *)path) + 1);  // TODO: strncpy !
     // printf("Open new file: %x, %x, %x\n", file->io_buf.fd, &file, &file->io_buf);
     return &file->io_buf;
+    */
+    return -1;
 }
 
-size_t file_read(struct io_buf_t *io_buf, char *buff, uint32_t size) {
+size_t file_read(uint32_t fd, char *buff, uint32_t size) {
     struct file_t *file;
-    file = (struct file_t *)io_buf->file;
-    if (file->dev != NULL) {  // TODO: check for mod
+    file = clist_get(&current_task->fd_table, fd)->data;
+    if (file != NULL) {
+        uint32_t offset = file->pos;
+        uint32_t ret = 0;
+        ret = file->read(file, &offset, size, buff);
+        file->pos = offset;
+        return ret;
+    }
+    /*if (file->dev != NULL) {  // TODO: check for mod
         return file->dev->read_fn(&file->io_buf, buff, size);
     } else {
         printf("Wtf file read dev\n");  // TODO: filesystem
-    }
+    }*/
 
-    return 0;
+    return -1;
 }
 
-size_t file_write(struct io_buf_t *io_buf, char *buff, uint32_t size) {
+size_t file_write(uint32_t fd, char *buff, uint32_t size) {
     struct file_t *file = 0;
+
+    file = clist_get(&current_task->fd_table, fd)->data;
+    if (file != NULL) {
+        uint32_t offset = file->pos;
+        uint32_t ret = 0;
+        ret = file->write(file, &offset, size, buff);
+        file->pos = offset;
+        return ret;
+    }
 
     /*if (io_buf < 0x60000) {  // hack
         void *x = get_cr3();
@@ -82,6 +97,7 @@ size_t file_write(struct io_buf_t *io_buf, char *buff, uint32_t size) {
         mmu_dump(x);
     }*/
 
+    /*
     file = (struct file_t *)io_buf->file;
     if (file->dev != NULL) {  // TODO: check for mod
         file->dev->write_fn(&file->io_buf, buff, size);
@@ -89,10 +105,13 @@ size_t file_write(struct io_buf_t *io_buf, char *buff, uint32_t size) {
     } else {
         printf("Wtf file write dev\n");  // TODO: filesystem
     }
-    return 0;
+    */
+
+    return -1;
 }
 
-void file_ioctl(struct io_buf_t *io_buf, uint32_t cmd) {
+void file_ioctl(uint32_t fd, uint32_t cmd) {
+    /*
     struct file_t *file;
     file = (struct file_t *)io_buf->file;
     if (file->dev != NULL) {
@@ -100,4 +119,5 @@ void file_ioctl(struct io_buf_t *io_buf, uint32_t cmd) {
     } else {
         printf("Wtf file ioctl dev\n");  // TODO: filesystem
     }
+    */
 }
