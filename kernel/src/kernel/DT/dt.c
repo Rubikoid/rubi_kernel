@@ -146,7 +146,7 @@ void idt_init() {
     idt_fill_entry(INT_PAGE_FAULT, (size_t)int_page_fault);
     idt_fill_entry(INT_TIMER, (size_t)int_timer);
     idt_fill_entry(INT_KEYBOARD, (size_t)int_keyboard);
-    idt_fill_entry(0x80, (size_t)int_syscall);
+    idt_fill_entry(INT_SYSCALL, (size_t)int_syscall);
 
     // generate addres for idt
     idt_address = (size_t)&idt_table;

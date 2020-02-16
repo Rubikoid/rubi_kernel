@@ -55,7 +55,7 @@ void test1() {
     kfree(msg_in.data);
     syscall_exit();
 }
-
+/*
 void test2() {
     klog("Running test2\n");
     FILE *f = syscall_open(tty_dev_name, FILE_READ);
@@ -83,19 +83,20 @@ void test4() {
     //kfree(test);
     syscall_exit();
 }
-
+*/
 void test5() {
     klog("Running test5\n");
     char buff[128] = {0};
     char buff2[128] = {0};
     printf("Write something: ");
-    scanf("%s %s", &buff, &buff2);
+    // scanf("%s %s", &buff, &buff2);
     printf("Readen %s\n", buff);
     printf("Readen %s\n", buff2);
     syscall_exit();
 }
 
 void repl() {
+    /*
     klog("Running repl\n");
     char buff[128] = {0};
     while (TRUE) {
@@ -111,6 +112,7 @@ void repl() {
             }
         }
     }
+    */
     syscall_exit();
 }
 
@@ -138,11 +140,11 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     term_print("KB Driver init");
     keyboard_init();
     term_print(" [" G_GREEN "OK" G_WHITE "]\n");
-
+    /*
     term_print("TTY Driver init");
     tty_init();
     term_print(" [" G_GREEN "OK" G_WHITE "]\n");
-
+*/
     multiboot = (struct multiboot_t *)(((size_t)multiboot) + 0xC0000000);                       // make virtual ptr to multiboot structure
     multiboot->mods_addr = (struct mod_addr_t *)(((size_t)multiboot->mods_addr) + 0xC0000000);  // make virtual ptr to multiboot structure
 
@@ -152,7 +154,7 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     printf("Starting addr: %x -> %x\n", multiboot->mods_addr[0].start, multiboot->mods_addr[0].end);
 
     create_kernel_tasks();
-    elf_exec(VIRT(multiboot->mods_addr[0].start));
+    // elf_exec(VIRT(multiboot->mods_addr[0].start));
     enable_int();
 
     sched_yield();  // strange shit. without first call scheduler going to break

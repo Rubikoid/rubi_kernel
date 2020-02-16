@@ -88,14 +88,14 @@ void tty_keyboard_ih_low(uint32_t number, struct ih_low_data_t *data) {
     //assert(index < 128);
     if (index >= 128)  // this meant that key was released
         return;
-    
+
     char ch = keyboard_map[index];  // TODO: keyboard_map;
 
-    if(index == 59) { // F1, just for debug.
+    if (index == 59) {  // F1, just for debug.
         printf("\nCurrent input array: (%x, %x) %s\n", strlen(tty_input_buff), tty_input_ptr - tty_input_buff, tty_input_buff);
     }
-    
-    if(ch == 0)
+
+    if (ch == 0)
         return;
 
     if (tty_input_ptr < tty_input_buff + VGA_COLS) {  // so we don't want to have memory leak
@@ -108,7 +108,7 @@ void tty_keyboard_ih_low(uint32_t number, struct ih_low_data_t *data) {
     if (is_echo && ch != '\0') {  // ch != '\n' && ch != '\b'
         //*tty_output_ptr++ = ch;
         if (tty_input_ptr > tty_input_buff) {  // and we not on the start of buffer
-            term_putc(ch, FALSE);  // if not \n, not \b and echo enabled
+            term_putc(ch, FALSE);              // if not \n, not \b and echo enabled
         }
     }
     //}
@@ -193,7 +193,7 @@ void tty_ioctl(struct io_buf_t *io_buf, uint32_t command) {
 
 void tty_write(struct io_buf_t *io_buf, void *data, uint32_t size) {
     char *ptr = data;
-    io_buf->eof = 0; // FIXME: i think this is a strange fix, but now it will work, so...
+    io_buf->eof = 0;  // FIXME: i think this is a strange fix, but now it will work, so...
 
     for (int i = 0; i < size && !io_buf->eof; ++i) {
         char ch = *ptr++;
@@ -223,9 +223,9 @@ void tty_write_ch(struct io_buf_t *io_buf, char ch) {
             }
         }*/
     //}
-    if(ch == '\0')
-        io_buf->eof = 1; // WTF: also, here.
-    else 
+    if (ch == '\0')
+        io_buf->eof = 1;  // WTF: also, here.
+    else
         term_putc(ch, FALSE);
 }
 
@@ -262,7 +262,7 @@ char tty_read_ch(FILE *io_buf) {
     }
     */
     if (!io_buf->eof) {
-        char ch = *io_buf->ptr++;
+        char ch = 0;  //*io_buf->ptr++;
         if (read_line_mode && ch == '\n') {
             io_buf->eof = 1;
             io_buf->eol = 1;

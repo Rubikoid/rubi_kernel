@@ -36,6 +36,19 @@ target_link_options(kernel PRIVATE -m32 -ffreestanding -nostdlib -g -lgcc -T ${C
 
 #include(prog/CMakeLists.txt)
 add_subdirectory(prog)
+add_custom_target(initrd_build)
+add_dependencies(initrd_build programms)
+
+
+set_target_properties(kernel
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+
+add_custom_command(TARGET initrd_build POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/initrd_base ${CMAKE_BINARY_DIR}/initrd)
+add_custom_command(TARGET initrd_build POST_BUILD COMMAND python ${CMAKE_SOURCE_DIR}/tools/initrd_builder.py -o ${CMAKE_BINARY_DIR}/initrd_file -i ${CMAKE_BINARY_DIR}/initrd)
 
 # generate iso file for bochs
 add_custom_command(TARGET kernel POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:kernel> ${CMAKE_BINARY_DIR}/iso/boot/$<TARGET_FILE_NAME:kernel>)
@@ -49,8 +62,10 @@ add_custom_command(TARGET kernel POST_BUILD COMMAND genisoimage -R -b boot/grub/
 add_custom_command(TARGET kernel POST_BUILD COMMAND objcopy --only-keep-debug $<TARGET_FILE:kernel> ${CMAKE_BINARY_DIR}/kernel.sym.bin)
 add_custom_command(TARGET kernel POST_BUILD COMMAND bash -c "nm ${CMAKE_BINARY_DIR}/kernel.sym.bin | grep \" [Tbt] \" | awk '{ print \$1\" \"\$3 }' > ${CMAKE_BINARY_DIR}/kernel.sym " VERBATIM)
 
-add_custom_target(run   COMMAND qemu-system-x86_64          -m 64                       -kernel ./kernel -initrd ./prog/shell/prog DEPENDS prog kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-add_custom_target(rung  COMMAND qemu-system-x86_64 -s       -m 64                       -kernel ./kernel -initrd ./prog/shell/prog DEPENDS prog kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-add_custom_target(rungs COMMAND qemu-system-x86_64 -s -S    -m 64                       -kernel ./kernel -initrd ./prog/shell/prog DEPENDS prog kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-add_custom_target(runc  COMMAND qemu-system-x86_64          -m 64 -nographic            -kernel ./kernel -initrd ./prog/shell/prog DEPENDS prog kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-add_custom_target(runcr COMMAND qemu-system-x86_64          -m 64 -nographic -no-reboot -kernel ./kernel -initrd ./prog/shell/prog DEPENDS prog kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(reidd COMMAND COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/initrd_base ${CMAKE_BINARY_DIR}/initrd)
+add_custom_target(reini COMMAND python ${CMAKE_SOURCE_DIR}/tools/initrd_builder.py -o ${CMAKE_BINARY_DIR}/initrd_file -i ${CMAKE_BINARY_DIR}/initrd)
+add_custom_target(run   COMMAND qemu-system-x86_64          -m 64                       -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(rung  COMMAND qemu-system-x86_64 -s       -m 64                       -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(rungs COMMAND qemu-system-x86_64 -s -S    -m 64                       -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(runc  COMMAND qemu-system-x86_64          -m 64 -nographic            -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(runcr COMMAND qemu-system-x86_64          -m 64 -nographic -no-reboot -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})

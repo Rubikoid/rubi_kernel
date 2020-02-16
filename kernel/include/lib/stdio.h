@@ -5,12 +5,12 @@
 #define LIB_STDIO_H_
 
 struct io_buf_t {
-    uint32_t fd;    // file descriptor
-    uint8_t *base;  // buffer start
-    uint8_t *ptr;   // pos in buff
-    uint8_t eof;    // if eof?
-    uint8_t eol;    // if eof?
-    void *file;     // file defenition
+    uint32_t fd;  // file descriptor
+    void *base;
+    void *ptr;
+    uint8_t eof;  // if eof?
+    uint8_t eol;  // if eof?
+    void *file;   // file defenition
 };
 
 typedef struct io_buf_t FILE;
@@ -33,12 +33,13 @@ extern void kpanic(char *message, ...);  // panic function, resets vga state and
 
 #else  // we are in user space
 
-#define assert(expr) ;
+#define assert(expr)              ;
 #define printf(format, ...)       uprintf(format, ##__VA_ARGS__)
 #define vprintf(format, arg_list) uvprintf(format, arg_list)
 
 #endif
 
+/*
 extern FILE *stdin;
 extern FILE *stdout;
 
@@ -47,6 +48,7 @@ extern void uprintf(char *format, ...);
 
 extern void vscanf(char *format, va_list arg_list);
 extern void scanf(char *format, ...);
+*/
 // extern FILE *stderr; // not exist
 
 #endif
