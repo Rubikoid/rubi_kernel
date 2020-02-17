@@ -17,9 +17,9 @@ FILE_MAGIC = 0xAABBCCDD
 FS_FILE = 0x1
 FS_DIRECTORY = 0x2
 
-header = "<II"  # magic count
+header = "<II"  # magic offset
 file_head = "<IIIB"  # magic size name_size type
-string_name_base = "<{size}c"
+directory_base = "<I" # ptr
 
 final_nodes = {}
 dirs = {}
@@ -30,20 +30,53 @@ for root, subdirs, files in os.walk(I_DIR):
     # print(root, subdirs, files)
     # print("---WATAFACK---")
     for i in files:
-        final_nodes[(os.path.relpath(os.path.join(root, i), I_DIR))] = 0
+        relpath = (os.path.relpath(os.path.join(root, i), I_DIR))
+        if relpath.count('/') <= 1:
+            final_nodes[relpath] = 0
     for i in subdirs:
-        dirs[] = (os.path.relpath(os.path.join(root, i), I_DIR))
+        relpath = (os.path.relpath(os.path.join(root, i), I_DIR))
+        if relpath.count('/') == 0:
+            if "/" in dirs:
+                dirs["/"][relpath] = 0
+            else:
+                dirs["/"] = {relpath: 0}
+
 print(final_nodes)
 print(dirs)
 
-exit()
+
 data = struct.pack(header, HEADER_MAGIC, 1337)
 
 for i in final_nodes:
+    final_nodes[i] = len(data)
     name = os.path.basename(i)
     data += struct.pack(file_head, FILE_MAGIC, 4, len(name), FS_FILE)
-    data += struct.pack(string_name_base.format(size=len(name)), list(name.encode()))
-    data += struct.pack(string_name_base.format(size=4), list(f"lole".encode()))
+    data += name.encode() # struct.pack(string_name_base.format(size=len(name)), list())
+    data += f"lole".encode() # struct.pack(string_name_base.format(size=4), list())
 
 for i in dirs:
-    pass
+    if i == "/":
+        for j in dirs[i]:
+            dirs[i][j] = len(data)
+            nodes = [final_nodes[k] for k in final_nodes if os.path.dirname(k) == j]
+            name = os.path.basename(j)
+            print(f"doing {j} {nodes}")
+            data += struct.pack(file_head, FILE_MAGIC, len(nodes), len(name), FS_DIRECTORY)
+            data += name.encode()
+            data += b"".join(struct.pack(directory_base, k) for k in nodes)
+
+dirs_def_offset = len(data)
+
+data += struct.pack(file_head, FILE_MAGIC, len(dirs["/"]), len("/"), FS_DIRECTORY)
+data += b"/"
+data += b"".join(struct.pack(directory_base, dirs['/'][k]) for k in dirs['/'])
+
+data = struct.pack(header, HEADER_MAGIC, dirs_def_offset) + data[8:]
+
+print(final_nodes)
+print(dirs)
+print(dirs_def_offset)
+print(data[dirs_def_offset:])
+
+with open(O_FILE, 'wb') as f:
+    f.write(data)

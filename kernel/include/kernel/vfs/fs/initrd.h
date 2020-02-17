@@ -11,7 +11,7 @@
 #define FILEMAGIC 0xAABBCCDD
 
 #define INITRDFS_FILE 0x01
-#define INITRDFS_FILE 0x02
+#define INITRDFS_DIR  0x02
 
 /*
     initrd fs view:
@@ -25,16 +25,18 @@
     <file, size=initrd_file_head_t.size>
 */
 
-struct initrd_head_t {
+struct __attribute__((__packed__)) initrd_head_t {
     uint32_t magic;
-    uint32_t files_count;
+    uint8_t offset;
 };
 
-struct initrd_file_head_t {
+struct __attribute__((__packed__)) initrd_file_head_t {
     uint32_t magic;
     uint32_t size;       // size or count if this is a directory
     uint32_t name_size;  // size of name. without \0
     uint8_t type;
 };
+
+extern void initrd_test(void *ptr);
 
 #endif

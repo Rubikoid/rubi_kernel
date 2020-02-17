@@ -15,6 +15,7 @@
 #include <kernel/utils/utils.h>
 #include <kernel/vfs/elf.h>
 #include <kernel/vfs/file.h>
+#include <kernel/vfs/fs/initrd.h>
 #include <kernel/vga/vga.h>
 #include <lib/clist.h>
 #include <lib/slist.h>
@@ -154,6 +155,7 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     printf("Starting addr: %x -> %x\n", multiboot->mods_addr[0].start, multiboot->mods_addr[0].end);
 
     create_kernel_tasks();
+    initrd_test((void *) VIRT(multiboot->mods_addr[0].start));
     // elf_exec(VIRT(multiboot->mods_addr[0].start));
     enable_int();
 
