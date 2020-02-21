@@ -17,14 +17,12 @@
 #define FS_SYMLINK    0x06
 #define FS_MOUNTPOINT 0x08  // OR with directory ;F
 
-struct fs_node_t;
-struct dirent_t;
+typedef int (*fs_open_func_t)(struct fs_node_t* node, struct file_t* file);
+typedef int (*fs_close_func_t)(struct fs_node_t* node, struct file_t* file);
 
-typedef void (*fs_open_func_t)(struct fs_node* node, struct file_t* file);
-typedef void (*fs_close_func_t)(struct fs_node* node, struct file_t* file);
-
-typedef struct dirent_t* (*readdir_func_t)(struct fs_node* node, uint32_t num);
-typedef struct fs_node* (*finddir_func_t)(struct fs_node* node, char* name);
+typedef int (*readdir_func_t)(struct fs_node_t* node, uint32_t num, struct dirent_t* dirent);
+typedef struct fs_node_t* (*opennode_func_t)(struct fs_node_t* node, uint32_t num);
+typedef struct fs_node_t* (*finddir_func_t)(struct fs_node_t* node, char* name);
 
 struct fs_node_t {
     struct clist_head_t list_head;  // maybe i need list head?
@@ -36,6 +34,7 @@ struct fs_node_t {
     fs_open_func_t open;
     fs_close_func_t close;
     readdir_func_t readdir;
+    opennode_func_t opennode;
     finddir_func_t finddir;
     struct fs_node_t* ptr;  // link?
 };
@@ -44,5 +43,9 @@ struct dirent_t {
     char name[NODE_NAME_SIZE];
     uint32_t ino;  // wat
 };
+
+extern struct clist_def_t nodes_list;
+extern struct fs_node_t *find_fs_node_by_ino(uint32_t ino);
+extern struct fs_node_t *get_new_node();
 
 #endif

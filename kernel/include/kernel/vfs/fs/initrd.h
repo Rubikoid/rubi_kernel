@@ -43,6 +43,6 @@ struct initrd_status_t {
 };
 
 extern void initrd_init(void *ptr);
-extern void initrd_test(void *ptr);
+extern void initrd_test(void *ptr); 
 
 #endif

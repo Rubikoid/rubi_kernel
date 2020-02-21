@@ -61,13 +61,13 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: kernel.elf
-        path: ${{runner.workspace}}/build/kernel
+        path: ${{runner.workspace}}/build/bin/kernel
     
     - name: Save shell elf
       uses: actions/upload-artifact@v1
       with:
         name: shell.elf
-        path: ${{runner.workspace}}/build/prog/shell/prog
+        path: ${{runner.workspace}}/build/initrd/shell
 
     - name: Save boot image
       uses: actions/upload-artifact@v1
