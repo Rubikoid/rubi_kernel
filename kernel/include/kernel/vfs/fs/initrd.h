@@ -27,7 +27,7 @@
 
 struct __attribute__((__packed__)) initrd_head_t {
     uint32_t magic;
-    uint8_t offset;
+    uint32_t offset;
 };
 
 struct __attribute__((__packed__)) initrd_file_head_t {
@@ -37,6 +37,12 @@ struct __attribute__((__packed__)) initrd_file_head_t {
     uint8_t type;
 };
 
+struct initrd_status_t {
+    struct initrd_head_t *head;
+    struct initrd_file_head_t* root;
+};
+
+extern void initrd_init(void *ptr);
 extern void initrd_test(void *ptr);
 
 #endif

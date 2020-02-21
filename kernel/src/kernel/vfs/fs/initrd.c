@@ -3,6 +3,38 @@
 #include <lib/stdio.h>
 #include <lib/string.h>
 
+struct initrd_status_t ird_stat = {0};
+
+void initrd_init(void *ptr) {
+    ird_stat.head = ptr;
+    if(ird_stat.head->magic != HEADMAGIC) {
+        printf("Bad head magic\n");
+        return;
+    }
+    printf("offset: %x\n", ird_stat.head->offset);
+    ird_stat.root = ptr + ird_stat.head->offset;
+    if(ird_stat.root->magic != FILEMAGIC) {
+        printf("Bad root magic\n");
+        return;
+    }
+    {
+        char *eone_name = kmalloc(ird_stat.root->name_size + 1);
+        memcpy(eone_name, (void *)ird_stat.root + sizeof(struct initrd_file_head_t), ird_stat.root->name_size);
+        eone_name[ird_stat.root->name_size] = '\0';
+        printf("RootNameCheck: %s\n", eone_name);
+        kfree(eone_name);
+    }
+}
+
+void resolve_path(char *path) {
+    char *curr_name = 0;
+    int i=0;
+    while(path[i] != '\0') {
+        
+    }
+}
+
+
 void initrd_test(void *ptr) {
     printf("STARTING TEST\n");
 
@@ -17,17 +49,11 @@ void initrd_test(void *ptr) {
         printf("Bad root magic\n");
         return;
     }
-    {
-        char *eone_name = kmalloc(initrd_root->name_size + 1);
-        memcpy(eone_name, (void *)initrd_root + sizeof(struct initrd_file_head_t), initrd_root->name_size);
-        eone_name[initrd_root->name_size] = '\0';
-        printf("Name: %s\n", eone_name);
-        kfree(eone_name);
-    }
+    
     for(int i=0;i<initrd_root->size;i++) {
         size_t offset = sizeof(struct initrd_file_head_t) + initrd_root->name_size + i * sizeof(size_t);
         
-        struct initrd_file_head_t *entry_one = ptr + (size_t) *((uint32_t *)((void *)initrd_root + offset)); // TODO: remove that pointer crazy math
+        struct initrd_file_head_t *entry_one = ptr + *((size_t *)((void *)initrd_root + offset)); // TODO: remove that pointer crazy math
         if(entry_one->magic != FILEMAGIC) {
             printf("Bad entry_one magic: %x\n", entry_one->magic);
             return;
