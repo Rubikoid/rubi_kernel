@@ -2,9 +2,10 @@
 #include <kernel/memory/mmu.h>
 #include <kernel/scheduler/task.h>
 #include <kernel/vfs/file.h>
+#include <kernel/vfs/node.h>
 #include <lib/string.h>
 
-// uint32_t next_fd = 4;
+uint32_t next_fd = 0;
 
 uint8_t file_find_path_rw(struct clist_head_t *entry, va_list list) {
     struct file_t *file = (struct file_t *)entry;
@@ -18,6 +19,13 @@ uint8_t file_find_path_rw(struct clist_head_t *entry, va_list list) {
 }
 
 uint32_t file_open(uint8_t *path, uint16_t mod_rw) {
+    struct fs_node_t *node = resolve_path(path);
+    if (node != NULL) {
+        struct clist_head_t *entry;
+        struct file_t *file;
+        entry = clist_insert_after(&current_task->fd_table, current_task->fd_table.tail);
+        file = (struct file_t *)entry->data;
+    }
     /*
     struct clist_head_t *entry;
     struct file_t *file;
@@ -62,7 +70,11 @@ uint32_t file_open(uint8_t *path, uint16_t mod_rw) {
 
 size_t file_read(uint32_t fd, char *buff, uint32_t size) {
     struct file_t *file;
-    file = clist_get(&current_task->fd_table, fd)->data;
+    struct clist_head_t *entry = find_file_by_fd(fd);
+    if (entry == NULL)
+        return -1;
+    file = entry->data;
+
     if (file != NULL) {
         uint32_t offset = file->pos;
         uint32_t ret = 0;
@@ -81,8 +93,11 @@ size_t file_read(uint32_t fd, char *buff, uint32_t size) {
 
 size_t file_write(uint32_t fd, char *buff, uint32_t size) {
     struct file_t *file = 0;
+    struct clist_head_t *entry = find_file_by_fd(fd);
+    if (entry == NULL)
+        return -1;
+    file = entry->data;
 
-    file = clist_get(&current_task->fd_table, fd)->data;
     if (file != NULL) {
         uint32_t offset = file->pos;
         uint32_t ret = 0;
@@ -120,4 +135,16 @@ void file_ioctl(uint32_t fd, uint32_t cmd) {
         printf("Wtf file ioctl dev\n");  // TODO: filesystem
     }
     */
+}
+
+struct file_t *find_file_by_fd(uint32_t fd) {
+    struct clist_head_t *entry = 0;
+    entry = clist_find(&current_task->fd_table, find_file_by_fd, fd);
+    return entry == NULL ? 0 : (struct file_t *)entry->data;
+}
+
+uint8_t file_by_fd_finder(struct clist_head_t *entry, va_list list) {
+    struct file_t *file = (struct file_t *)entry->data;
+    uint32_t fd = va_arg(list, uint32_t);
+    return file->fd == fd;
 }

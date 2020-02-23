@@ -1,4 +1,4 @@
-set architecture i386:x86-64
+set architecture i386
 file ./build/kernel
 br kernel_main
-#target remote :1234
+target remote :1234

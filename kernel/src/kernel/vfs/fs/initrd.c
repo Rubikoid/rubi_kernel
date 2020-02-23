@@ -6,6 +6,34 @@
 
 struct initrd_status_t ird_stat = {0};
 
+struct fs_node_t *initrd_create_node(uint32_t offset, struct initrd_file_head_t *data) {
+    struct fs_node_t *node = find_fs_node_by_ino(offset);
+    if (node != NULL)
+        return node;
+    node = get_new_node();
+
+    memcpy(node->name, (void *)data + sizeof(struct initrd_file_head_t), data->name_size);
+    node->name[data->name_size] = '\0';
+
+    node->flags = 0;
+    if (data->type == INITRDFS_FILE) {
+        node->flags |= FS_FILE;
+    } else if (data->type == INITRDFS_DIR)
+        node->flags |= FS_DIRECTORY;
+
+    node->length = data->size;
+    node->inode = offset;
+    node->impl = 0;
+
+    node->open = 0;
+    node->close = 0;
+    node->readdir = initrd_readdir;
+    node->opennode = initrd_openddir;
+    node->finddir = 0;
+
+    node->ptr = 0;
+}
+
 void initrd_init(void *ptr) {
     ird_stat.head = ptr;
     if (ird_stat.head->magic != HEADMAGIC) {
@@ -19,12 +47,18 @@ void initrd_init(void *ptr) {
         return;
     }
     {
-        char *eone_name = kmalloc(ird_stat.root->name_size + 1);
-        memcpy(eone_name, (void *)ird_stat.root + sizeof(struct initrd_file_head_t), ird_stat.root->name_size);
-        eone_name[ird_stat.root->name_size] = '\0';
-        printf("RootNameCheck: %s\n", eone_name);
-        kfree(eone_name);
+        struct fs_node_t *root_node = find_fs_node_by_ino(ird_stat.head->offset);
+        if (root_node != NULL) {
+            printf("WTF why root node exists?\n");
+            return;
+        }
+        if (ird_stat.root->type == INITRDFS_FILE) {
+            printf("WTF why root node is file??\n");
+            return;
+        }
+        root_node = initrd_create_node(ird_stat.head->offset, ird_stat.root);
     }
+    printf("Root node ok\n");
 }
 
 int initrd_readdir(struct fs_node_t *node, uint32_t num, struct dirent_t *dirent) {
@@ -50,8 +84,31 @@ int initrd_readdir(struct fs_node_t *node, uint32_t num, struct dirent_t *dirent
         dirent->ino = 0;
         return 0;
     }
-    strncpy(dirent->name, (uint8_t *)inner_entry + sizeof(struct initrd_file_head_t), sizeof(dirent->name));
-    return dirent;
+    //strncpy(dirent->name, (char *)inner_entry + sizeof(struct initrd_file_head_t), sizeof(dirent->name));
+    memcpy(dirent->name, (void *)inner_entry + sizeof(struct initrd_file_head_t), inner_entry->name_size);
+    dirent->name[inner_entry->name_size] = '\0';
+    return 1;
+}
+
+uint32_t initrd_read(struct file_t *file, uint32_t offset, uint32_t size, uint8_t *buff) {
+    struct initrd_file_head_t *entry = (struct initrd_file_head_t *)((uint8_t *)ird_stat.head + file->node->inode);
+    int ret = 0;
+    if (offset >= entry->size)
+        return ret;
+    uint8_t *base_ptr = (uint8_t)entry + sizeof(struct initrd_file_head_t) + entry->name_size;
+    ret = (offset + size >= entry->size) ? entry->size - offset : size;
+    memcpy(base_ptr + offset, buff, ret);
+    return ret;
+}
+
+uint32_t initrd_write(struct file_t *file, uint32_t *offset, uint32_t size, uint8_t *buff) {
+    return 0;
+}
+
+int initrd_open(struct fs_node_t *node, struct file_t *file) {
+    struct initrd_file_head_t *entry = (struct initrd_file_head_t *)((uint8_t *)ird_stat.head + node->inode);
+    if (entry->type != INITRDFS_FILE)
+        return 0;
 }
 
 struct fs_node_t *initrd_openddir(struct fs_node_t *node, uint32_t num) {
@@ -68,31 +125,8 @@ struct fs_node_t *initrd_openddir(struct fs_node_t *node, uint32_t num) {
     if (entry->magic != FILEMAGIC)
         return 0;
 
-    struct fs_node_t *node = find_fs_node_by_ino(next_num);
-    if (node == NULL) {
-        node = get_new_node();
-        
-        strncpy(node->name, (uint8_t *)inner_entry + sizeof(struct initrd_file_head_t), sizeof(node->name));
-        
-        node->flags = 0;
-        if(inner_entry->type == INITRDFS_FILE)
-            node->flags |= FS_FILE;
-        else if(inner_entry->type == INITRDFS_DIR)
-            node->flags |= FS_DIRECTORY;
-        
-        node->length = inner_entry->size;
-        node->inode = next_num;
-        node->impl = 0;
-
-        node->open = 0;
-        node->close = 0;
-        node->readdir = initrd_readdir;
-        node->opennode = initrd_openddir;
-        node->finddir = 0;
-
-        node->ptr = 0;
-    }
-    return node;
+    struct fs_node_t *ret_node = initrd_create_node(next_num, inner_entry);
+    return ret_node;
 }
 
 void initrd_test(void *ptr) {
@@ -109,41 +143,4 @@ void initrd_test(void *ptr) {
         printf("Bad root magic\n");
         return;
     }
-    /*
-    for (int i = 0; i < initrd_root->size; i++) {
-        size_t offset = sizeof(struct initrd_file_head_t) + initrd_root->name_size + i * sizeof(size_t);
-
-        struct initrd_file_head_t *entry_one = ptr + *((size_t *)((void *)initrd_root + offset));  // TODO: remove that pointer crazy math
-        if (entry_one->magic != FILEMAGIC) {
-            printf("Bad entry_one magic: %x\n", entry_one->magic);
-            return;
-        }
-        char *eone_name = kmalloc(entry_one->name_size + 1);
-        memcpy(eone_name, (void *)entry_one + sizeof(struct initrd_file_head_t), entry_one->name_size);
-        eone_name[entry_one->name_size] = '\0';
-        printf("/%s\n", eone_name);
-        if (entry_one->type == INITRDFS_DIR) {
-            for (int j = 0; j < entry_one->size; j++) {
-                size_t offset_two = sizeof(struct initrd_file_head_t) + entry_one->name_size + j * sizeof(size_t);
-
-                struct initrd_file_head_t *entry_two = ptr + (size_t) * ((uint32_t *)((void *)entry_one + offset_two));  // TODO: remove that pointer crazy math
-                if (entry_two->magic != FILEMAGIC) {
-                    printf("Bad entry_two magic: %x\n", entry_two->magic);
-                    return;
-                }
-                char *etwo_name = kmalloc(entry_two->name_size + 1);
-                memcpy(etwo_name, (void *)entry_two + sizeof(struct initrd_file_head_t), entry_two->name_size);
-                etwo_name[entry_two->name_size] = '\0';
-                printf("/%s/%s ", eone_name, etwo_name);
-                kfree(etwo_name);
-                if (entry_two->type == INITRDFS_DIR) {
-                    printf("wtf is a directory unsupported\n");
-                } else
-                    printf("is file len %x\n", entry_two->size);
-            }
-        } else
-            printf("is file len %x\n", entry_one->size);
-        kfree(eone_name);
-    }
-    */
 }

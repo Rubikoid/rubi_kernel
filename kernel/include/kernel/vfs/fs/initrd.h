@@ -43,6 +43,9 @@ struct initrd_status_t {
 };
 
 extern void initrd_init(void *ptr);
+extern int initrd_readdir(struct fs_node_t *node, uint32_t num, struct dirent_t *dirent);
+extern struct fs_node_t *initrd_openddir(struct fs_node_t *node, uint32_t num);
+
 extern void initrd_test(void *ptr); 
 
 #endif

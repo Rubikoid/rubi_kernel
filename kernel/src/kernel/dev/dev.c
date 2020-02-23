@@ -38,5 +38,5 @@ uint8_t dev_by_name_finder(struct clist_head_t *entry, va_list list) {
 struct dev_t *find_dev_by_name(char *name) {
     struct clist_head_t *entry;
     entry = clist_find(&dev_list, dev_by_name_finder, name);
-    return (struct dev_t *)entry->data;
+    return entry == NULL ? 0: (struct dev_t *)entry->data;
 }

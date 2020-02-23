@@ -17,6 +17,9 @@
 #define FS_SYMLINK    0x06
 #define FS_MOUNTPOINT 0x08  // OR with directory ;F
 
+struct dirent_t;
+struct fs_node_t;
+
 typedef int (*fs_open_func_t)(struct fs_node_t* node, struct file_t* file);
 typedef int (*fs_close_func_t)(struct fs_node_t* node, struct file_t* file);
 
@@ -45,7 +48,11 @@ struct dirent_t {
 };
 
 extern struct clist_def_t nodes_list;
-extern struct fs_node_t *find_fs_node_by_ino(uint32_t ino);
-extern struct fs_node_t *get_new_node();
+
+extern struct file_node_t* resolve_path(char* path);
+
+extern struct fs_node_t* find_fs_node_by_ino(uint32_t ino);
+extern uint8_t fs_node_by_ino_finder(struct clist_head_t* entry, va_list list);
+extern struct fs_node_t* get_new_node();
 
 #endif

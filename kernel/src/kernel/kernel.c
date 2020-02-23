@@ -117,6 +117,48 @@ void repl() {
     syscall_exit();
 }
 
+void test6() {
+    struct dirent_t test;
+    struct fs_node_t *root = ((struct fs_node_t *)nodes_list.head->data);
+    if (root != NULL) {
+        for (int i = 0; i < root->length + 2; i++) {
+            int ret = root->readdir(root, i, &test);
+            klog("[Test6] %x %x %s\n", ret, test.ino, ret != 0 ? test.name : "---");
+        }
+    }
+    syscall_exit();
+}
+
+void test7() {
+    struct fs_node_t *in;
+    struct fs_node_t *root = ((struct fs_node_t *)nodes_list.head->data);
+    if (root != NULL) {
+        for (int i = 0; i < root->length + 2; i++) {
+            in = root->opennode(root, i);
+            if (in != NULL) {
+                klog("[Test7] %x %x %x %x %s\n", in, in->inode, in->length, in->flags, in->name);
+                if (in->flags & FS_DIRECTORY) {
+                    struct fs_node_t *in2;
+                    for (int j = 0; j < in->length; j++) {
+                        in2 = in->opennode(in, j);
+                        klog("[Test7]     %x %x %x %x %s\n", in2, in2->inode, in2->length, in2->flags, in2->name);
+                    }
+                }
+            }
+            //int ret = root->readdir(root, i, &test);
+            //klog("[Test7] %x %x %s\n", ret, test.ino, test.name == 0 ? "---" : test.name);
+        }
+    }
+    syscall_exit();
+}
+
+void test8() {
+    struct fs_node_t *x;
+    x = resolve_path("/bin/shell");
+    klog("%x, %s, %x\n", x, x != NULL ? x->name : "-", x != NULL ? x->length : -1);
+    syscall_exit();
+}
+
 void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     init_com(0);
     term_init();
@@ -155,7 +197,7 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     printf("Starting addr: %x -> %x\n", multiboot->mods_addr[0].start, multiboot->mods_addr[0].end);
 
     create_kernel_tasks();
-    initrd_test((void *) VIRT(multiboot->mods_addr[0].start));
+    initrd_init((void *)VIRT(multiboot->mods_addr[0].start));
     // elf_exec(VIRT(multiboot->mods_addr[0].start));
     enable_int();
 
@@ -173,12 +215,16 @@ void infiloop() {
 void create_kernel_tasks() {
     task_create(0, infiloop, NULL, "ifinity")->status = TASK_RUNNING;
     kernel_tasks_init();
-    // task_create(0, repl, NULL, "repl")->status = TASK_RUNNING;
+    //task_create(0, repl, NULL, "repl")->status = TASK_RUNNING;
     //task_create(0, test1, NULL, "test1")->status = TASK_RUNNING;
     //task_create(0, test2, NULL, "test2")->status = TASK_RUNNING;
     //task_create(0, test3, NULL, "test3")->status = TASK_RUNNING;
     //task_create(0, test4, NULL, "test4")->status = TASK_RUNNING;
     //task_create(0, test5, NULL, "test5")->status = TASK_RUNNING;
+    task_create(0, test6, NULL, "test6")->status = TASK_RUNNING;
+    task_create(0, test7, NULL, "test7")->status = TASK_RUNNING;
+    task_create(0, test7, NULL, "test7")->status = TASK_RUNNING;
+    task_create(0, test8, NULL, "test8")->status = TASK_RUNNING;
     //tasks_debug();
     // task_create(0, test1, NULL)->status = TASK_RUNNING;
     // task_create(0, test2, NULL)->status = TASK_RUNNING;

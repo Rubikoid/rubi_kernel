@@ -64,8 +64,8 @@ add_custom_command(TARGET kernel POST_BUILD COMMAND bash -c "nm ${CMAKE_BINARY_D
 
 add_custom_target(reidd COMMAND COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/initrd_base ${CMAKE_BINARY_DIR}/initrd)
 add_custom_target(reini COMMAND python ${CMAKE_SOURCE_DIR}/tools/initrd_builder.py -o ${CMAKE_BINARY_DIR}/initrd_file -i ${CMAKE_BINARY_DIR}/initrd)
-add_custom_target(run   COMMAND qemu-system-x86_64          -m 64                       -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-add_custom_target(rung  COMMAND qemu-system-x86_64 -s       -m 64                       -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-add_custom_target(rungs COMMAND qemu-system-x86_64 -s -S    -m 64                       -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-add_custom_target(runc  COMMAND qemu-system-x86_64          -m 64 -nographic            -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-add_custom_target(runcr COMMAND qemu-system-x86_64          -m 64 -nographic -no-reboot -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(run   COMMAND qemu-system-i386          -m 64                       -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(rung  COMMAND qemu-system-i386 -s       -m 64                       -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(rungs COMMAND qemu-system-i386 -s -S    -m 64                       -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(runc  COMMAND qemu-system-i386          -m 64 -nographic            -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(runcr COMMAND qemu-system-i386          -m 64 -nographic -no-reboot -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
