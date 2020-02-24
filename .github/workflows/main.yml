@@ -55,7 +55,8 @@ jobs:
     - name: Build
       working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: cmake --build . --config $BUILD_TYPE
+      run: |
+        cmake --build . -t kernel --config $BUILD_TYPE
     
     - name: Save entire kernel
       uses: actions/upload-artifact@v1
