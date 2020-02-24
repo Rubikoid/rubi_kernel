@@ -10,68 +10,74 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    #- uses: ilammy/setup-nasm@v1
+      #- uses: ilammy/setup-nasm@v1
       #with:
       #  from-source: false
-    - uses: actions/checkout@v1
-      
-    - name: Create Build Environment
-      run: cmake -E make_directory ${{runner.workspace}}/build
-    
-    - name: Install nasm and genisoimage
-      shell: bash
-      run: sudo apt-get install -y nasm genisoimage libfl-dev
-    
-    - name: Cache compiler
-      id: compiler_cacher_step_id
-      uses: actions/cache@v1
-      env:
-        cache-name: cache-compiler
-      with:
-        path: ${{runner.workspace}}/gcc_cross
-        key: ${{ runner.os }}-build-${{ env.cache-name }}
-        restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-          ${{ runner.os }}-build-
-          ${{ runner.os }}-
-      
-    - name: Prepare compiler
-      if: steps.compiler_cacher_step_id.outputs.cache-hit == false
-      shell: bash
-      run: |
-        mkdir -vp ${{runner.workspace}}/gcc_cross/ &&
-        wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/gcc_cross.7z -O ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
-        7z x -o${{runner.workspace}}/gcc_cross/ ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
-        wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/toolchain.cmake -O ${{runner.workspace}}/gcc_cross/toolchain.cmake &&
-        chmod +x ${{runner.workspace}}/gcc_cross/opt/bin/* && 
-        chmod +x ${{runner.workspace}}/gcc_cross/opt/i686-elf/bin/* &&
-        chmod +x ${{runner.workspace}}/gcc_cross/opt/libexec/gcc/i686-elf/9.2.0/*
-        
-    - name: Configure CMake
-      shell: bash
-      working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=${{runner.workspace}}/gcc_cross/toolchain.cmake -DBUILD_PREFIX=${{runner.workspace}}/gcc_cross/opt
+      - uses: actions/checkout@v1
 
-    - name: Build
-      working-directory: ${{runner.workspace}}/build
-      shell: bash
-      run: |
-        cmake --build . -t kernel --config $BUILD_TYPE
-    
-    - name: Save entire kernel
-      uses: actions/upload-artifact@v1
-      with:
-        name: kernel.elf
-        path: ${{runner.workspace}}/build/bin/kernel
-    
-    - name: Save initrd
-      uses: actions/upload-artifact@v1
-      with:
-        name: initrd
-        path: ${{runner.workspace}}/build/initrd_file
+      - name: Create Build Environment
+        run: cmake -E make_directory ${{runner.workspace}}/build
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.8"
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
 
-    - name: Save boot image
-      uses: actions/upload-artifact@v1
-      with:
-        name: kernel.iso
-        path: ${{runner.workspace}}/build/rubiKernel.iso
+      - name: Install nasm and genisoimage
+        shell: bash
+        run: sudo apt-get install -y nasm genisoimage libfl-dev
+
+      - name: Cache compiler
+        id: compiler_cacher_step_id
+        uses: actions/cache@v1
+        env:
+          cache-name: cache-compiler
+        with:
+          path: ${{runner.workspace}}/gcc_cross
+          key: ${{ runner.os }}-build-${{ env.cache-name }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Prepare compiler
+        if: steps.compiler_cacher_step_id.outputs.cache-hit == false
+        shell: bash
+        run: |
+          mkdir -vp ${{runner.workspace}}/gcc_cross/ &&
+          wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/gcc_cross.7z -O ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
+          7z x -o${{runner.workspace}}/gcc_cross/ ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
+          wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/toolchain.cmake -O ${{runner.workspace}}/gcc_cross/toolchain.cmake &&
+          chmod +x ${{runner.workspace}}/gcc_cross/opt/bin/* && 
+          chmod +x ${{runner.workspace}}/gcc_cross/opt/i686-elf/bin/* &&
+          chmod +x ${{runner.workspace}}/gcc_cross/opt/libexec/gcc/i686-elf/9.2.0/*
+
+      - name: Configure CMake
+        shell: bash
+        working-directory: ${{runner.workspace}}/build
+        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=${{runner.workspace}}/gcc_cross/toolchain.cmake -DBUILD_PREFIX=${{runner.workspace}}/gcc_cross/opt
+
+      - name: Build
+        working-directory: ${{runner.workspace}}/build
+        shell: bash
+        run: |
+          cmake --build . -t kernel --config $BUILD_TYPE
+
+      - name: Save entire kernel
+        uses: actions/upload-artifact@v1
+        with:
+          name: kernel.elf
+          path: ${{runner.workspace}}/build/bin/kernel
+
+      - name: Save initrd
+        uses: actions/upload-artifact@v1
+        with:
+          name: initrd
+          path: ${{runner.workspace}}/build/initrd_file
+
+      - name: Save boot image
+        uses: actions/upload-artifact@v1
+        with:
+          name: kernel.iso
+          path: ${{runner.workspace}}/build/rubiKernel.iso
