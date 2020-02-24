@@ -32,7 +32,7 @@
 #define syscall_ksend(tid, ptr)      fsyscall(SYSCALL_KSEND, (uint32_t)tid, (uint32_t)ptr, 0);
 #define syscall_krecv(ptr)           fsyscall(SYSCALL_KRECV, (uint32_t)ptr, 0, 0);
 #define syscall_gettid()             fsyscall(SYSCALL_GETTID, 0, 0, 0);
-#define syscall_open(path, mode)     (FILE *)fsyscall(SYSCALL_OPEN, (uint32_t)path, mode, 0);
+#define syscall_open(path, mode)     fsyscall(SYSCALL_OPEN, (uint32_t)path, mode, 0);
 #define syscall_close(fd)            fsyscall(SYSCALL_CLOSE, (uint32_t)fd, 0, 0);
 #define syscall_read(fd, buf, size)  fsyscall(SYSCALL_READ, (uint32_t)fd, (uint32_t)buf, size);
 #define syscall_write(fd, buf, size) fsyscall(SYSCALL_WRITE, (uint32_t)fd, (uint32_t)buf, size);
@@ -50,7 +50,7 @@
 #define syscall_ksend(tid, ptr)      ksend(tid, ptr);
 #define syscall_krecv(ptr)           fsyscall(SYSCALL_KRECV, (uint32_t)ptr, 0, 0);
 #define syscall_gettid()             fsyscall(SYSCALL_GETTID, 0, 0, 0);
-#define syscall_open(path, mode)     (FILE *)fsyscall(SYSCALL_OPEN, (uint32_t)path, mode, 0);
+#define syscall_open(path, mode)     fsyscall(SYSCALL_OPEN, (uint32_t)path, mode, 0);
 #define syscall_close(fd)            fsyscall(SYSCALL_CLOSE, (uint32_t)fd, 0, 0);
 #define syscall_read(fd, buf, size)  fsyscall(SYSCALL_READ, (uint32_t)fd, (uint32_t)buf, size);
 #define syscall_write(fd, buf, size) fsyscall(SYSCALL_WRITE, (uint32_t)fd, (uint32_t)buf, size);

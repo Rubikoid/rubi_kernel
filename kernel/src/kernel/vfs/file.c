@@ -5,8 +5,6 @@
 #include <kernel/vfs/node.h>
 #include <lib/string.h>
 
-uint32_t next_fd = 0;
-
 uint8_t file_find_path_rw(struct clist_head_t *entry, va_list list) {
     struct file_t *file = (struct file_t *)entry;
     uint8_t *path = va_arg(list, uint8_t *);
@@ -25,6 +23,13 @@ uint32_t file_open(uint8_t *path, uint16_t mod_rw) {
         struct file_t *file;
         entry = clist_insert_after(&current_task->fd_table, current_task->fd_table.tail);
         file = (struct file_t *)entry->data;
+        if (node->open(node, file) != 0) {
+            file->fd = current_task->next_fd++;
+            file->mode = mod_rw;
+            file->pos = 0;
+            return file->fd;
+        } else
+            clist_delete(&current_task->fd_table, entry);
     }
     /*
     struct clist_head_t *entry;
@@ -78,8 +83,8 @@ size_t file_read(uint32_t fd, char *buff, uint32_t size) {
     if (file != NULL) {
         uint32_t offset = file->pos;
         uint32_t ret = 0;
-        ret = file->read(file, &offset, size, buff);
-        file->pos = offset;
+        ret = file->read(file, &offset, size, buff);  // тут была передача оффсета по указателю. А нахуя?!
+        file->pos = offset;                    // тут был offset, которые передавался по указателю. А нахуя?!
         return ret;
     }
     /*if (file->dev != NULL) {  // TODO: check for mod
@@ -125,7 +130,7 @@ size_t file_write(uint32_t fd, char *buff, uint32_t size) {
     return -1;
 }
 
-void file_ioctl(uint32_t fd, uint32_t cmd) {
+void file_ioctl(uint32_t fd, uint32_t cmd, uint32_t subcmd) {
     /*
     struct file_t *file;
     file = (struct file_t *)io_buf->file;
@@ -139,7 +144,7 @@ void file_ioctl(uint32_t fd, uint32_t cmd) {
 
 struct file_t *find_file_by_fd(uint32_t fd) {
     struct clist_head_t *entry = 0;
-    entry = clist_find(&current_task->fd_table, find_file_by_fd, fd);
+    entry = clist_find(&current_task->fd_table, file_by_fd_finder, fd);
     return entry == NULL ? 0 : (struct file_t *)entry->data;
 }
 

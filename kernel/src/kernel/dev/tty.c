@@ -132,55 +132,58 @@ void tty_keyboard_ih_high(struct message_t *msg) {
     term_flush();
 }
 
-void tty_ioctl(struct io_buf_t *io_buf, uint32_t command) {
+void tty_ioctl(uint32_t command, uint32_t subcmd) {
     switch (command) {
         case IOCTL_INIT: {
-            if ((size_t)io_buf->base == (size_t)tty_output_buff) {
+            if (subcmd == TTY_IOCTL_WRITE) {
                 term_print("Migrate to tty driver");
-                io_buf->ptr = (uint8_t *)tty_output_ptr;
+                // io_buf->ptr = (uint8_t *)tty_output_ptr;
                 vga_state.allow_legacy_vga_functions = 0;
-                tty_write(io_buf, "... [OK]\n", 9);
+                {
+                    uint32_t x = 0;
+                    tty_write("... [OK]\n", &x, 9);
+                }
                 term_flush();
             }
             break;
         }
         case IOCTL_FLUSH: {
-            if ((size_t)io_buf->base == (size_t)tty_output_buff) {
+            if (subcmd == TTY_IOCTL_WRITE) {
                 term_flush();
             }
             break;
         }
         case TTY_IOCTL_CLEAR: {
-            if ((size_t)io_buf->base == (size_t)tty_output_buff) {
+            if (subcmd == TTY_IOCTL_WRITE) {
                 term_clear();
                 term_flush();
-            } else if ((size_t)io_buf->base == (size_t)tty_input_buff) {
-                tty_input_ptr = tty_input_buff;
-                io_buf->ptr = (uint8_t *)tty_input_ptr;
-                io_buf->eof = TRUE;
+            } else if (subcmd == TTY_IOCTL_READ) {
+                // tty_input_ptr = tty_input_buff;
+                // io_buf->ptr = (uint8_t *)tty_input_ptr;
+                // io_buf->eof = TRUE;
             }
             break;
         }
         case TTY_IOCTL_READ_MODE_LINE_ON: {
-            if ((size_t)io_buf->base == (size_t)tty_input_buff) {
+            if (subcmd == TTY_IOCTL_READ) {
                 read_line_mode = TRUE;
             }
             break;
         }
         case TTY_IOCTL_READ_MODE_ECHO_ON: {
-            if ((size_t)io_buf->base == (size_t)tty_input_buff) {
+            if (subcmd == TTY_IOCTL_READ) {
                 is_echo = TRUE;
             }
             break;
         }
         case TTY_IOCTL_READ_MODE_LINE_OFF: {
-            if ((size_t)io_buf->base == (size_t)tty_input_buff) {
+            if (subcmd == TTY_IOCTL_READ) {
                 read_line_mode = FALSE;
             }
             break;
         }
         case TTY_IOCTL_READ_MODE_ECHO_OFF: {
-            if ((size_t)io_buf->base == (size_t)tty_input_buff) {
+            if (subcmd == TTY_IOCTL_READ) {
                 is_echo = FALSE;
             }
             break;
@@ -191,20 +194,21 @@ void tty_ioctl(struct io_buf_t *io_buf, uint32_t command) {
     }
 }
 
-void tty_write(struct io_buf_t *io_buf, void *data, uint32_t size) {
-    char *ptr = data;
-    io_buf->eof = 0;  // FIXME: i think this is a strange fix, but now it will work, so...
+uint32_t tty_write(void *buf, uint32_t *offset, uint32_t size) {
+    char *ptr = buf;
+    char ch = -1;
+    // io_buf->eof = 0;  // FIXME: i think this is a strange fix, but now it will work, so...
 
-    for (int i = 0; i < size && !io_buf->eof; ++i) {
-        char ch = *ptr++;
-        tty_write_ch(io_buf, ch);
+    for (int i = 0; i < size && ch != '\0' /*&& !io_buf->eof*/; i++) {
+        ch = *ptr++;
+        tty_write_ch(ch);
         //write_com(0, ch);
         //if (ch == '\n')
         //    write_com(0, '\r');  // we ignore \r character, but seems like serial need to have it
     }
 }
 
-void tty_write_ch(struct io_buf_t *io_buf, char ch) {
+void tty_write_ch(char ch) {
     /*if((size_t) tty_output_ptr < (size_t) tty_output_buff + VGA_SIZE - 1) {
         switch (ch) {
             case '\n': {
@@ -223,17 +227,15 @@ void tty_write_ch(struct io_buf_t *io_buf, char ch) {
             }
         }*/
     //}
-    if (ch == '\0')
-        io_buf->eof = 1;  // WTF: also, here.
-    else
+    if (ch != '\0')
         term_putc(ch, FALSE);
 }
 
-uint32_t tty_read(FILE *io_buf, void *buffer, uint32_t size) {
-    char *ptr = buffer;
-
+uint32_t tty_read(void *buf, uint32_t *offset, uint32_t size) {
+    char *ptr = buf;
+    char ch = '\0';
     do {
-        char ch = tty_read_ch(io_buf);
+        ch = tty_read_ch(offset);
         if (ch != '\0') {
             *ptr++ = ch;
             size -= 1;
@@ -241,38 +243,37 @@ uint32_t tty_read(FILE *io_buf, void *buffer, uint32_t size) {
         } else {
             sched_yield();
         }
-    } while (size > 0 && (read_line_mode ? (!io_buf->eol) : (!io_buf->eof)));  //  && !io_buf->eof
-    // printf("Reason of death: %x %x %x\n", size, io_buf->eof, io_buf->eol);
-    return (size_t)ptr - (size_t)buffer;
+    } while (size > 0 && (read_line_mode ? (ch != '\n') : (1)));  //  && !io_buf->eof
+    // printf("Reason of death: %x %x\n", size, ch);
+    return (size_t)ptr - (size_t)buf;
 }
 
-char tty_read_ch(FILE *io_buf) {
-    io_buf->eof = (size_t)io_buf->ptr >= (size_t)tty_input_ptr;  // pointer in file bigger than pointer in data;
-    io_buf->eol = 0;                                             // idk
+char tty_read_ch(uint32_t *offset) {
+    uint8_t eof = (size_t)(tty_input_buff + *offset) >= (size_t)tty_input_ptr;  // pointer in file bigger than pointer in data;
+    //io_buf->eol = 0;                                             // idk
 
     // there are some strange shit
     /*
     if (!io_buf->is_eof && read_line_mode) {
         // skip line
         *((char *)tty_input_buff_ptr) = '\0';
-        if (strchr(io_buf->ptr, '\n') == null) {
+        if (strchr(io_buf->ptr, '\n') == null) {  
             io_buf->is_eof = true;
             return '\0';
         }
     }
     */
-    if (!io_buf->eof) {
-        char ch = 0;  //*io_buf->ptr++;
+    if (!eof) {
+        char ch = *(tty_input_buff + *offset);
         if (read_line_mode && ch == '\n') {
-            io_buf->eof = 1;
-            io_buf->eol = 1;
             tty_input_ptr = tty_input_buff;  // reset to start
-            io_buf->ptr = (uint8_t *)tty_input_ptr;
+            *offset = 0;
             // return '\0';
-        }
+        } else
+            *offset = *offset + 1;
         return ch;
     } else {
-        io_buf->ptr = (uint8_t *)tty_input_ptr;
+        *offset = tty_input_ptr - tty_input_buff;
     }
     return '\0';
 }

@@ -6,14 +6,7 @@
 
 struct io_buf_t {
     uint32_t fd;  // file descriptor
-    void *base;
-    void *ptr;
-    uint8_t eof;  // if eof?
-    uint8_t eol;  // if eof?
-    void *file;   // file defenition
 };
-
-typedef struct io_buf_t FILE;
 
 #ifdef KERNEL  // we are in kernel space
 
@@ -34,8 +27,8 @@ extern void kpanic(char *message, ...);  // panic function, resets vga state and
 #else  // we are in user space
 
 #define assert(expr)              ;
-#define printf(format, ...)       ;//uprintf(format, ##__VA_ARGS__)
-#define vprintf(format, arg_list) ;//uvprintf(format, arg_list)
+#define printf(format, ...)       ;  //uprintf(format, ##__VA_ARGS__)
+#define vprintf(format, arg_list) ;  //uvprintf(format, arg_list)
 
 #endif
 

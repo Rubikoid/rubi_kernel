@@ -8,9 +8,9 @@
 #define IOCTL_INIT  0
 #define IOCTL_FLUSH 1
 
-typedef uint32_t (*dev_read_fn_t)(FILE *io_buf, void *buf, uint32_t size);
-typedef void (*dev_write_fn_t)(FILE *io_buf, void *buf, uint32_t size);
-typedef void (*dev_cmd_fn_t)(FILE *io_buf, uint32_t command);
+typedef uint32_t (*dev_read_fn_t)(void *buf, uint32_t *offset, uint32_t size);
+typedef uint32_t (*dev_write_fn_t)(void *buf, uint32_t *offset, uint32_t size);
+typedef void (*dev_cmd_fn_t)(uint32_t command, uint32_t subcm);
 
 struct dev_t {
     struct clist_head_t list_head;

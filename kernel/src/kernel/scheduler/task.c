@@ -4,6 +4,7 @@
 #include <kernel/memory/mmu.h>
 #include <kernel/messages.h>
 #include <kernel/scheduler/task.h>
+#include <kernel/vfs/file.h>
 #include <lib/stdio.h>
 #include <lib/string.h>
 
@@ -24,14 +25,23 @@ struct task_t* task_create(uint16_t tid_depricated, void* start_addr, struct tas
     entry = clist_insert_after(&task_list, task_list.tail);
     task = (struct task_t*)entry->data;
 
+    /* init different task vars */
     task->kstack = kmalloc(TASK_KSTACK_SIZE);
     task->ustack = kmalloc(TASK_USTACK_SIZE);
     task->tid = tid_counter++;
     strncpy(task->name, name, sizeof(task->name) - 1);
     task->status = TASK_UNINTERRUPTABLE;
+
+    /* init task IO */
+    task->next_fd = 0;
+    task->fd_table.slot_size = sizeof(struct file_t);
+    task->fd_table.slots = 0;
+    task->fd_table.head = 0;
+
+    /* init task mem */
     if (task_mem != NULL) {
         memcpy(&task->task_mem, task_mem, sizeof(struct task_mem_t));
-    } else {
+    } else {  // if no memory provided, we think this is a kernel task and just use KPD/KPT
         struct task_mem_t t = {
             .pages = 0,
             .pages_count = 0,
@@ -41,6 +51,7 @@ struct task_t* task_create(uint16_t tid_depricated, void* start_addr, struct tas
         memcpy(&task->task_mem, &t, sizeof(struct task_mem_t));
     }
 
+    /* initializa task registers */
     *(uint32_t*)(&task->flags) = get_eflags() | 0x200;  // enabled interrupts
     memset(&task->gp_registers, 0, sizeof(struct gp_registers_t));
 
@@ -52,6 +63,7 @@ struct task_t* task_create(uint16_t tid_depricated, void* start_addr, struct tas
     task->op_registers.cr3 = PHYS((size_t)task->task_mem.page_dir);
     task->op_registers.k_esp = (uint32_t)task->kstack + TASK_KSTACK_SIZE;
     task->op_registers.u_esp = (uint32_t)task->ustack + TASK_USTACK_SIZE;
+
     klog(MSG_TASK_CREATE, task->tid, task->op_registers.k_esp, task->op_registers.u_esp, (size_t)start_addr, task->name);
     return task;
 }

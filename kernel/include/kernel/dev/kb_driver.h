@@ -34,12 +34,12 @@ extern void keyboard_init();
 extern void keyboard_ih_low(uint32_t number, struct ih_low_data_t* data);
 extern void keyboard_ih_high(struct message_t* msg);
 
-extern void keyboard_ioctl(struct io_buf_t* io_buf, uint32_t command);
+extern void keyboard_ioctl(uint32_t command, uint32_t subcm);
 
-extern void keyboard_write(struct io_buf_t* io_buf, void* data, uint32_t size);
-// extern void driver_write_ch(struct io_buf_t* io_buf, char ch);
+extern uint32_t keyboard_write(void *buf, uint32_t *offset, uint32_t size);
+// extern void driver_write_ch(char ch);
 
-extern uint32_t keyboard_read(FILE* io_buf, void* buffer, uint32_t size);
+extern uint32_t keyboard_read(void *buf, uint32_t *offset, uint32_t size);
 //extern char driver_read_ch(FILE* io_buf);
 
 #endif

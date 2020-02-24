@@ -63,11 +63,11 @@ jobs:
         name: kernel.elf
         path: ${{runner.workspace}}/build/bin/kernel
     
-    - name: Save shell elf
+    - name: Save initrd
       uses: actions/upload-artifact@v1
       with:
-        name: shell.elf
-        path: ${{runner.workspace}}/build/initrd/shell
+        name: initrd
+        path: ${{runner.workspace}}/build/initrd_file
 
     - name: Save boot image
       uses: actions/upload-artifact@v1

@@ -7,8 +7,8 @@
 #include <lib/string.h>
 #include <lib/syscall.h>
 
-FILE *stdin = 0;   // __attribute__ ((section (".data")))
-FILE *stdout = 0;  // __attribute__ ((section (".data")))
+// FILE *stdin = 0;   // __attribute__ ((section (".data")))
+// FILE *stdout = 0;  // __attribute__ ((section (".data")))
 
 #ifdef KERNEL
 
@@ -53,22 +53,22 @@ void kpanic(char *message, ...) {
 #endif
 
 void stdio_init() {
-    stdout = syscall_open(tty_dev_name, FILE_WRITE);
+    /*stdout = syscall_open(tty_dev_name, FILE_WRITE);
     syscall_ioctl(stdout, IOCTL_INIT);
 
     stdin = syscall_open(tty_dev_name, FILE_READ);
     syscall_ioctl(stdin, IOCTL_INIT);
-    syscall_ioctl(stdin, TTY_IOCTL_READ_MODE_ECHO_ON);
+    syscall_ioctl(stdin, TTY_IOCTL_READ_MODE_ECHO_ON);*/
 }
 
 void uvprintf(char *format, va_list arg_list) {
-    if (stdout == NULL) {
+    /*if (stdout == NULL) {
         stdio_init();
     }
     char ret[256];  // FIXME: possible memory leak
     vsprintf(ret, format, arg_list);
     syscall_write(stdout, ret, sizeof(ret));
-    syscall_ioctl(stdout, IOCTL_FLUSH);
+    syscall_ioctl(stdout, IOCTL_FLUSH);*/
 }
 
 void uprintf(char *format, ...) {
@@ -79,6 +79,7 @@ void uprintf(char *format, ...) {
 }
 
 void vscanf(char *format, va_list arg_list) {
+    /*
     if (stdin == NULL) {
         stdio_init();
     }
@@ -107,7 +108,7 @@ void vscanf(char *format, va_list arg_list) {
                 _ = (size_t) va_arg(arg_list, void *);
             }
         }
-    }
+    }*/
 }
 
 void scanf(char *format, ...) {

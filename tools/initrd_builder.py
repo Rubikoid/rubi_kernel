@@ -19,7 +19,7 @@ FS_DIRECTORY = 0x2
 
 header = "<II"  # magic offset
 file_head = "<IIIB"  # magic size name_size type
-directory_base = "<I" # ptr
+directory_base = "<I"  # ptr
 
 final_nodes = {}
 dirs = {}
@@ -50,9 +50,10 @@ data = struct.pack(header, HEADER_MAGIC, 1337)
 for i in final_nodes:
     final_nodes[i] = len(data)
     name = os.path.basename(i)
-    data += struct.pack(file_head, FILE_MAGIC, 4, len(name), FS_FILE)
-    data += name.encode() # struct.pack(string_name_base.format(size=len(name)), list())
-    data += f"lole".encode() # struct.pack(string_name_base.format(size=4), list())
+    rname = os.path.join(I_DIR, i)
+    data += struct.pack(file_head, FILE_MAGIC, os.stat(rname).st_size, len(name), FS_FILE)
+    data += name.encode()  # struct.pack(string_name_base.format(size=len(name)), list())
+    data += open(rname, 'rb').read()  # f"lole".encode()  # struct.pack(string_name_base.format(size=4), list())
 
 for i in dirs:
     if i == "/":

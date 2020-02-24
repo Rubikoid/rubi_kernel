@@ -146,7 +146,7 @@ uint8_t kb_echo_func(struct keyboard_status_t *status) {
 void keyboard_ih_high(struct message_t *msg) {
 }
 
-void keyboard_ioctl(struct io_buf_t *io_buf, uint32_t command) {
+void keyboard_ioctl(uint32_t command, uint32_t subcm) {
     switch (command) {
         case IOCTL_INIT: {
             break;
@@ -161,7 +161,7 @@ void keyboard_ioctl(struct io_buf_t *io_buf, uint32_t command) {
         }
         case KEYBOARD_IOCTL_ECHO: {
             struct queue_head_t *entry = queue_push(&keyboard_qu);
-            struct kb_queue_t *kbq = (struct kb_queue_t *)entry->data;\
+            struct kb_queue_t *kbq = (struct kb_queue_t *)entry->data;
             kbq->func = kb_echo_func;
             break;
         }
@@ -171,20 +171,21 @@ void keyboard_ioctl(struct io_buf_t *io_buf, uint32_t command) {
     }
 }
 
-void keyboard_write(struct io_buf_t *io_buf, void *data, uint32_t size) {
-}
-
-/*
-void keyboard_write_ch(struct io_buf_t *io_buf, char ch) {
-}
-*/
-
-uint32_t keyboard_read(FILE *io_buf, void *buffer, uint32_t size) {
+uint32_t keyboard_write(void *buf, uint32_t *offset, uint32_t size) {
     return 0;
 }
 
 /*
-char keyboard_read_ch(FILE *io_buf) {
+void keyboard_write_ch(char ch) {
+}
+*/
+
+uint32_t keyboard_read(void *buf, uint32_t *offset, uint32_t size) {
+    return 0;
+}
+
+/*
+char keyboard_read_ch() {
     return '\0';
 }
 */

@@ -1,9 +1,10 @@
 #include <kernel/DT/int.h>
-#include <kernel/dev/driver_base.h>
 #include <kernel/kthread/dq.h>
 #include <kernel/kthread/ktasks.h>
 #include <kernel/memory/heap.h>
 #include <lib/string.h>
+
+#include <kernel/dev/driver_base._h>
 
 const char *driver_dev_name = "DRIVER_DEV_NAME";
 
@@ -45,7 +46,7 @@ void driver_ih_low(uint32_t number, struct ih_low_data_t *data) {
 void driver_ih_high(struct message_t *msg) {
 }
 
-void driver_ioctl(struct io_buf_t *io_buf, uint32_t command) {
+void driver_ioctl(uint32_t command, uint32_t subcm) {
     switch (command) {
         case IOCTL_INIT: {
             break;
@@ -62,20 +63,21 @@ void driver_ioctl(struct io_buf_t *io_buf, uint32_t command) {
     }
 }
 
-void driver_write(struct io_buf_t *io_buf, void *data, uint32_t size) {
-}
-
-/*
-void driver_write_ch(struct io_buf_t *io_buf, char ch) {
-}
-*/
-
-uint32_t driver_read(FILE *io_buf, void *buffer, uint32_t size) {
+uint32_t driver_write(void *buf, uint32_t offset, uint32_t size) {
     return 0;
 }
 
 /*
-char driver_read_ch(FILE *io_buf) {
+void driver_write_ch(char ch) {
+}
+*/
+
+uint32_t driver_read(void *buf, uint32_t offset, uint32_t size) {
+    return 0;
+}
+
+/*
+char driver_read_ch() {
     return '\0';
 }
 */

@@ -37,8 +37,8 @@ struct file_t {
 extern uint32_t file_open(uint8_t *path, uint16_t mode);
 extern size_t file_read(uint32_t fd, char *buff, uint32_t size);
 extern size_t file_write(uint32_t fd, char *buff, uint32_t size);
-extern void file_ioctl(uint32_t fd, uint32_t cmd);
+extern void file_ioctl(uint32_t fd, uint32_t cmd, uint32_t subcmd);
 
-extern struct file_t *find_file_by_fd(uint32_t fd)
+extern struct file_t *find_file_by_fd(uint32_t fd);
 extern uint8_t file_by_fd_finder(struct clist_head_t *entry, va_list list);
 #endif

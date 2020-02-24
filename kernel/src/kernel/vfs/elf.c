@@ -71,7 +71,7 @@ struct task_t* elf_exec(struct elf_header_t* header) {
         //task_mem.pages = alloc_page(struct page_table_entry_t *pt, size_t liner_addr)(task_mem.pages_count);
     }
 
-    struct task_t* task = task_create(0, (void*)entry_point, &task_mem, "task");
-    task->status = TASK_RUNNING;
-    return task;
+    // struct task_t* task = task_create(0, (void*)entry_point, &task_mem, "task");
+    // task->status = TASK_RUNNING;
+    return 0;
 }

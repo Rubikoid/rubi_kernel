@@ -25,7 +25,7 @@ struct fs_node_t *initrd_create_node(uint32_t offset, struct initrd_file_head_t 
     node->inode = offset;
     node->impl = 0;
 
-    node->open = 0;
+    node->open = initrd_open;
     node->close = 0;
     node->readdir = initrd_readdir;
     node->opennode = initrd_openddir;
@@ -90,14 +90,15 @@ int initrd_readdir(struct fs_node_t *node, uint32_t num, struct dirent_t *dirent
     return 1;
 }
 
-uint32_t initrd_read(struct file_t *file, uint32_t offset, uint32_t size, uint8_t *buff) {
+uint32_t initrd_read(struct file_t *file, uint32_t *offset, uint32_t size, uint8_t *buff) {
     struct initrd_file_head_t *entry = (struct initrd_file_head_t *)((uint8_t *)ird_stat.head + file->node->inode);
     int ret = 0;
-    if (offset >= entry->size)
-        return ret;
-    uint8_t *base_ptr = (uint8_t)entry + sizeof(struct initrd_file_head_t) + entry->name_size;
-    ret = (offset + size >= entry->size) ? entry->size - offset : size;
-    memcpy(base_ptr + offset, buff, ret);
+    if (*offset >= entry->size)
+        return 0;
+    uint8_t *base_ptr = (uint8_t *)entry + sizeof(struct initrd_file_head_t) + entry->name_size;
+    ret = (*offset + size >= entry->size) ? entry->size - *offset : size;
+    printf("Count: %x, off: %x, size: %x, fsize: %x, node_size: %x\n", ret, *offset, size, entry->size, file->node->length);
+    memcpy(buff, base_ptr + *offset, ret);
     return ret;
 }
 
@@ -109,6 +110,11 @@ int initrd_open(struct fs_node_t *node, struct file_t *file) {
     struct initrd_file_head_t *entry = (struct initrd_file_head_t *)((uint8_t *)ird_stat.head + node->inode);
     if (entry->type != INITRDFS_FILE)
         return 0;
+
+    file->node = node;
+    file->read = initrd_read;
+    file->write = initrd_write;
+    return 1;
 }
 
 struct fs_node_t *initrd_openddir(struct fs_node_t *node, uint32_t num) {

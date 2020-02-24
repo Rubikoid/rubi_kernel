@@ -15,12 +15,12 @@ extern void driver_init();
 extern void driver_ih_low(uint32_t number, struct ih_low_data_t* data);
 extern void driver_ih_high(struct message_t *msg);
 
-extern void driver_ioctl(struct io_buf_t* io_buf, uint32_t command);
+extern void driver_ioctl(uint32_t command, uint32_t subcm);
 
-extern void driver_write(struct io_buf_t* io_buf, void* data, uint32_t size);
-// extern void driver_write_ch(struct io_buf_t* io_buf, char ch);
+extern uint32_t driver_write(void *buf, uint32_t *offset, uint32_t size);
+// extern void driver_write_ch(char ch);
 
-extern uint32_t driver_read(FILE* io_buf, void* buffer, uint32_t size);
-//extern char driver_read_ch(FILE* io_buf);
+extern uint32_t driver_read(void *buf, uint32_t *offset, uint32_t size);
+//extern char driver_read_ch();
 
 #endif

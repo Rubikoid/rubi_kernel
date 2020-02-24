@@ -100,6 +100,7 @@ struct __attribute__((__packed__, __aligned__(4))) task_t {
 
     // I/O
     struct clist_def_t fd_table;
+    uint32_t next_fd;
 };
 
 extern struct clist_def_t task_list;
