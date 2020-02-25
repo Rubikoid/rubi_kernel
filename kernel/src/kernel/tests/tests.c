@@ -189,6 +189,10 @@ void test10() {
     syscall_exit();
 }
 
+void test11() {
+    syscall_exit();
+}
+
 void test_empty() {
     syscall_exit();
 }

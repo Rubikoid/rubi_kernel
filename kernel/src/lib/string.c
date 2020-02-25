@@ -22,7 +22,7 @@ void *memcpy(void *buf1, const void *buf2, uint32_t bytes) {
     return buf1;
 }
 
-// very haccky realization, TODO: fix that shit
+//TODO: very haccky realization, fix that shit
 int strcmp(const char *s1, const char *s2) {
     int len1 = strlen(s1);
     int len2 = strlen(s2);

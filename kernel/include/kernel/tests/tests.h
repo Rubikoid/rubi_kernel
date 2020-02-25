@@ -14,6 +14,11 @@ extern void test7();
 extern void test8();
 extern void test9();
 extern void test10();
+extern void test11();
+extern void test12();
+extern void test13();
+extern void test14();
+extern void test15();
 
 extern void test_empty();
 
