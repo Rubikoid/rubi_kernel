@@ -7,8 +7,8 @@
 #include <lib/string.h>
 #include <lib/syscall.h>
 
-// FILE *stdin = 0;   // __attribute__ ((section (".data")))
-// FILE *stdout = 0;  // __attribute__ ((section (".data")))
+fd_t stdin = -1;   // __attribute__ ((section (".data")))
+fd_t stdout = -1;  // __attribute__ ((section (".data")))
 
 #ifdef KERNEL
 
@@ -53,22 +53,22 @@ void kpanic(char *message, ...) {
 #endif
 
 void stdio_init() {
-    /*stdout = syscall_open(tty_dev_name, FILE_WRITE);
-    syscall_ioctl(stdout, IOCTL_INIT);
+    stdout = syscall_open("/dev/"tty_dev_name, FILE_WRITE);
+    syscall_ioctl(stdout, IOCTL_INIT, TTY_IOCTL_WRITE);
 
-    stdin = syscall_open(tty_dev_name, FILE_READ);
-    syscall_ioctl(stdin, IOCTL_INIT);
-    syscall_ioctl(stdin, TTY_IOCTL_READ_MODE_ECHO_ON);*/
+    stdin = syscall_open("/dev/"tty_dev_name, FILE_READ);
+    syscall_ioctl(stdin, IOCTL_INIT, TTY_IOCTL_READ);
+    syscall_ioctl(stdin, TTY_IOCTL_READ_MODE_ECHO_ON, 0);
 }
 
 void uvprintf(char *format, va_list arg_list) {
-    /*if (stdout == NULL) {
+    if (stdout == -1) {
         stdio_init();
     }
     char ret[256];  // FIXME: possible memory leak
     vsprintf(ret, format, arg_list);
     syscall_write(stdout, ret, sizeof(ret));
-    syscall_ioctl(stdout, IOCTL_FLUSH);*/
+    syscall_ioctl(stdout, IOCTL_FLUSH, TTY_IOCTL_WRITE);
 }
 
 void uprintf(char *format, ...) {
@@ -79,8 +79,7 @@ void uprintf(char *format, ...) {
 }
 
 void vscanf(char *format, va_list arg_list) {
-    /*
-    if (stdin == NULL) {
+    if (stdin == -1) {
         stdio_init();
     }
 
@@ -101,14 +100,14 @@ void vscanf(char *format, va_list arg_list) {
         readen = syscall_read(stdin, buff, sizeof(buff) - 1);
         buff[readen] = '\0';
         count += vsscanf((char *)buff, format, arg_list);
-        { // i hate this crazy solution, but these warnings makes me cry 
+        {  // i hate this crazy solution, but these warnings makes me cry
             size_t _ = 0;
-            _ = (size_t) _;
+            _ = (size_t)_;
             for (int i = 0; i < count; i++) {
-                _ = (size_t) va_arg(arg_list, void *);
+                _ = (size_t)va_arg(arg_list, void *);
             }
         }
-    }*/
+    }
 }
 
 void scanf(char *format, ...) {

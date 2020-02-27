@@ -16,6 +16,7 @@
 #include <kernel/utils/utils.h>
 #include <kernel/vfs/elf.h>
 #include <kernel/vfs/file.h>
+#include <kernel/vfs/fs/devfs.h>
 #include <kernel/vfs/fs/initrd.h>
 #include <kernel/vga/vga.h>
 #include <lib/clist.h>
@@ -78,6 +79,7 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
 
     create_kernel_tasks();
     initrd_init((void *)VIRT(multiboot->mods_addr[0].start));
+    devfs_mount(resolve_path("/dev"));
     // elf_exec(VIRT(multiboot->mods_addr[0].start));
     enable_int();
 
@@ -95,8 +97,8 @@ void infiloop() {
 void create_kernel_tasks() {
     task_create(0, infiloop, NULL, "ifinity")->status = TASK_RUNNING;
     kernel_tasks_init();
-    //task_create(0, repl, NULL, "repl")->status = TASK_RUNNING;
-    
+    task_create(0, repl, NULL, "repl")->status = TASK_RUNNING;
+
     //task_create(0, test1, NULL, "test1")->status = TASK_RUNNING;
     //task_create(0, test2, NULL, "test2")->status = TASK_RUNNING;
     //task_create(0, test3, NULL, "test3")->status = TASK_RUNNING;
@@ -108,8 +110,9 @@ void create_kernel_tasks() {
     //task_create(0, test8, NULL, "test8")->status = TASK_RUNNING;
 
     //task_create(0, test9, NULL, "test9")->status = TASK_RUNNING;
-    task_create(0, test10, NULL, "test10")->status = TASK_RUNNING;
-    
+    //task_create(0, test10, NULL, "test10")->status = TASK_RUNNING;
+    //task_create(0, test11, NULL, "test11")->status = TASK_RUNNING;
+
     //tasks_debug();
     // task_create(0, test1, NULL)->status = TASK_RUNNING;
     // task_create(0, test2, NULL)->status = TASK_RUNNING;

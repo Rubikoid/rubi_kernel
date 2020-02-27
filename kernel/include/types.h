@@ -27,6 +27,10 @@ typedef __uint8_t uint8_t;
 typedef __uint16_t uint16_t;
 typedef __uint32_t uint32_t;
 
+typedef __int8_t int8_t;
+typedef __int16_t int16_t;
+typedef __int32_t int32_t;
+
 #if __WORDSIZE == 64
 typedef __uint64_t uint64_t;
 #endif
@@ -49,5 +53,7 @@ typedef uint8_t *va_list;
 
 #define va_arg(ap, T) \
     (*(T *)(((ap) += sizeof(T)) - sizeof(T)))
+
+typedef int32_t fd_t;
 
 #endif

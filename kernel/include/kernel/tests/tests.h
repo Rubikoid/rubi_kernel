@@ -20,6 +20,8 @@ extern void test13();
 extern void test14();
 extern void test15();
 
+extern void repl();
+
 extern void test_empty();
 
 #endif

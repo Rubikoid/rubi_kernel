@@ -135,7 +135,7 @@ void tty_keyboard_ih_high(struct message_t *msg) {
 void tty_ioctl(uint32_t command, uint32_t subcmd) {
     switch (command) {
         case IOCTL_INIT: {
-            if (subcmd == TTY_IOCTL_WRITE) {
+            if (subcmd == TTY_IOCTL_WRITE && vga_state.allow_legacy_vga_functions) {
                 term_print("Migrate to tty driver");
                 // io_buf->ptr = (uint8_t *)tty_output_ptr;
                 vga_state.allow_legacy_vga_functions = 0;

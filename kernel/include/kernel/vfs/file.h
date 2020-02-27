@@ -15,6 +15,7 @@ struct fs_node_t;
 
 typedef uint32_t (*read_func_t)(struct file_t *file, uint32_t offset, uint32_t size, uint8_t *buff);
 typedef uint32_t (*write_func_t)(struct file_t *file, uint32_t offset, uint32_t size, uint8_t *buff);
+typedef uint32_t (*ioctl_func_t)(struct file_t *file, uint32_t cmd, uint32_t subcmd);
 
 struct file_t {
     struct clist_head_t list_head;
@@ -26,6 +27,7 @@ struct file_t {
     void *private_data;  // shrug
     read_func_t read;
     write_func_t write;
+    ioctl_func_t ioctl;
     //FILE io_buf;
     //char name[8];
     //struct dev_t *dev;
@@ -37,7 +39,7 @@ struct file_t {
 extern uint32_t file_open(uint8_t *path, uint16_t mode);
 extern size_t file_read(uint32_t fd, char *buff, uint32_t size);
 extern size_t file_write(uint32_t fd, char *buff, uint32_t size);
-extern void file_ioctl(uint32_t fd, uint32_t cmd, uint32_t subcmd);
+extern uint32_t file_ioctl(uint32_t fd, uint32_t cmd, uint32_t subcmd);
 
 extern struct file_t *find_file_by_fd(uint32_t fd);
 extern uint8_t file_by_fd_finder(struct clist_head_t *entry, va_list list);

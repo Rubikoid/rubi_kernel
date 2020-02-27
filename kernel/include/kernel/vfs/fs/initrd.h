@@ -44,11 +44,14 @@ struct initrd_status_t {
 
 extern struct fs_node_t *initrd_create_node(uint32_t offset, struct initrd_file_head_t *data);
 extern void initrd_init(void *ptr);
+
 extern int initrd_readdir(struct fs_node_t *node, uint32_t num, struct dirent_t *dirent);
+extern struct fs_node_t *initrd_openddir(struct fs_node_t *node, uint32_t num);
+
 extern uint32_t initrd_read(struct file_t *file, uint32_t *offset, uint32_t size, uint8_t *buff);
 extern uint32_t initrd_write(struct file_t *file, uint32_t *offset, uint32_t size, uint8_t *buff);
+extern uint32_t initrd_ioctl(struct file_t *file, uint32_t cmd, uint32_t subcmd);
 extern int initrd_open(struct fs_node_t *node, struct file_t *file);
-extern struct fs_node_t *initrd_openddir(struct fs_node_t *node, uint32_t num);
 
 extern void initrd_test(void *ptr); 
 

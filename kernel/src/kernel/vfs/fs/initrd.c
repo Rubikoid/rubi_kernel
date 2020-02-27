@@ -108,6 +108,10 @@ uint32_t initrd_write(struct file_t *file, uint32_t *offset, uint32_t size, uint
     return 0;
 }
 
+uint32_t initrd_ioctl(struct file_t *file, uint32_t cmd, uint32_t subcmd) {
+    return 0;
+}
+
 int initrd_open(struct fs_node_t *node, struct file_t *file) {
     struct initrd_file_head_t *entry = (struct initrd_file_head_t *)((uint8_t *)ird_stat.head + node->inode);
     if (entry->type != INITRDFS_FILE)
@@ -116,6 +120,7 @@ int initrd_open(struct fs_node_t *node, struct file_t *file) {
     file->node = node;
     file->read = initrd_read;
     file->write = initrd_write;
+    file->ioctl = initrd_ioctl;
     return 1;
 }
 

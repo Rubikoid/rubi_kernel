@@ -45,48 +45,32 @@ void test1() {
     kfree(msg_in.data);
     syscall_exit();
 }
-/*
+
 void test2() {
     klog("Running test2\n");
-    FILE *f = syscall_open(tty_dev_name, FILE_READ);
-    uint8_t *test = kmalloc(32);
-    syscall_read(f, test, 32);
-    klog("Readed msg: %s\n", test);
-    kfree(test);
+
     syscall_exit();
 }
 
 void test3() {
     klog("Running test3\n");
-    FILE *f = syscall_open(keyboard_dev_name, FILE_READ);
-    syscall_ioctl(f, KEYBOARD_IOCTL_ECHO);
-    syscall_ioctl(f, IOCTL_FLUSH);
+
     syscall_exit();
 }
 
 void test4() {
     klog("Running test4\n");
-    FILE *f = syscall_open(tty_dev_name, FILE_WRITE);
-    syscall_ioctl(f, IOCTL_INIT);
-    syscall_write(f, "kek1\n", 5);
-    syscall_ioctl(f, IOCTL_FLUSH);
-    //kfree(test);
+
     syscall_exit();
 }
-*/
+
 void test5() {
     klog("Running test5\n");
-    char buff[128] = {0};
-    char buff2[128] = {0};
-    printf("Write something: ");
-    // scanf("%s %s", &buff, &buff2);
-    printf("Readen %s\n", buff);
-    printf("Readen %s\n", buff2);
+
     syscall_exit();
 }
 
 void repl() {
-    /*
     klog("Running repl\n");
     char buff[128] = {0};
     while (TRUE) {
@@ -97,12 +81,11 @@ void repl() {
         else if (!strcmp(buff, "ps"))
             tasks_debug();
         else if (!strcmp(buff, "clear")) {
-            if (stdout != NULL) {
-                syscall_ioctl(stdout, TTY_IOCTL_CLEAR);
+            if (stdout != -1) {
+                syscall_ioctl(stdout, TTY_IOCTL_CLEAR, TTY_IOCTL_WRITE);
             }
         }
     }
-    */
     syscall_exit();
 }
 
@@ -190,6 +173,14 @@ void test10() {
 }
 
 void test11() {
+    fd_t fd1 = -1;
+    fd1 = file_open("/dev/TTY", FILE_READ);
+    fd_t fd2 = -1;
+    fd2 = file_open("/dev/TTY", FILE_WRITE);
+    klog("tty check: %x %x\n", fd1, fd2);
+    file_ioctl(fd1, IOCTL_INIT, TTY_IOCTL_READ);
+    file_ioctl(fd2, IOCTL_INIT, TTY_IOCTL_WRITE);
+    file_write(fd2, "lolkek\n", 7);
     syscall_exit();
 }
 

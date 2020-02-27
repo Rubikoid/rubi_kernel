@@ -55,10 +55,15 @@ uint32_t x_write(struct file_t *file, uint32_t *offset, uint32_t size, uint8_t *
     return 0;
 }
 
+uint32_t x_ioctl(struct file_t *file, uint32_t cmd, uint32_t subcmd) {
+    return 0;
+}
+
 int x_open(struct fs_node_t *node, struct file_t *file) {
     file->node = node;
     file->read = x_read;
     file->write = x_write;
+    file->ioctl = x_ioctl;
     return 1;
 }
 

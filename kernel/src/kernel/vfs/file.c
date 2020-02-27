@@ -83,8 +83,8 @@ size_t file_read(uint32_t fd, char *buff, uint32_t size) {
     if (file != NULL) {
         uint32_t offset = file->pos;
         uint32_t ret = 0;
-        ret = file->read(file, &offset, size, buff);  // тут была передача оффсета по указателю. А нахуя?!
-        file->pos = offset;                    // тут был offset, которые передавался по указателю. А нахуя?!
+        ret = file->read(file, &offset, size, buff);
+        file->pos = offset;
         return ret;
     }
     /*if (file->dev != NULL) {  // TODO: check for mod
@@ -130,16 +130,17 @@ size_t file_write(uint32_t fd, char *buff, uint32_t size) {
     return -1;
 }
 
-void file_ioctl(uint32_t fd, uint32_t cmd, uint32_t subcmd) {
-    /*
+uint32_t file_ioctl(uint32_t fd, uint32_t cmd, uint32_t subcmd) {
     struct file_t *file;
-    file = (struct file_t *)io_buf->file;
-    if (file->dev != NULL) {
-        file->dev->cmd_fn(&file->io_buf, cmd);
-    } else {
-        printf("Wtf file ioctl dev\n");  // TODO: filesystem
+    struct clist_head_t *entry = find_file_by_fd(fd);
+    if (entry == NULL)
+        return -1;
+    file = entry->data;
+
+    if (file != NULL) {
+        return file->ioctl(file, cmd, subcmd);
     }
-    */
+    return -1;
 }
 
 struct file_t *find_file_by_fd(uint32_t fd) {

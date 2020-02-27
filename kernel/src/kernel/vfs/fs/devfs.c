@@ -41,13 +41,14 @@ struct fs_node_t *devfs_create_node(uint32_t id) {
 
     node->ptr = 0;
 
-    return node;;
+    return node;
 }
 
 struct fs_node_t *devfs_mount(struct fs_node_t *node) {  // TODO: fix that whack
     //struct fs_node_t *node = get_new_node();
 
     // strcpy(node->name, "dev");
+    assert(node != NULL);
 
     node->flags = FS_DIRECTORY | FS_MOUNTPOINT;
     node->length = dev_list.slots;
@@ -66,37 +67,58 @@ struct fs_node_t *devfs_mount(struct fs_node_t *node) {  // TODO: fix that whack
 }
 
 int devfs_readdir(struct fs_node_t *node, uint32_t num, struct dirent_t *dirent) {
-    if((node->flags & FS_DIRECTORY) != FS_DIRECTORY)
+    if ((node->flags & FS_DIRECTORY) != FS_DIRECTORY)
         return 0;
-    if(num >= dev_list.slots)
+    if (num >= dev_list.slots)
         return 0;
-
-    return 1;
-}
-
-uint32_t devfs_read(struct file_t *file, uint32_t *offset, uint32_t size, uint8_t *buff) {
-    int ret = 0;
-    // if (*offset >= file->node->length)
-    //     return 0;
-    // uint8_t *base_ptr = 0;
-    // ret = (*offset + size >= file->node->length) ? file->node->length - *offset : size;
-    // printf("Count: %x, off: %x, size: %x, node_size: %x\n", ret, *offset, size, file->node->length);
-    // memcpy(buff, base_ptr + *offset, ret);
-    return ret;
-}
-
-uint32_t devfs_write(struct file_t *file, uint32_t *offset, uint32_t size, uint8_t *buff) {
-    return 0;
-}
-
-int devfs_open(struct fs_node_t *node, struct file_t *file) {
-    file->node = node;
-    file->read = devfs_read;
-    file->write = devfs_write;
+    struct dev_t *dev;
+    {
+        struct clist_head_t *entry = clist_get(&dev_list, num);
+        if (entry == NULL)
+            return 0;
+        dev = (struct dev_t *)entry->data;
+    }
+    dirent->ino = num;
+    strcpy(dirent->name, dev->name);
     return 1;
 }
 
 struct fs_node_t *devfs_openddir(struct fs_node_t *node, uint32_t num) {
     struct fs_node_t *ret_node = devfs_create_node(num);
     return ret_node;
+}
+
+uint32_t devfs_read(struct file_t *file, uint32_t *offset, uint32_t size, uint8_t *buff) {
+    if (file->private_data == 0)
+        return 0;
+    return ((struct dev_t *)file->private_data)->read_fn(buff, offset, size);
+}
+
+uint32_t devfs_write(struct file_t *file, uint32_t *offset, uint32_t size, uint8_t *buff) {
+    if (file->private_data == 0)
+        return 0;
+    return ((struct dev_t *)file->private_data)->write_fn(buff, offset, size);
+}
+
+uint32_t devfs_ioctl(struct file_t *file, uint32_t cmd, uint32_t subcmd) {
+    if (file->private_data == 0)
+        return 0;
+    ((struct dev_t *)file->private_data)->cmd_fn(cmd, subcmd);
+    return 0;
+}
+
+int devfs_open(struct fs_node_t *node, struct file_t *file) {
+    struct dev_t *dev;
+    {
+        struct clist_head_t *entry = clist_get(&dev_list, node->inode);
+        if (entry == NULL)
+            return 0;
+        dev = (struct dev_t *)entry->data;
+    }
+    file->private_data = dev;
+    file->node = node;
+    file->read = devfs_read;
+    file->write = devfs_write;
+    file->ioctl = devfs_ioctl;
+    return 1;
 }
