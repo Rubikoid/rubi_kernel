@@ -49,7 +49,7 @@ struct dirent_t {
 
 extern struct clist_def_t nodes_list;
 
-extern struct file_node_t* resolve_path(char* path);
+extern struct fs_node_t* resolve_path(char* path);
 
 extern struct fs_node_t* find_fs_node_by_ino(uint32_t ino);
 extern uint8_t fs_node_by_ino_finder(struct clist_head_t* entry, va_list list);

@@ -7,7 +7,7 @@ struct clist_def_t nodes_list = {
     .head = 0,
 };
 
-struct file_node_t *resolve_path(char *path) {
+struct fs_node_t *resolve_path(char *path) {
     // printf("\n[FN] Check %s\n", path);
     if (path[0] != '/') {
         // printf("[FN] rel gg\n", path);

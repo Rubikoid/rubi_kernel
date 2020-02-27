@@ -32,6 +32,8 @@ struct fs_node_t *initrd_create_node(uint32_t offset, struct initrd_file_head_t 
     node->finddir = 0;
 
     node->ptr = 0;
+
+    return node;
 }
 
 void initrd_init(void *ptr) {

@@ -40,6 +40,8 @@ struct fs_node_t *devfs_create_node(uint32_t id) {
     node->finddir = 0;
 
     node->ptr = 0;
+
+    return node;;
 }
 
 struct fs_node_t *devfs_mount(struct fs_node_t *node) {  // TODO: fix that whack
@@ -59,9 +61,16 @@ struct fs_node_t *devfs_mount(struct fs_node_t *node) {  // TODO: fix that whack
     node->finddir = 0;
 
     node->ptr = 0;
+
+    return node;
 }
 
 int devfs_readdir(struct fs_node_t *node, uint32_t num, struct dirent_t *dirent) {
+    if((node->flags & FS_DIRECTORY) != FS_DIRECTORY)
+        return 0;
+    if(num >= dev_list.slots)
+        return 0;
+
     return 1;
 }
 
