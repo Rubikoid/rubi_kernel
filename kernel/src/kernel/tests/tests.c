@@ -142,7 +142,7 @@ void test8() {
             if (readen != len) {
                 klog("WTF???\n");
             } else {
-                //elf_exec(buff);
+                elf_exec(buff);
             }
             kfree(buff);
             // buff[readen] = '\0';

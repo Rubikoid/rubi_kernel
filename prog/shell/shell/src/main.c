@@ -4,20 +4,20 @@
 #include <lib/syscall.h>
 
 void _start() {
-    // klog("Running repl\n");
+    printf("Running repl\n");
     char buff[128] = {0};
     while (TRUE) {
-        uprintf("$ ");
+        printf("$ ");
         scanf("%s", &buff);
         if (!strcmp(buff, "exit"))
             break;
-        else if (!strcmp(buff, "ps")) 
-            uprintf("sorry this is not implemented yet in fake-user mode\n");
+        else if (!strcmp(buff, "ps"))
+            printf("sorry this is not implemented yet in fake-user mode\n");
         //tasks_debug();
         else if (!strcmp(buff, "clear")) {
-            /*if (stdout != NULL) {
-                syscall_ioctl(stdout, 1 << 8);  // TTY_IOCTL_CLEAR
-            }*/
+            if (stdout != -1) {
+                syscall_ioctl(stdout, 1 << 8, 0x1);  // TTY_IOCTL_CLEAR, TTY_IOCTL_WRITE
+            }
         }
     }
     syscall_exit();

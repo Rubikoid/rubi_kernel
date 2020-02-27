@@ -28,8 +28,8 @@ extern void kpanic(char *message, ...);                                         
 #else  // we are in user space
 
 #define assert(expr)              ;
-#define printf(format, ...)       ;  //uprintf(format, ##__VA_ARGS__)
-#define vprintf(format, arg_list) ;  //uvprintf(format, arg_list)
+#define printf(format, ...)       uprintf(format, ##__VA_ARGS__)
+#define vprintf(format, arg_list) uvprintf(format, arg_list)
 
 #endif
 

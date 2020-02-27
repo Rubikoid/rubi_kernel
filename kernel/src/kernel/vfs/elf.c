@@ -23,8 +23,8 @@ struct task_t* elf_exec(struct elf_header_t* header) {
     struct task_mem_t task_mem = {0};
 
     task_mem.page_dir = create_page_directory();
-    task_mem.page_table = create_page_table(16);           // i belive we don't need more than one table ;F
-    task_mem.pages = (void**)kmalloc(16 * sizeof(void*));  //FIXME: crazy solution
+    task_mem.page_table = create_page_table(32);           // i belive we don't need more than one table ;F
+    task_mem.pages = (void**)kmalloc(32 * sizeof(void*));  //FIXME: crazy solution
     task_mem.pages_count = 0;
 
     bind_table(task_mem.page_dir, task_mem.page_table, 0);
@@ -42,7 +42,7 @@ struct task_t* elf_exec(struct elf_header_t* header) {
         void* start = 0;
 
         for (int i = 0; i < pages_count; i++) {
-            printf("XX:%x\n", p_header->p_vaddr + i * PAGE_SIZE);
+            printf("addr:%x\n", p_header->p_vaddr + i * PAGE_SIZE);
             task_mem.pages[task_mem.pages_count] = (void*)p_header->p_vaddr + i * PAGE_SIZE;
             alloc_page(task_mem.page_table, p_header->p_vaddr + i * PAGE_SIZE);
             if (i == 0)
@@ -61,17 +61,18 @@ struct task_t* elf_exec(struct elf_header_t* header) {
 
         void* save_pointer = get_cr3();                         // утащим текущую PD, вдруг она не чисто ядерная.
         enable_paging((void*)PHYS((size_t)task_mem.page_dir));  // переключимся на PD нового таска
-        memcpy(start, section, p_header->p_filesz);             // копируем нахой
-        if (p_header->p_filesz == 0)                            // handle .bss
-            memset(start, 0, p_header->p_memsz);                // fill bss with zeros, because GCC is crazy and code "int x=0;" puts into .bss
-        enable_paging(save_pointer);                            // и обратно в ядро
+        // mmu_dump(task_mem.page_dir);
+        memcpy(start, section, p_header->p_filesz);  // копируем нахой
+        if (p_header->p_filesz == 0)                 // handle .bss
+            memset(start, 0, p_header->p_memsz);     // fill bss with zeros, because GCC is crazy and code "int x=0;" puts into .bss
+        enable_paging(save_pointer);                 // и обратно в ядро/таск.
 
-        // task_mem.pages[i] = alloc_page(task_mem.page_table, 0);
+        //task_mem.pages[i] = alloc_page(task_mem.page_table, 0);
         //task_mem.pages_count += pages_count;
         //task_mem.pages = alloc_page(struct page_table_entry_t *pt, size_t liner_addr)(task_mem.pages_count);
     }
 
-    // struct task_t* task = task_create(0, (void*)entry_point, &task_mem, "task");
-    // task->status = TASK_RUNNING;
-    return 0;
+    struct task_t* task = task_create(0, (void*)entry_point, &task_mem, "task");
+    task->status = TASK_RUNNING;
+    return task;
 }

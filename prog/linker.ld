@@ -2,6 +2,8 @@ ENTRY(entry_point)
 
 SECTIONS
 {
+    . = 4K; /* skip one page.*/
+
 	/* Executable code */
 	.text ALIGN(4K) : AT (ADDR (.text))
 	{
