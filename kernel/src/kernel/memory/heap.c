@@ -72,7 +72,7 @@ void *kmalloc(size_t size) {
                 }
             }
             if (next == NULL || next_busy) {
-                next = (struct kheap_entry_t *)slist_insert_after(&kheap_list, current_sl);
+                next = (struct kheap_entry_t *)slist_insert_after(&kheap_list, current_sl)->data;
                 if (next != NULL) {  // why we do this check
                     current_entry->size -= size_diff;
                     next->is_busy = 0;

@@ -72,6 +72,7 @@ void tty_init() {
     dev->cmd_fn = tty_ioctl;
 
     dev->ih_list.head = NULL;
+    dev->ih_list.tail = NULL;
     dev->ih_list.slot_size = sizeof(struct ih_low_t);
     entry = clist_insert_after(&dev->ih_list, dev->ih_list.tail);
 
@@ -206,6 +207,7 @@ uint32_t tty_write(void *buf, uint32_t *offset, uint32_t size) {
         //if (ch == '\n')
         //    write_com(0, '\r');  // we ignore \r character, but seems like serial need to have it
     }
+    return (size_t)ptr - (size_t)buf;
 }
 
 void tty_write_ch(char ch) {

@@ -6,9 +6,9 @@
 #include <lib/string.h>
 
 uint8_t file_find_path_rw(struct clist_head_t *entry, va_list list) {
-    struct file_t *file = (struct file_t *)entry;
-    uint8_t *path = va_arg(list, uint8_t *);
-    uint16_t mode = va_arg(list, uint16_t);
+    //struct file_t *file = (struct file_t *)entry;
+    //uint8_t *path = va_arg(list, uint8_t *);
+    //uint16_t mode = va_arg(list, uint16_t);
     //if (!strcmp((char *)path, file->name) && mode == file->mod_rw)
     //    return 1;
     //else
@@ -16,7 +16,7 @@ uint8_t file_find_path_rw(struct clist_head_t *entry, va_list list) {
     return 0;
 }
 
-uint32_t file_open(uint8_t *path, uint16_t mod_rw) {
+uint32_t file_open(char *path, uint16_t mod_rw) {
     struct fs_node_t *node = resolve_path(path);
     if (node != NULL) {
         struct clist_head_t *entry;
@@ -73,13 +73,9 @@ uint32_t file_open(uint8_t *path, uint16_t mod_rw) {
     return -1;
 }
 
-size_t file_read(uint32_t fd, char *buff, uint32_t size) {
-    struct file_t *file;
-    struct clist_head_t *entry = find_file_by_fd(fd);
-    if (entry == NULL)
-        return -1;
-    file = entry->data;
-
+size_t file_read(uint32_t fd, uint8_t *buff, uint32_t size) {
+    struct file_t *file = find_file_by_fd(fd);
+    
     if (file != NULL) {
         uint32_t offset = file->pos;
         uint32_t ret = 0;
@@ -96,12 +92,8 @@ size_t file_read(uint32_t fd, char *buff, uint32_t size) {
     return -1;
 }
 
-size_t file_write(uint32_t fd, char *buff, uint32_t size) {
-    struct file_t *file = 0;
-    struct clist_head_t *entry = find_file_by_fd(fd);
-    if (entry == NULL)
-        return -1;
-    file = entry->data;
+size_t file_write(uint32_t fd, uint8_t *buff, uint32_t size) {
+    struct file_t *file = find_file_by_fd(fd);
 
     if (file != NULL) {
         uint32_t offset = file->pos;
@@ -131,12 +123,7 @@ size_t file_write(uint32_t fd, char *buff, uint32_t size) {
 }
 
 uint32_t file_ioctl(uint32_t fd, uint32_t cmd, uint32_t subcmd) {
-    struct file_t *file;
-    struct clist_head_t *entry = find_file_by_fd(fd);
-    if (entry == NULL)
-        return -1;
-    file = entry->data;
-
+    struct file_t *file = find_file_by_fd(fd);
     if (file != NULL) {
         return file->ioctl(file, cmd, subcmd);
     }

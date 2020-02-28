@@ -27,7 +27,17 @@ void cint_segment_not_present(PUSHAD_C) {
 }
 
 void cint_page_fault(size_t addr, PUSHAD_C, uint32_t error_code, uint32_t in_eip) {
-    kpanic(G_RED "Kernel panic: page fault at %x, EIP: %x, Error_code: %x", addr, in_eip, error_code);
+    uint32_t* prev_eip = in_ebp + 4;  // i belive there shuild be a next eip
+    kpanic(G_RED
+           "Kernel panic: "
+           "page fault at %x, "
+           "EIP: %x, "
+           "Error_code:%x\n"
+           "Prev: %x",
+           addr,
+           in_eip,
+           error_code,
+           *prev_eip);
 }
 
 static uint32_t counter = 0;

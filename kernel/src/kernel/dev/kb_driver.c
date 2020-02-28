@@ -36,13 +36,14 @@ void keyboard_init() {
     strncpy(dev->name, keyboard_dev_name, sizeof(dev->name) - 1);
 
     dev->base_r = 0;
-    dev->base_w = 1;
+    dev->base_w = 0;
 
     dev->read_fn = keyboard_read;
     dev->write_fn = keyboard_write;
     dev->cmd_fn = keyboard_ioctl;
 
     dev->ih_list.head = NULL;
+    dev->ih_list.tail = NULL;
     dev->ih_list.slot_size = sizeof(struct ih_low_t);
     entry = clist_insert_after(&dev->ih_list, dev->ih_list.tail);
 

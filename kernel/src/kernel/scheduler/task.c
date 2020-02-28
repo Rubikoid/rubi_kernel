@@ -24,6 +24,7 @@ struct task_t* task_create(uint16_t tid_depricated, void* start_addr, struct tas
 
     entry = clist_insert_after(&task_list, task_list.tail);
     task = (struct task_t*)entry->data;
+    // memset(task, 0, sizeof(struct task_t));
 
     /* init different task vars */
     task->kstack = kmalloc(TASK_KSTACK_SIZE);
@@ -31,12 +32,16 @@ struct task_t* task_create(uint16_t tid_depricated, void* start_addr, struct tas
     task->tid = tid_counter++;
     strncpy(task->name, name, sizeof(task->name) - 1);
     task->status = TASK_UNINTERRUPTABLE;
+    task->msg_count_in = 0;
 
     /* init task IO */
     task->next_fd = 0;
     task->fd_table.slot_size = sizeof(struct file_t);
     task->fd_table.slots = 0;
     task->fd_table.head = 0;
+
+    task->fs_status.pwd = 0;
+    task->fs_status.root = 0;
 
     /* init task mem */
     if (task_mem != NULL) {
@@ -91,7 +96,7 @@ void task_delete(struct task_t* task) {
 }
 
 struct task_t* task_find_by_status(uint16_t status) {
-    return task_find_by_status_from((struct task_t*)task_list.head, status);
+    return task_find_by_status_from((struct task_t*)task_list.head->data, status);
 }
 
 struct task_t* task_find_by_status_from(struct task_t* start, uint16_t status) {
@@ -99,42 +104,31 @@ struct task_t* task_find_by_status_from(struct task_t* start, uint16_t status) {
         klog("Start is null\n");
         return NULL;
     }
-    struct task_t* work = (struct task_t*)start->list_head.next;
+    struct task_t* work = (struct task_t*)start->list_head.next->data;
     do {
         if (work->status == status)
             return work;
-        work = (struct task_t*)work->list_head.next;
+        work = (struct task_t*)work->list_head.next->data;
     } while (work != start && work != NULL);
-    /*for (int i = 0; i <= task_list.slots; i++) {
-        if (start->status == status)
-            return start;
-        start = (struct task_t*)start->list_head.next;
-    }*/
     return NULL;
 }
 struct task_t* task_find_by_id(uint16_t tid) {
-    struct task_t* start = (struct task_t*)task_list.head;
+    struct task_t* start = (struct task_t*)task_list.head->data;
     do {
         if (start->tid == tid)
             return start;
-        start = (struct task_t*)start->list_head.next;
-    } while (start != (struct task_t*)task_list.head && start != NULL);
-    /*
-    for (int i = 0; i <= task_list.slots; i++) {
-        if (start->tid == tid)
-            return start;
-        start = (struct task_t*)start->list_head.next;
-    }*/
+        start = (struct task_t*)start->list_head.next->data;
+    } while (start != (struct task_t*)task_list.head->data && start != NULL);
     return NULL;
 }
 
 void tasks_debug() {
-    struct task_t* task = (struct task_t*)task_list.head;
+    struct task_t* task = (struct task_t*)task_list.head->data;
     klog("Tasks slots: %x\n", task_list.slots);
     if (task == NULL)
         return;
     do {
         klog("Task tid:%x, name:%s, state:%x time:%x, resched:%x\n", task->tid, task->name, task->status, task->time, task->reschedule);
-        task = (struct task_t*)task->list_head.next;
-    } while (task != (struct task_t*)task_list.head && task != NULL);
+        task = (struct task_t*)task->list_head.next->data;
+    } while (task != (struct task_t*)task_list.head->data && task != NULL);
 }

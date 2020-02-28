@@ -142,7 +142,7 @@ void test8() {
             if (readen != len) {
                 klog("WTF???\n");
             } else {
-                elf_exec(buff);
+                elf_exec((struct elf_header_t *)buff);
             }
             kfree(buff);
             // buff[readen] = '\0';
@@ -180,7 +180,7 @@ void test11() {
     klog("tty check: %x %x\n", fd1, fd2);
     file_ioctl(fd1, IOCTL_INIT, TTY_IOCTL_READ);
     file_ioctl(fd2, IOCTL_INIT, TTY_IOCTL_WRITE);
-    file_write(fd2, "lolkek\n", 7);
+    file_write(fd2, (uint8_t *)"lolkek\n", 7);
     syscall_exit();
 }
 

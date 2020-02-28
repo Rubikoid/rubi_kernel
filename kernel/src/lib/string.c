@@ -111,6 +111,7 @@ unsigned int vsprintf(char *s1, const char *s2, va_list list) {
                         src_i += 2;
                         break;
                     }
+                    case 'i':
                     case 'd':  // fuck this modifier i don't care about signed data ;D
                     case 'u': {
                         num = va_arg(list, uint32_t);

@@ -1,6 +1,10 @@
 name: CMake
 
-on: [push]
+on:
+  push:
+  release:
+    types: # This configuration does not affect the page_build event above
+      - published
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -26,7 +30,7 @@ jobs:
 
       - name: Install nasm and genisoimage
         shell: bash
-        run: sudo apt-get install -y nasm genisoimage libfl-dev
+        run: sudo apt-get install -y nasm genisoimage libfl-dev grub
 
       - name: Cache compiler
         id: compiler_cacher_step_id
@@ -64,6 +68,7 @@ jobs:
         run: |
           cmake --build . -t kernel --config $BUILD_TYPE
 
+      # save artifacts
       - name: Save entire kernel
         uses: actions/upload-artifact@v1
         with:
@@ -81,3 +86,52 @@ jobs:
         with:
           name: kernel.iso
           path: ${{runner.workspace}}/build/rubiKernel.iso
+
+      - name: Save grub image
+        uses: actions/upload-artifact@v1
+        with:
+          name: grub.iso
+          path: ${{runner.workspace}}/build/grub.iso
+      
+      - name: Archive
+        working-directory: ${{runner.workspace}}/build
+        shell: bash
+        run: |
+          tar czvf kernel.tar.gz bin/kernel
+          tar czvf initrd_file.tar.gz initrd_file
+          tar czvf rubiKernel.iso.tar.gz rubiKernel.iso
+          tar czvf grub.iso.tar.gz grub.iso
+        if: github.event_name == "release"
+
+      # save release
+      - name: Upload entire kernel
+        uses: JasonEtco/upload-to-release@d648f1babf776de9cad881320bd9e9818fc3b262
+        with:
+          args: ${{runner.workspace}}/build/kernel.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: github.event_name == "release"
+
+      - name: Upload initrd
+        uses: JasonEtco/upload-to-release@d648f1babf776de9cad881320bd9e9818fc3b262
+        with:
+          args: ${{runner.workspace}}/build/initrd_file.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: github.event_name == "release"
+
+      - name: Upload boot image
+        uses: JasonEtco/upload-to-release@d648f1babf776de9cad881320bd9e9818fc3b262
+        with:
+          args: ${{runner.workspace}}/build/rubiKernel.iso.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: github.event_name == "release"
+
+      - name: Upload grub image
+        uses: JasonEtco/upload-to-release@d648f1babf776de9cad881320bd9e9818fc3b262
+        with:
+          args: ${{runner.workspace}}/build/grub.iso.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: github.event_name == "release"

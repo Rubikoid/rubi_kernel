@@ -78,8 +78,11 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     printf("Starting addr: %x -> %x\n", multiboot->mods_addr[0].start, multiboot->mods_addr[0].end);
 
     create_kernel_tasks();
-    initrd_init((void *)VIRT(multiboot->mods_addr[0].start));
-    devfs_mount(resolve_path("/dev"));
+    klog("mods_count: %x\n", multiboot->mods_count);
+    if (multiboot->mods_count > 0) {
+        initrd_init((void *)VIRT(multiboot->mods_addr[0].start));
+        devfs_mount(resolve_path("/dev"));
+    }
     // elf_exec(VIRT(multiboot->mods_addr[0].start));
     enable_int();
 

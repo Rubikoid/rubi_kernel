@@ -61,20 +61,18 @@ uint32_t cint_syscall(PUSHAD_C) {
         }
         case SYSCALL_OPEN: {  // open file
             // klog("OPEN %s %x\n", in_ebx, in_ecx);
-            //FILE *file = file_open((uint8_t *)in_ebx, (uint16_t)in_ecx);
-            //ret = (size_t)file;
-            ret = file_open((uint8_t *)in_ebx, (uint16_t)in_ecx);
+            ret = file_open((char *)in_ebx, (uint16_t)in_ecx);
             break;
         }
         case SYSCALL_CLOSE: {  // close file
             break;
         }
         case SYSCALL_READ: {  // read file
-            ret = file_read((uint32_t)in_ebx, (char *)in_ecx, in_edx);
+            ret = file_read((uint32_t)in_ebx, (uint8_t *)in_ecx, in_edx);
             break;
         }
         case SYSCALL_WRITE: {  // write file
-            ret = file_write((uint32_t)in_ebx, (char *)in_ecx, in_edx);
+            ret = file_write((uint32_t)in_ebx, (uint8_t *)in_ecx, in_edx);
             //file_write((FILE *)in_ebx, (char *)in_ecx, in_edx);
             break;
         }

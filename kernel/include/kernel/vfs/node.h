@@ -47,6 +47,11 @@ struct dirent_t {
     uint32_t ino;  // wat
 };
 
+struct fs_status_t {
+    struct fs_node_t* root;
+    struct fs_node_t* pwd;
+};
+
 extern struct clist_def_t nodes_list;
 
 extern struct fs_node_t* resolve_path(char* path);

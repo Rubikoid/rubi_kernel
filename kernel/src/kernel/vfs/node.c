@@ -1,3 +1,4 @@
+#include <kernel/scheduler/task.h>
 #include <kernel/vfs/node.h>
 #include <lib/string.h>
 
@@ -18,7 +19,8 @@ struct fs_node_t *resolve_path(char *path) {
     int i = 0;
     int k = 0;
 
-    struct fs_node_t *node = nodes_list.head;  // FIXME: we belive that the first elem is root. maybe we need to fix that
+    struct fs_node_t *node = (struct fs_node_t *)nodes_list.head->data;
+    // current_task->fs_status.root != NULL ? current_task->fs_status.root : (nodes_list.head != NULL ? (struct fs_node_t *)nodes_list.head->data : NULL);  // FIXME: we belive that the first elem is root. maybe we need to fix that
     if (node == NULL)
         return NULL;
     while (*cur_path != '\0' && k < 8) {

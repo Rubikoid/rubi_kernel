@@ -1,3 +1,4 @@
+#include <kernel/dev/tty.h>
 #include <lib/slist.h>
 #include <lib/stdio.h>
 #include <lib/string.h>
@@ -9,14 +10,16 @@ void _start() {
     while (TRUE) {
         printf("$ ");
         scanf("%s", &buff);
-        if (!strcmp(buff, "exit"))
+        if (!strcmp(buff, "exit")) {
+            syscall_ioctl(stdin, TTY_IOCTL_READ_MODE_ECHO_OFF, 0);
             break;
+        }
         else if (!strcmp(buff, "ps"))
             printf("sorry this is not implemented yet in fake-user mode\n");
         //tasks_debug();
         else if (!strcmp(buff, "clear")) {
             if (stdout != -1) {
-                syscall_ioctl(stdout, 1 << 8, 0x1);  // TTY_IOCTL_CLEAR, TTY_IOCTL_WRITE
+                syscall_ioctl(stdout, TTY_IOCTL_CLEAR, TTY_IOCTL_WRITE);  // TTY_IOCTL_CLEAR, TTY_IOCTL_WRITE
             }
         }
     }

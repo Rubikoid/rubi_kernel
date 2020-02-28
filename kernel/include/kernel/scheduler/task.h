@@ -1,5 +1,6 @@
 #include <kernel/defines.h>
 #include <kernel/memory/mmu.h>
+#include <kernel/vfs/node.h>
 #include <lib/clist.h>
 #include <types.h>
 
@@ -100,6 +101,7 @@ struct __attribute__((__packed__, __aligned__(4))) task_t {
 
     // I/O
     struct clist_def_t fd_table;
+    struct fs_status_t fs_status;
     uint32_t next_fd;
 };
 
