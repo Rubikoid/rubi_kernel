@@ -50,7 +50,7 @@ jobs:
         shell: bash
         run: |
           mkdir -vp ${{runner.workspace}}/gcc_cross/ &&
-          wget https://vpn.rubikoid.ru:18923:/gcc_cross.7z -O ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
+          wget http://vpn.rubikoid.ru:18923/gcc_cross.7z -O ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
           7z x -o${{runner.workspace}}/gcc_cross/ ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
           wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/toolchain.cmake -O ${{runner.workspace}}/gcc_cross/toolchain.cmake &&
           chmod +x ${{runner.workspace}}/gcc_cross/opt/bin/* && 
