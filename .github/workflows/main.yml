@@ -2,9 +2,10 @@ name: CMake
 
 on:
   push:
-  release:
-    types: # This configuration does not affect the page_build event above
-      - published
+  create:
+  #release:
+  #  types: # This configuration does not affect the page_build event above
+  #    - published
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -92,7 +93,8 @@ jobs:
         with:
           name: grub.iso
           path: ${{runner.workspace}}/build/grub.iso
-      
+
+      # create release
       - name: Archive
         working-directory: ${{runner.workspace}}/build
         shell: bash
@@ -105,37 +107,64 @@ jobs:
           mkdir -p ${{runner.workspace}}/rubi_kernel/build
           cp kernel.tar.gz initrd_file.tar.gz rubiKernel.iso.tar.gz grub.iso.tar.gz ${{runner.workspace}}/rubi_kernel/build
           ls -la ${{runner.workspace}}/rubi_kernel/build
-        if: github.event_name == 'release'
+        if: github.event_name == 'create' && github.event['ref_type'] == 'tag'
 
-      # save release
-      - name: Upload entire kernel
-        uses: JasonEtco/upload-to-release@d648f1babf776de9cad881320bd9e9818fc3b262
-        with:
-          args: /github/workspace/build/kernel.tar.gz
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: github.event_name == 'release'
-
-      - name: Upload initrd
-        uses: JasonEtco/upload-to-release@d648f1babf776de9cad881320bd9e9818fc3b262
         with:
-          args: /github/workspace/build/initrd_file.tar.gz
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+        if: github.event_name == 'create' && github.event['ref_type'] == 'tag'
+
+      - name: Upload Release Asset kernel
+        id: upload-release-asset-kernel
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: github.event_name == 'release'
-
-      - name: Upload boot image
-        uses: JasonEtco/upload-to-release@d648f1babf776de9cad881320bd9e9818fc3b262
         with:
-          args: /github/workspace/build/rubiKernel.iso.tar.gz
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path:  ${{runner.workspace}}/build/kernel.tar.gz
+          asset_name: kernel.tar.gz
+          asset_content_type: application/x-tar
+        if: github.event_name == 'create' && github.event['ref_type'] == 'tag'
+      
+      - name: Upload Release Asset initrd
+        id: upload-release-asset-initrd 
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: github.event_name == 'release'
-
-      - name: Upload grub image
-        uses: JasonEtco/upload-to-release@d648f1babf776de9cad881320bd9e9818fc3b262
         with:
-          args: /github/workspace/build/grub.iso.tar.gz
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path:  ${{runner.workspace}}/build/initrd_file.tar.gz
+          asset_name: initrd_file.tar.gz
+          asset_content_type: application/x-tar
+        if: github.event_name == 'create' && github.event['ref_type'] == 'tag'
+      
+      - name: Upload Release Asset rubiKernel
+        id: upload-release-asset-rubiKernel
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: github.event_name == 'release'
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path:  ${{runner.workspace}}/build/rubiKernel.iso.tar.gz
+          asset_name: rubiKernel.iso.tar.gz
+          asset_content_type: application/x-tar
+        if: github.event_name == 'create' && github.event['ref_type'] == 'tag'
+
+      - name: Upload Release Asset grub
+        id: upload-release-asset-grub
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path:  ${{runner.workspace}}/build/grub.iso.tar.gz
+          asset_name: grub.iso.tar.gz
+          asset_content_type: application/x-tar
+        if: github.event_name == 'create' && github.event['ref_type'] == 'tag'
