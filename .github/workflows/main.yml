@@ -108,7 +108,7 @@ jobs:
       - name: Upload entire kernel
         uses: JasonEtco/upload-to-release@d648f1babf776de9cad881320bd9e9818fc3b262
         with:
-          args: ${{runner.workspace}}/build/kernel.tar.gz
+          args: build/kernel.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: github.event_name == 'release'
@@ -116,7 +116,7 @@ jobs:
       - name: Upload initrd
         uses: JasonEtco/upload-to-release@d648f1babf776de9cad881320bd9e9818fc3b262
         with:
-          args: ${{runner.workspace}}/build/initrd_file.tar.gz
+          args: build/initrd_file.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: github.event_name == 'release'
@@ -124,7 +124,7 @@ jobs:
       - name: Upload boot image
         uses: JasonEtco/upload-to-release@d648f1babf776de9cad881320bd9e9818fc3b262
         with:
-          args: ${{runner.workspace}}/build/rubiKernel.iso.tar.gz
+          args: build/rubiKernel.iso.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: github.event_name == 'release'
@@ -132,7 +132,7 @@ jobs:
       - name: Upload grub image
         uses: JasonEtco/upload-to-release@d648f1babf776de9cad881320bd9e9818fc3b262
         with:
-          args: ${{runner.workspace}}/build/grub.iso.tar.gz
+          args: build/grub.iso.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: github.event_name == 'release'
