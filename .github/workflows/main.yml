@@ -97,10 +97,11 @@ jobs:
         working-directory: ${{runner.workspace}}/build
         shell: bash
         run: |
-          tar czvf kernel.tar.gz bin/kernel
-          tar czvf initrd_file.tar.gz initrd_file
-          tar czvf rubiKernel.iso.tar.gz rubiKernel.iso
-          tar czvf grub.iso.tar.gz grub.iso
+          tar czvf kernel.tar.gz bin/kernel;
+          tar czvf initrd_file.tar.gz initrd_file;
+          tar czvf rubiKernel.iso.tar.gz rubiKernel.iso;
+          tar czvf grub.iso.tar.gz grub.iso;
+          ls -la ${{runner.workspace}}/build;
         if: github.event_name == 'release'
 
       # save release
