@@ -102,6 +102,9 @@ jobs:
           tar czvf rubiKernel.iso.tar.gz rubiKernel.iso;
           tar czvf grub.iso.tar.gz grub.iso;
           ls -la ${{runner.workspace}}/build;
+          mkdir -p ${{runner.workspace}}/rubi_kernel/build
+          cp kernel.tar.gz initrd_file.tar.gz rubiKernel.iso.tar.gz grub.iso.tar.gz ${{runner.workspace}}/rubi_kernel/build
+          ls -la ${{runner.workspace}}/rubi_kernel/build
         if: github.event_name == 'release'
 
       # save release
