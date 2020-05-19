@@ -48,7 +48,7 @@ struct fs_node_t *devfs_mount(struct fs_node_t *node) {  // TODO: fix that whack
     //struct fs_node_t *node = get_new_node();
 
     // strcpy(node->name, "dev");
-    assert(node != NULL);
+    die_assert(node != NULL);
 
     node->flags = FS_DIRECTORY | FS_MOUNTPOINT;
     node->length = dev_list.slots;

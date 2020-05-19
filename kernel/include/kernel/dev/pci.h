@@ -53,6 +53,23 @@ do_magic({
 }, pref="PCI")
 */
 
+struct pci_dev_t {
+    uint16_t vendor;
+    uint16_t device;
+    uint16_t command_reg;
+    uint16_t status_reg;
+
+    union {
+        uint16_t revision;
+        struct {
+            uint8_t progIF;
+            uint8_t revisionID;
+        } s;
+    } revision;
+    uint8_t subClass;
+    uint8_t classCode;
+};
+
 extern const char *pci_dev_name;
 
 extern void pci_init();

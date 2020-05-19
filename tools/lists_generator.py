@@ -25,6 +25,3 @@ def do_magic(t, pref):
     defs += def_format.format(pref=pref.upper(), name="COUNT", id=max(t.values()) + 1)
     print(defs)
     print(arr)
-
-
-

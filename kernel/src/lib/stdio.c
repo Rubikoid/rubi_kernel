@@ -31,6 +31,13 @@ void kassert(const char *file, const char *func, uint32_t line, uint8_t expr) {
     }
 }
 
+void kdie_assert(const char *file, const char *func, uint32_t line, uint8_t expr) {
+    if (!expr) {
+        kprintf("[" G_RED "ERR" G_WHITE "] Assert in %s at %u (%s)\n", file, line, func);
+        kpanic("assert panic.\n");
+    }
+}
+
 /*
     Because we can get panic while panic, we should maximize safety of code in panics
 */

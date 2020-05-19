@@ -130,6 +130,8 @@ void test8() {
         struct fs_node_t *x;
         x = resolve_path("/bin/shell");
         klog("%x, %s, %x\n", x, x != NULL ? x->name : "-", x != NULL ? x->length : -1);
+        if(x == NULL)
+            return;
     }
     {
         uint32_t fd = -1;
