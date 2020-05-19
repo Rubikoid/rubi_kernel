@@ -4,6 +4,8 @@
 #include <lib/stdio.h>
 #include <lib/string.h>
 
+#define __MODULE_NAME__ "IRD"
+
 struct initrd_status_t ird_stat = {0};
 
 struct fs_node_t *initrd_create_node(uint32_t offset, struct initrd_file_head_t *data) {
@@ -38,29 +40,30 @@ struct fs_node_t *initrd_create_node(uint32_t offset, struct initrd_file_head_t 
 
 void initrd_init(void *ptr) {
     ird_stat.head = ptr;
+    klog("Staring on initrd on %x\n", ptr);
     if (ird_stat.head->magic != HEADMAGIC) {
-        printf("Bad head magic\n");
+        klog("Bad head magic\n");
         return;
     }
-    printf("offset: %x\n", ird_stat.head->offset);
+    klog("offset: %x\n", ird_stat.head->offset);
     ird_stat.root = ptr + ird_stat.head->offset;
     if (ird_stat.root->magic != FILEMAGIC) {
-        printf("Bad root magic\n");
+        klog("Bad root magic\n");
         return;
     }
     {
         struct fs_node_t *root_node = find_fs_node_by_ino(ird_stat.head->offset);
         if (root_node != NULL) {
-            printf("WTF why root node exists?\n");
+            klog("WTF why root node exists?\n");
             return;
         }
         if (ird_stat.root->type == INITRDFS_FILE) {
-            printf("WTF why root node is file??\n");
+            klog("WTF why root node is file??\n");
             return;
         }
         root_node = initrd_create_node(ird_stat.head->offset, ird_stat.root);
     }
-    printf("Root node ok\n");
+    klog("Root node ok\n");
 }
 
 int initrd_readdir(struct fs_node_t *node, uint32_t num, struct dirent_t *dirent) {

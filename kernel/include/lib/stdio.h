@@ -12,6 +12,7 @@ struct io_buf_t {
 
 // assert -> if NOT expr
 #define assert(expr)      kassert(__FILE__, __func__, __LINE__, expr)
+#define die_assert(expr)  kdie_assert(__FILE__, __func__, __LINE__, expr)
 #define klog(format, ...) kprintf( \
     "["__MODULE_NAME__             \
     "] " format,                   \
@@ -23,11 +24,13 @@ extern void kvprintf(char *format, va_list arg_list);  // kernel printf, works w
 extern void kprintf(char *format, ...);                // kernel printf, works with magic vga.h
 
 extern void kassert(const char *file, const char *func, uint32_t line, uint8_t expr);  // if NOT expr
+extern void kdie_assert(const char *file, const char *func, uint32_t line, uint8_t expr);  // if NOT expr
 extern void kpanic(char *message, ...);                                                // panic function, resets vga state and write some error maybe with kprintf, so kpvrintf must not contain bugs!!
 
 #else  // we are in user space
 
 #define assert(expr)              ;
+#define die_assert(expr)  		  ;
 #define printf(format, ...)       uprintf(format, ##__VA_ARGS__)
 #define vprintf(format, arg_list) uvprintf(format, arg_list)
 

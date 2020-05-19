@@ -18,7 +18,8 @@ struct fs_node_t *resolve_path(char *path) {
     char part[NODE_NAME_SIZE];
     int i = 0;
     int k = 0;
-
+    if(nodes_list.head == NULL)
+        return NULL;
     struct fs_node_t *node = (struct fs_node_t *)nodes_list.head->data;
     // current_task->fs_status.root != NULL ? current_task->fs_status.root : (nodes_list.head != NULL ? (struct fs_node_t *)nodes_list.head->data : NULL);  // FIXME: we belive that the first elem is root. maybe we need to fix that
     if (node == NULL)
