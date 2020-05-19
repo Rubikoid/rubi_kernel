@@ -11,6 +11,7 @@
 
 #define __MODULE_NAME__ "SCALL"
 
+/*
 static const char *syscall_names[NORMAL_SYSCALL_COUNT + 1] = {
     "SYSCALL_NONE",
     "SYSCALL_EXIT",
@@ -25,6 +26,7 @@ static const char *syscall_names[NORMAL_SYSCALL_COUNT + 1] = {
     "SYSCALL_MALLOC",
     "SYSCALL_FREE",
 };
+*/
 
 uint32_t cint_syscall(PUSHAD_C) {
     struct task_t *task = current_task;

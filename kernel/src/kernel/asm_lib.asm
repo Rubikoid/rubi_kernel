@@ -1,6 +1,7 @@
 bits 32
 
-global ddd, switch_kcontext, enable_paging, get_cr3, get_eflags, reload_kernel_segments, disable_int, enable_int, outb, inb, gdt_load, idt_load, halt
+global ddd, switch_kcontext, enable_paging, get_cr3, get_eflags, reload_kernel_segments, disable_int, enable_int, gdt_load, idt_load, halt
+global outb, inb, outw, inw, outdw, indw
 section .text
     ;push    ebp
     ;mov     ebp, esp
@@ -124,3 +125,40 @@ section .text
         nop
         ret
 
+
+    ;void outw(u16 port, u16 value);    
+    outw:
+        mov     edx, [esp + 4]      ; port
+        mov     ax, [esp + 4 + 4]   ; value
+        out     dx, ax
+        nop             ;
+        nop
+        ret
+
+    ;u16 inw(u16 port);
+    inw:
+        mov     edx, [esp + 4]      ; port
+        xor     eax, eax
+        in      ax, dx
+        nop                         ;
+        nop
+        ret
+
+
+    ;void outdw(u32 port, u16 value);    
+    outdw:
+        mov     edx, [esp + 4]      ; port
+        mov     eax, [esp + 4 + 4]   ; value
+        out     dx, eax
+        nop             ;
+        nop
+        ret
+
+    ;u32 indw(u16 port);
+    indw:
+        mov     edx, [esp + 4]      ; port
+        xor     eax, eax
+        in      eax, dx
+        nop                         ;
+        nop
+        ret

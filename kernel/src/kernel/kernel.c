@@ -4,6 +4,7 @@
 #include <kernel/asm_lib.h>
 #include <kernel/defines.h>
 #include <kernel/dev/kb_driver.h>
+#include <kernel/dev/pci.h>
 #include <kernel/dev/tty.h>
 #include <kernel/kthread/dq.h>
 #include <kernel/kthread/ktasks.h>
@@ -49,17 +50,17 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     init_memory_manager();
     term_print(" [" G_GREEN "OK" G_WHITE "]\n");
 
-    term_print("GDT, IDT, PIC");
-    gdt_init();
-    idt_init();
-    pic_enable();
-    term_print(" [" G_GREEN "OK" G_WHITE "]\n");
-
     disable_int();
     /*
         We should firstly initialize gdt-idt-pic due to possible need in syscalls in driver inits
         And also we disable interrupts, because i hate timer that triggers to early;
     */
+
+    term_print("GDT, IDT, PIC");
+    gdt_init();
+    idt_init();
+    pic_enable();
+    term_print(" [" G_GREEN "OK" G_WHITE "]\n");
 
     term_print("KB Driver init");
     keyboard_init();
@@ -97,6 +98,16 @@ void infiloop() {
     }  // infiloop
 }
 
+void PCI_init_task() {
+    pci_init();
+    for (int i = 0; i < 255; i++) {
+        for (int j = 0; j < 32; j++) {
+            pci_check_vendor(i, j);
+        }
+    }
+    syscall_exit();
+}
+
 void create_kernel_tasks() {
     task_create(0, infiloop, NULL, "ifinity")->status = TASK_RUNNING;
     kernel_tasks_init();
@@ -111,6 +122,7 @@ void create_kernel_tasks() {
     //task_create(0, test7, NULL, "test7")->status = TASK_RUNNING;
     //task_create(0, test7, NULL, "test7")->status = TASK_RUNNING;
     task_create(0, test8, NULL, "test8")->status = TASK_RUNNING;
+    task_create(0, PCI_init_task, NULL, "PCIi")->status = TASK_RUNNING;
 
     //task_create(0, test9, NULL, "test9")->status = TASK_RUNNING;
     //task_create(0, test10, NULL, "test10")->status = TASK_RUNNING;

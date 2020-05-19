@@ -106,8 +106,6 @@ void krecive(uint16_t tid, struct message_t* msg) {
     assert(task_after == task_before);
     assert(task_after->status == TASK_RUNNING);
 
-    klog("[dbg] %x, %x, %x\n", msg, task_after->msg_count_in, &task_after->msg_buff[task_after->msg_count_in - 1]);
-
     memcpy(msg, &task_after->msg_buff[task_after->msg_count_in - 1], sizeof(struct message_t));
     task_after->msg_count_in--;
 }

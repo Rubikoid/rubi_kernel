@@ -18,7 +18,7 @@ struct task_t* elf_exec(struct elf_header_t* header) {
     size_t elf_base = (size_t)header;
     size_t entry_point = header->e_entry;
 
-    printf("ELF: entry: %x; phnum: %x\n", header->e_entry, header->e_phnum);
+    //printf("ELF: entry: %x; phnum: %x\n", header->e_entry, header->e_phnum);
 
     struct task_mem_t task_mem = {0};
 
@@ -33,7 +33,7 @@ struct task_t* elf_exec(struct elf_header_t* header) {
 
     for (int i = 0; i < header->e_phnum; i++) {
         struct elf_program_header_t* p_header = (void*)(header->e_phoff + elf_base + i * header->e_phentsize);
-        printf("ELFH: %x (%x)\n", p_header->p_vaddr, p_header->p_memsz);
+        //printf("ELFH: %x (%x)\n", p_header->p_vaddr, p_header->p_memsz);
         if (p_header->p_memsz == 0)  // if section is empty
             continue;
 
@@ -42,7 +42,7 @@ struct task_t* elf_exec(struct elf_header_t* header) {
         void* start = 0;
 
         for (int i = 0; i < pages_count; i++) {
-            printf("addr:%x\n", p_header->p_vaddr + i * PAGE_SIZE);
+            //printf("addr:%x\n", p_header->p_vaddr + i * PAGE_SIZE);
             task_mem.pages[task_mem.pages_count] = (void*)p_header->p_vaddr + i * PAGE_SIZE;
             alloc_page(task_mem.page_table, p_header->p_vaddr + i * PAGE_SIZE);
             if (i == 0)

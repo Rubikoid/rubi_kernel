@@ -96,7 +96,7 @@ void task_delete(struct task_t* task) {
 }
 
 struct task_t* task_find_by_status(uint16_t status) {
-    return task_find_by_status_from((struct task_t*)task_list.head->data, status);
+    return task_list.head != NULL ? task_find_by_status_from((struct task_t*)task_list.head->data, status) : NULL;
 }
 
 struct task_t* task_find_by_status_from(struct task_t* start, uint16_t status) {

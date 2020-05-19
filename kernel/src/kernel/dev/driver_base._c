@@ -18,7 +18,7 @@ void driver_init() {
     strncpy(dev->name, driver_dev_name, sizeof(dev->name) - 1);
 
     dev->base_r = 0;
-    dev->base_w = 1;
+    dev->base_w = 0;
 
     dev->read_fn = driver_read;  // TODO: implement
     dev->write_fn = driver_write;
@@ -64,7 +64,7 @@ void driver_ioctl(uint32_t command, uint32_t subcm) {
     }
 }
 
-uint32_t driver_write(void *buf, uint32_t offset, uint32_t size) {
+uint32_t driver_write(void *buf, uint32_t *offset, uint32_t size) {
     return 0;
 }
 
@@ -73,7 +73,7 @@ void driver_write_ch(char ch) {
 }
 */
 
-uint32_t driver_read(void *buf, uint32_t offset, uint32_t size) {
+uint32_t driver_read(void *buf, uint32_t *offset, uint32_t size) {
     return 0;
 }
 

@@ -54,6 +54,12 @@ extern void halt();
 extern void outb(uint16_t port, uint8_t value);
 extern uint8_t inb(uint16_t port);
 
+extern void outw(uint16_t port, uint16_t value);
+extern uint16_t inw(uint16_t port);
+
+extern void outdw(uint16_t port, uint32_t value);
+extern uint32_t indw(uint16_t port);
+
 extern void gdt_load(void *gdt_ptr);
 extern void idt_load(unsigned long *addr);
 
