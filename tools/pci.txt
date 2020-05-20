@@ -1,0 +1,60 @@
+PCI_SC_MASS_STOR:
+00	SCSI storage controller	
+01	IDE interface	
+02	Floppy disk controller	
+03	IPI bus controller	
+04	RAID bus controller	
+05	ATA controller	
+06	SATA controller	
+07	Serial Attached SCSI controller	
+08	Non-Volatile memory controller	
+!!!
+PCI_SC_NETWROK:
+00	Ethernet controller	
+01	Token ring network controller	
+02	FDDI network controller	
+03	ATM network controller	
+04	ISDN controller	
+05	WorldFip controller	
+06	PICMG controller	
+07	Infiniband controller	
+08	Fabric controller	
+!!!
+PCI_SC_DISP:
+00	VGA compatible controller	
+01	XGA compatible controller	
+02	3D controller	
+!!!
+PCI_SC_BRIDGE:
+00	Host bridge	
+01	ISA bridge	
+02	EISA bridge	
+03	MicroChannel bridge	
+04	PCI bridge	
+05	PCMCIA bridge	
+06	NuBus bridge	
+07	CardBus bridge	
+08	RACEway bridge	
+09	Semi-transparent PCI-to-PCI bridge	
+0a	InfiniBand to PCI host bridge
+!!!
+PCI_SC_BASE_PEREPH:
+00	PIC	
+01	DMA controller	
+02	Timer	
+03	RTC	
+04	PCI Hot-plug controller	
+05	SD Host controller	
+06	IOMMU
+!!!
+PCI_SC_SERIAL_BUS:
+00	FireWire (IEEE 1394)	
+01	ACCESS Bus	
+02	SSA	
+03	USB controller	
+04	Fibre Channel	
+05	SMBus	
+06	InfiniBand	
+07	IPMI Interface	
+08	SERCOS interface	
+09	CANBUS

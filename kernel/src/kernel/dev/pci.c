@@ -30,6 +30,73 @@ static const char *pci_names[PCI_COUNT] = {
     "CLASS_ENCRY_CONT",
 };
 
+static const char *pci_sc_mass_stor_names[PCI_SC_MASS_STOR_COUNT] = {
+    "SCSI_STORAGE_CONTROLLER",
+    "IDE_INTERFACE",
+    "FLOPPY_DISK_CONTROLLER",
+    "IPI_BUS_CONTROLLER",
+    "RAID_BUS_CONTROLLER",
+    "ATA_CONTROLLER",
+    "SATA_CONTROLLER",
+    "SERIAL_ATTACHED_SCSI_CONTROLLER",
+    "NON-VOLATILE_MEMORY_CONTROLLER",
+};
+
+static const char *pci_sc_netwrok_names[PCI_SC_NETWROK_COUNT] = {
+    "ETHERNET_CONTROLLER",
+    "TOKEN_RING_NETWORK_CONTROLLER",
+    "FDDI_NETWORK_CONTROLLER",
+    "ATM_NETWORK_CONTROLLER",
+    "ISDN_CONTROLLER",
+    "WORLDFIP_CONTROLLER",
+    "PICMG_CONTROLLER",
+    "INFINIBAND_CONTROLLER",
+    "FABRIC_CONTROLLER",
+};
+
+static const char *pci_sc_disp_names[PCI_SC_DISP_COUNT] = {
+    "VGA_COMPATIBLE_CONTROLLER",
+    "XGA_COMPATIBLE_CONTROLLER",
+    "3D_CONTROLLER",
+};
+
+static const char *pci_sc_bridge_names[PCI_SC_BRIDGE_COUNT] = {
+    "HOST_BRIDGE",
+    "ISA_BRIDGE",
+    "EISA_BRIDGE",
+    "MICROCHANNEL_BRIDGE",
+    "PCI_BRIDGE",
+    "PCMCIA_BRIDGE",
+    "NUBUS_BRIDGE",
+    "CARDBUS_BRIDGE",
+    "RACEWAY_BRIDGE",
+    "SEMI-TRANSPARENT_PCI-TO-PCI_BRIDGE",
+    "INFINIBAND_TO_PCI_HOST_BRIDGE",
+};
+
+static const char *pci_sc_base_pereph_names[PCI_SC_BASE_PEREPH_COUNT] = {
+    "PIC",
+    "DMA_CONTROLLER",
+    "TIMER",
+    "RTC",
+    "PCI_HOT-PLUG_CONTROLLER",
+    "SD_HOST_CONTROLLER",
+    "IOMMU",
+};
+
+static const char *pci_sc_serial_bus_names[PCI_SC_SERIAL_BUS_COUNT] = {
+    "FIREWIRE",
+    "ACCESS_BUS",
+    "SSA",
+    "USB_CONTROLLER",
+    "FIBRE_CHANNEL",
+    "SMBUS",
+    "INFINIBAND",
+    "IPMI_INTERFACE",
+    "SERCOS_INTERFACE",
+    "CANBUS",
+};
+
 void pci_init() {
     struct clist_head_t *entry;
     struct dev_t *dev;
@@ -105,33 +172,40 @@ char pci_read_ch() {
 }
 */
 
-uint16_t pci_config_read_word(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset) {
-    uint32_t address;
-    uint32_t lbus = (uint32_t)bus;
-    uint32_t lslot = (uint32_t)slot;
-    uint32_t lfunc = (uint32_t)func;
-    uint16_t ret = 0;
+uint32_t pci_config_read(uint32_t bus, uint32_t device, uint32_t func, uint32_t reg) {
+    uint32_t offset = reg % 0x04;
+    reg &= ~0x3;
+    outdw(PCI_CONFIG_ADDRESS,
+          0x1 << 31 | ((bus & 0xFF) << 16) | ((device & 0x1F) << 11) | ((func & 0x07) << 8) | ((reg & 0xFC)));
+    return indw(PCI_CONFIG_DATA) >> (8 * offset);
+}
 
-    address = (uint32_t)((lbus << 16) | (lslot << 11) |
-                         (lfunc << 8) | (offset & 0xfc) | ((uint32_t)0x80000000));
-    // 0x80000000 - 31 - enable bit
-    // & 0xfc - 1:0 bits of offset always zero
+uint32_t inline pci_config_read_dword(uint32_t bus, uint32_t device, uint32_t func, uint32_t reg) {
+    return pci_config_read(bus, device, func, reg);
+}
+uint16_t inline pci_config_read_word(uint32_t bus, uint32_t device, uint32_t func, uint32_t reg) {
+    return pci_config_read(bus, device, func, reg) & 0xffff;
+}
+uint8_t inline pci_config_read_byte(uint32_t bus, uint32_t device, uint32_t func, uint32_t reg) {
+    return pci_config_read(bus, device, func, reg) & 0xff;
+}
 
-    /* write out the address */
-    outdw(PCI_CONFIG_ADDRESS, address);
-    /* read in the data */
-    /* (offset & 2) * 8) = 0 will choose the first word of the 32 bits register */
-    ret = (uint16_t)((indw(PCI_CONFIG_DATA) >> ((offset & 2) * 8)) & 0xffff);
-    return ret;
+void pci_config_write_dword(uint32_t bus, uint32_t device, uint32_t func, uint32_t reg, uint32_t value) {
+    reg &= ~0x3;
+    outdw(PCI_CONFIG_ADDRESS,
+          0x1 << 31 | ((bus & 0xFF) << 16) | ((device & 0x1F) << 11) | ((func & 0x07) << 8) | ((reg & 0xFC)));
+    outdw(PCI_CONFIG_DATA, value);
 }
 
 uint16_t pci_check_vendor(uint8_t bus, uint8_t slot) {
-    uint16_t vendor, device, cl, prg;
-    uint8_t prog_if, rev_id, class_code, subclass;
+    //uint16_t vendor, device, cl, prg;
+    //uint8_t prog_if, rev_id, class_code, subclass;
     /* try and read the first configuration register. Since there are no */
     /* vendors that == 0xFFFF, it must be a non-existent device. */
-    if ((vendor = pci_config_read_word(bus, slot, 0, 0)) != 0xFFFF) {
-        device = pci_config_read_word(bus, slot, 0, 2);
+    struct pci_dev_t dev = {0};
+    pci_fill_dev(bus, slot, &dev);
+    if (dev.vendor != 0xFFFF) {
+        /*device = pci_config_read_word(bus, slot, 0, 2);
 
         prg = pci_config_read_word(bus, slot, 0, 8);
         rev_id = prg & 0xFF;
@@ -140,13 +214,73 @@ uint16_t pci_check_vendor(uint8_t bus, uint8_t slot) {
         cl = pci_config_read_word(bus, slot, 0, 10);
         subclass = cl & 0xFF;
         class_code = (cl >> 8);
-
-        klog("Found PCI device vendor:device=%x:%x \n    rev:prog=%x:%x \n    cl:sc=%s(%x):%x \n    in bus:slot=%x:%x\n",
-             vendor, device,
-             rev_id, prog_if,
-             pci_names[class_code], class_code, subclass,
+        */
+        char *desc;
+        switch (dev.dev_class.s.class_code) {
+            case PCI_CLASS_MASS_STOR: {
+                desc = pci_sc_mass_stor_names[dev.dev_class.s.sub_class];
+                break;
+            }
+            case PCI_CLASS_NETWORK: {
+                desc = pci_sc_netwrok_names[dev.dev_class.s.sub_class];
+                break;
+            }
+            case PCI_CLASS_DISP: {
+                desc = pci_sc_disp_names[dev.dev_class.s.sub_class];
+                break;
+            }
+            case PCI_CLASS_BRIDGE: {
+                desc = pci_sc_bridge_names[dev.dev_class.s.sub_class];
+                break;
+            }
+            case PCI_CLASS_BASE_PEREPH: {
+                desc = pci_sc_base_pereph_names[dev.dev_class.s.sub_class];
+                break;
+            }
+            case PCI_CLASS_SERIAL_BUS: {
+                desc = pci_sc_serial_bus_names[dev.dev_class.s.sub_class];
+                break;
+            }
+            default:
+                desc = "NONE";
+                break;
+        }
+        klog("Found PCI device vendor:device=%x:%x\n    rev:prog=%x:%x\n    cl:sc=%s(%x):%s(%x)\n    addr[0]:addr[1]=%x:%x\n    in bus:slot=%x:%x\n",
+             dev.vendor, dev.device,
+             dev.revision.s.revision_ID, dev.revision.s.prog_IF,
+             pci_names[dev.dev_class.s.class_code], dev.dev_class.s.class_code, desc, dev.dev_class.s.sub_class,
+             dev.base_addrs[0], dev.base_addrs[1],
              bus, slot);
         //klog("Found PCI device v:d=%x:%x, r:p=%x:%x, cl:sc=%x:%x in b:s=%x:%x\n", vendor, device, rev_id, prog_if, class_code, subclass, bus, slot);
     }
-    return vendor;
+    return dev.vendor;
+}
+
+uint16_t pci_fill_dev(uint8_t bus, uint8_t slot, struct pci_dev_t *dev) {
+    if ((dev->vendor = pci_config_read_word(bus, slot, 0, 0 * 2)) != 0xFFFF) {
+        dev->device = pci_config_read_word(bus, slot, 0, 1 * 2);
+
+        dev->command_reg = pci_config_read_word(bus, slot, 0, 2 * 2);
+        dev->status_reg = pci_config_read_word(bus, slot, 0, 3 * 2);
+
+        dev->revision.revision = pci_config_read_word(bus, slot, 0, 4 * 2);
+        dev->dev_class.dev_class = pci_config_read_word(bus, slot, 0, 5 * 2);
+
+        dev->cache_latency.cache_latency = pci_config_read_word(bus, slot, 0, 6 * 2);
+        dev->header_BIST.header_BIST = pci_config_read_word(bus, slot, 0, 7 * 2);
+
+        for (int i = 0; i < 6; i++)
+            dev->base_addrs[i] = pci_config_read_dword(bus, slot, 0, 8 * 2 + i * 4);
+
+        dev->cardbus_cis_pointer = pci_config_read_dword(bus, slot, 0, 8 * 2 + 6 * 4);
+
+        dev->subsystem_vendor = pci_config_read_word(bus, slot, 0, 8 * 2 + 7 * 4 + 0 * 2);
+        dev->subsystem_id = pci_config_read_word(bus, slot, 0, 8 * 2 + 7 * 4 + 1 * 2);
+
+        dev->expansion_rom_base_addr = pci_config_read_dword(bus, slot, 0, 8 * 2 + 7 * 4 + 2 * 2 + 0 * 4);
+
+        dev->interrupts.interrupts = pci_config_read_word(bus, slot, 0, 0x3C);
+        dev->grant_latency.grant_latency = pci_config_read_word(bus, slot, 0, 0x3C + 2);
+    }
+    return dev->vendor;
 }
