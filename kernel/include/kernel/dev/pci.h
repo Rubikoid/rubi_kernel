@@ -112,6 +112,27 @@ do_magic({
     'CLASS_ENCRY_CONT': '0x10',
 }, pref="PCI")
 */
+union base_addres_register_t {
+    uint32_t raw_value;
+    struct {
+        unsigned int memory_io_type : 1;
+        union {
+            struct 
+            {
+                unsigned int type : 2;
+                unsigned int prefetchable : 1;
+                unsigned int offset : 28;
+                
+            } memory_map;
+
+            struct 
+            {
+                unsigned int reserved : 1;
+                unsigned int offset : 30;
+            } io_map;
+        } s;
+    } s;
+};
 
 struct pci_dev_t {
     uint16_t vendor;
@@ -151,7 +172,7 @@ struct pci_dev_t {
         } s;
     } header_BIST;
 
-    uint32_t base_addrs[6];
+    union base_addres_register_t base_addrs[6];
     uint32_t cardbus_cis_pointer;
 
     uint16_t subsystem_vendor;

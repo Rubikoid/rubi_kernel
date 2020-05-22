@@ -6,4 +6,6 @@ build/
 .gdb_history
 bochslog.txt
 bx_enh_dbg.ini
-peda-session-kernel.txt
+ipeda-session-kernel.txt
+
+*.pyc

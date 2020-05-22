@@ -198,23 +198,11 @@ void pci_config_write_dword(uint32_t bus, uint32_t device, uint32_t func, uint32
 }
 
 uint16_t pci_check_vendor(uint8_t bus, uint8_t slot) {
-    //uint16_t vendor, device, cl, prg;
-    //uint8_t prog_if, rev_id, class_code, subclass;
-    /* try and read the first configuration register. Since there are no */
-    /* vendors that == 0xFFFF, it must be a non-existent device. */
+    // try and read the first configuration register. Since there are no 
+    // vendors that == 0xFFFF, it must be a non-existent device.
     struct pci_dev_t dev = {0};
     pci_fill_dev(bus, slot, &dev);
     if (dev.vendor != 0xFFFF) {
-        /*device = pci_config_read_word(bus, slot, 0, 2);
-
-        prg = pci_config_read_word(bus, slot, 0, 8);
-        rev_id = prg & 0xFF;
-        prog_if = (prg >> 8);
-
-        cl = pci_config_read_word(bus, slot, 0, 10);
-        subclass = cl & 0xFF;
-        class_code = (cl >> 8);
-        */
         char *desc;
         switch (dev.dev_class.s.class_code) {
             case PCI_CLASS_MASS_STOR: {
@@ -245,11 +233,12 @@ uint16_t pci_check_vendor(uint8_t bus, uint8_t slot) {
                 desc = "NONE";
                 break;
         }
-        klog("Found PCI device vendor:device=%x:%x\n    rev:prog=%x:%x\n    cl:sc=%s(%x):%s(%x)\n    addr[0]:addr[1]=%x:%x\n    in bus:slot=%x:%x\n",
+        klog("Found PCI device vendor:device=%x:%x\n    rev:prog=%x:%x\n    cl:sc=%s(%x):%s(%x)\n    addr[0]:addr[1]=%x(%x):%x(%x)\n    in bus:slot=%x:%x\n",
              dev.vendor, dev.device,
              dev.revision.s.revision_ID, dev.revision.s.prog_IF,
              pci_names[dev.dev_class.s.class_code], dev.dev_class.s.class_code, desc, dev.dev_class.s.sub_class,
-             dev.base_addrs[0], dev.base_addrs[1],
+             dev.base_addrs[0].raw_value, dev.base_addrs[0].s.memory_io_type,
+             dev.base_addrs[1].raw_value, dev.base_addrs[1].s.memory_io_type,
              bus, slot);
         //klog("Found PCI device v:d=%x:%x, r:p=%x:%x, cl:sc=%x:%x in b:s=%x:%x\n", vendor, device, rev_id, prog_if, class_code, subclass, bus, slot);
     }
@@ -270,7 +259,7 @@ uint16_t pci_fill_dev(uint8_t bus, uint8_t slot, struct pci_dev_t *dev) {
         dev->header_BIST.header_BIST = pci_config_read_word(bus, slot, 0, 7 * 2);
 
         for (int i = 0; i < 6; i++)
-            dev->base_addrs[i] = pci_config_read_dword(bus, slot, 0, 8 * 2 + i * 4);
+            dev->base_addrs[i].raw_value = pci_config_read_dword(bus, slot, 0, 8 * 2 + i * 4);
 
         dev->cardbus_cis_pointer = pci_config_read_dword(bus, slot, 0, 8 * 2 + 6 * 4);
 
