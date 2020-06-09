@@ -198,55 +198,74 @@ void pci_config_write_dword(uint32_t bus, uint32_t device, uint32_t func, uint32
 }
 
 uint16_t pci_check_vendor(uint8_t bus, uint8_t slot) {
-    // try and read the first configuration register. Since there are no 
+    // try and read the first configuration register. Since there are no
     // vendors that == 0xFFFF, it must be a non-existent device.
     struct pci_dev_t dev = {0};
     pci_fill_dev(bus, slot, &dev);
     if (dev.vendor != 0xFFFF) {
-        char *desc;
-        switch (dev.dev_class.s.class_code) {
-            case PCI_CLASS_MASS_STOR: {
-                desc = pci_sc_mass_stor_names[dev.dev_class.s.sub_class];
-                break;
-            }
-            case PCI_CLASS_NETWORK: {
-                desc = pci_sc_netwrok_names[dev.dev_class.s.sub_class];
-                break;
-            }
-            case PCI_CLASS_DISP: {
-                desc = pci_sc_disp_names[dev.dev_class.s.sub_class];
-                break;
-            }
-            case PCI_CLASS_BRIDGE: {
-                desc = pci_sc_bridge_names[dev.dev_class.s.sub_class];
-                break;
-            }
-            case PCI_CLASS_BASE_PEREPH: {
-                desc = pci_sc_base_pereph_names[dev.dev_class.s.sub_class];
-                break;
-            }
-            case PCI_CLASS_SERIAL_BUS: {
-                desc = pci_sc_serial_bus_names[dev.dev_class.s.sub_class];
-                break;
-            }
-            default:
-                desc = "NONE";
-                break;
-        }
-        klog("Found PCI device vendor:device=%x:%x\n    rev:prog=%x:%x\n    cl:sc=%s(%x):%s(%x)\n    addr[0]:addr[1]=%x(%x):%x(%x)\n    in bus:slot=%x:%x\n",
-             dev.vendor, dev.device,
-             dev.revision.s.revision_ID, dev.revision.s.prog_IF,
-             pci_names[dev.dev_class.s.class_code], dev.dev_class.s.class_code, desc, dev.dev_class.s.sub_class,
-             dev.base_addrs[0].raw_value, dev.base_addrs[0].s.memory_io_type,
-             dev.base_addrs[1].raw_value, dev.base_addrs[1].s.memory_io_type,
-             bus, slot);
+        log_device(&dev);
         //klog("Found PCI device v:d=%x:%x, r:p=%x:%x, cl:sc=%x:%x in b:s=%x:%x\n", vendor, device, rev_id, prog_if, class_code, subclass, bus, slot);
     }
     return dev.vendor;
 }
 
+void *alloc_pci_mem(struct base_addres_register_t *bar) {
+    if (bar->address.raw_value != 0 && bar->address.memory_map.memory_io_type == 0) {
+        
+    }
+    return NULL;
+}
+
+void log_device(struct pci_dev_t *dev) {
+    const char *desc;
+    switch (dev->dev_class.s.class_code) {
+        case PCI_CLASS_MASS_STOR: {
+            desc = pci_sc_mass_stor_names[dev->dev_class.s.sub_class];
+            break;
+        }
+        case PCI_CLASS_NETWORK: {
+            desc = pci_sc_netwrok_names[dev->dev_class.s.sub_class];
+            break;
+        }
+        case PCI_CLASS_DISP: {
+            desc = pci_sc_disp_names[dev->dev_class.s.sub_class];
+            break;
+        }
+        case PCI_CLASS_BRIDGE: {
+            desc = pci_sc_bridge_names[dev->dev_class.s.sub_class];
+            break;
+        }
+        case PCI_CLASS_BASE_PEREPH: {
+            desc = pci_sc_base_pereph_names[dev->dev_class.s.sub_class];
+            break;
+        }
+        case PCI_CLASS_SERIAL_BUS: {
+            desc = pci_sc_serial_bus_names[dev->dev_class.s.sub_class];
+            break;
+        }
+        default:
+            desc = "NONE";
+            break;
+    }
+    klog("Found PCI device vendor:device=%x:%x\n    ", dev->vendor, dev->device);
+    printf("rev:prog=%x:%x\n    ", dev->revision.s.revision_ID, dev->revision.s.prog_IF);
+    printf("cl:sc=%s(%x):%s(%x)\n    ", pci_names[dev->dev_class.s.class_code], dev->dev_class.s.class_code, desc, dev->dev_class.s.sub_class);
+    if (dev->base_addrs[0].address.memory_map.memory_io_type == 0) {  // MM-IO
+        printf("addr[0]=MM, size=%x, off=%x, type=%x\n    ", dev->base_addrs[0].size, dev->base_addrs[0].address.memory_map.offset, dev->base_addrs[0].address.memory_map.type);
+    } else if (dev->base_addrs[0].address.memory_map.memory_io_type == 1) {  // PM-IO
+        printf("addr[0]=PM, size=%x, off=%x\n    ", dev->base_addrs[0].size, dev->base_addrs[0].address.port_map.offset);
+    }
+    // printf("addr[0]:addr[1]=%x(%x):%x(%x)\n    ");
+    printf("in bus:slot=%x:%x\n", dev->bus, dev->slot);
+}
+
 uint16_t pci_fill_dev(uint8_t bus, uint8_t slot, struct pci_dev_t *dev) {
+    dev->bus = 0;
+    dev->slot = 0;
     if ((dev->vendor = pci_config_read_word(bus, slot, 0, 0 * 2)) != 0xFFFF) {
+        dev->bus = bus;
+        dev->slot = slot;
+
         dev->device = pci_config_read_word(bus, slot, 0, 1 * 2);
 
         dev->command_reg = pci_config_read_word(bus, slot, 0, 2 * 2);
@@ -258,8 +277,18 @@ uint16_t pci_fill_dev(uint8_t bus, uint8_t slot, struct pci_dev_t *dev) {
         dev->cache_latency.cache_latency = pci_config_read_word(bus, slot, 0, 6 * 2);
         dev->header_BIST.header_BIST = pci_config_read_word(bus, slot, 0, 7 * 2);
 
-        for (int i = 0; i < 6; i++)
-            dev->base_addrs[i].raw_value = pci_config_read_dword(bus, slot, 0, 8 * 2 + i * 4);
+        for (int i = 0; i < 6; i++) {
+            int base_addr = 8 * 2 + i * 4;
+            dev->base_addrs[i].address.raw_value = pci_config_read_dword(bus, slot, 0, base_addr);
+            if (dev->base_addrs[i].address.raw_value != 0) {
+                pci_config_write_dword(bus, slot, 0, base_addr, 0xFFFFFFFF);  // get size of mapping data
+                dev->base_addrs[i].size = pci_config_read_dword(bus, slot, 0, base_addr);
+                dev->base_addrs[i].size = dev->base_addrs[i].address.memory_map.memory_io_type ? dev->base_addrs[i].size & 0xFFFFFFFC : dev->base_addrs[i].size & 0xFFFFFFF0;
+                dev->base_addrs[i].size = (~dev->base_addrs[i].size) + 1;
+
+                pci_config_write_dword(bus, slot, 0, base_addr, dev->base_addrs[i].address.raw_value);  // restore orig value
+            }
+        }
 
         dev->cardbus_cis_pointer = pci_config_read_dword(bus, slot, 0, 8 * 2 + 6 * 4);
 

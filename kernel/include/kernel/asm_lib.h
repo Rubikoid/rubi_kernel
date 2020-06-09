@@ -47,6 +47,15 @@ struct __attribute__((__packed__)) multiboot_t {
     uint32_t vbe_interface_len;
 };
 
+struct __attribute__((__packed__)) multiboot_memory_map_t {
+    unsigned int size;
+    unsigned int base_addr_low, base_addr_high;
+    // You can also use: unsigned long long int base_addr; if supported.
+    unsigned int length_low, length_high;
+    // You can also use: unsigned long long int length; if supported.
+    unsigned int type;
+};
+
 extern void disable_int();
 extern void enable_int();
 extern void halt();

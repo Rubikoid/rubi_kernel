@@ -1,5 +1,5 @@
-#include <lib/string.h>
 #include <lib/stdio.h>
+#include <lib/string.h>
 
 int strlen(const char *s) {
     uint32_t ret = 0;
@@ -97,6 +97,8 @@ unsigned int vsprintf(char *s1, const char *s2, va_list list) {
 
     char rt[32];
     uint32_t num = 0;
+    int num2 = 0;
+
     void *ptr = 0;
 
     while (s2[src_i] != 0) {
@@ -106,6 +108,17 @@ unsigned int vsprintf(char *s1, const char *s2, va_list list) {
                     case 'x': {
                         num = va_arg(list, uint32_t);
                         itoa(num, rt, 16);
+                        memcpy((uint8_t *)(s1 + dst_i), (uint8_t *)rt, strlen(rt));
+                        dst_i += strlen(rt);
+                        src_i += 2;
+                        break;
+                    }
+                    case 'X': {  // non standart modifier just for dev proposes, do padded hex TO 8 symbols
+                        num = va_arg(list, uint32_t);
+                        itoa(num, rt, 16);
+                        num2 = 8 - strlen(rt);
+                        memset((uint8_t *)(s1 + dst_i), '0', num2);
+                        dst_i += num2;
                         memcpy((uint8_t *)(s1 + dst_i), (uint8_t *)rt, strlen(rt));
                         dst_i += strlen(rt);
                         src_i += 2;
@@ -196,7 +209,7 @@ unsigned int vsscanf(char *src, const char *format, va_list list) {
                             ptr++;
                             dst_i++;
                         }
-                        if(src[dst_i] == ' ' || src[dst_i] == '\n' || src[dst_i] == '\t')
+                        if (src[dst_i] == ' ' || src[dst_i] == '\n' || src[dst_i] == '\t')
                             dst_i++;
                         *(uint8_t *)ptr = '\0';
                         // memcpy((uint8_t *)(dst + dst_i), (uint8_t *)ptr, strlen(ptr));

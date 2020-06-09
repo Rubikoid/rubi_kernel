@@ -78,6 +78,15 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     printf("Multiboot modules count: %x\n", multiboot->mods_count);
     printf("Starting addr: %x -> %x\n", multiboot->mods_addr[0].start, multiboot->mods_addr[0].end);
 
+    {
+        struct multiboot_memory_map_t *entry = (struct multiboot_memory_map_t *)(multiboot->mmap_addr + 0xC0000000);
+        printf("Base Address     | Len              | Type\n");
+        while (entry < multiboot->mmap_addr + multiboot->mmap_length + 0xC0000000) {
+            printf("%X%X | %X%X | %x\n", entry->base_addr_high, entry->base_addr_low, entry->length_high, entry->length_low, entry->type);
+            entry = (struct multiboot_memory_map_t *)((unsigned int)entry + entry->size + sizeof(entry->size));
+        }
+    }
+
     klog("mods_count: %x\n", multiboot->mods_count);
     if (multiboot->mods_count > 0) {
         initrd_init((void *)VIRT(multiboot->mods_addr[0].start));

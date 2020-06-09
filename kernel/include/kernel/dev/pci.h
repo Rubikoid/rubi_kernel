@@ -112,29 +112,29 @@ do_magic({
     'CLASS_ENCRY_CONT': '0x10',
 }, pref="PCI")
 */
-union base_addres_register_t {
-    uint32_t raw_value;
-    struct {
-        unsigned int memory_io_type : 1;
-        union {
-            struct 
-            {
-                unsigned int type : 2;
-                unsigned int prefetchable : 1;
-                unsigned int offset : 28;
-                
-            } memory_map;
 
-            struct 
-            {
-                unsigned int reserved : 1;
-                unsigned int offset : 30;
-            } io_map;
-        } s;
-    } s;
+struct base_addres_register_t {
+    uint32_t size;
+    union {
+        uint32_t raw_value;
+        struct {
+            unsigned int memory_io_type : 1;
+            unsigned int type : 2;
+            unsigned int prefetchable : 1;
+            unsigned int offset : 28;
+        } memory_map;
+        struct {
+            unsigned int memory_io_type : 1;
+            unsigned int reserved : 1;
+            unsigned int offset : 30;
+        } port_map;
+    } address;
 };
 
 struct pci_dev_t {
+    uint8_t bus;
+    uint8_t slot;
+
     uint16_t vendor;
     uint16_t device;
     uint16_t command_reg;
@@ -172,7 +172,7 @@ struct pci_dev_t {
         } s;
     } header_BIST;
 
-    union base_addres_register_t base_addrs[6];
+    struct base_addres_register_t base_addrs[6];
     uint32_t cardbus_cis_pointer;
 
     uint16_t subsystem_vendor;
@@ -218,7 +218,9 @@ uint16_t pci_config_read_word(uint32_t bus, uint32_t device, uint32_t func, uint
 uint8_t pci_config_read_byte(uint32_t bus, uint32_t device, uint32_t func, uint32_t reg);
 void pci_config_write_dword(uint32_t bus, uint32_t device, uint32_t func, uint32_t reg, uint32_t value);
 
+void *alloc_pci_mem(struct base_addres_register_t *bar);
 uint16_t pci_fill_dev(uint8_t bus, uint8_t slot, struct pci_dev_t *dev);
+void log_device(struct pci_dev_t *dev);
 uint16_t pci_check_vendor(uint8_t bus, uint8_t slot);
 
 #endif
