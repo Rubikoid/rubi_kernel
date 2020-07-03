@@ -70,7 +70,7 @@ add_custom_command(TARGET kernel POST_BUILD COMMAND bash -c "nm ${CMAKE_BINARY_D
 add_custom_target(reidd COMMAND COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/initrd_base ${CMAKE_BINARY_DIR}/initrd)
 add_custom_target(reini COMMAND python ${CMAKE_SOURCE_DIR}/tools/initrd_builder.py -o ${CMAKE_BINARY_DIR}/initrd_file -i ${CMAKE_BINARY_DIR}/initrd)
 
-set(QEMU_PARAMS -m 64 -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file -usb -device usb-ehci,id=ehci -device usb-kbd)
+set(QEMU_PARAMS -m 64 -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file -usb -device usb-ehci,id=ehci -device usb-kbd -device pci-hellodev)
 
 add_custom_target(run   COMMAND qemu-system-i386                                ${QEMU_PARAMS} DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 add_custom_target(rung  COMMAND qemu-system-i386 -s                             ${QEMU_PARAMS} DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})

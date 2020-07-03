@@ -17,8 +17,10 @@
 #define KERNEL_EXTENDED_TABLES 128  // count of extended kernel tables. 4 * 128 MB
 #define USER_SPACE_TABLES      8    // count of user space tables. 32 MB
 
-#define KERNEL_PAGES_END    (VIRT_BASE + (KERNEL_LOWER_TABLES + KERNEL_HIGHER_TABLES) * TABLE_SIZE)  // end of kernel space in virtual space. about 3GB + 32 MB
-#define KERNEL_EXTENDED_END (KERNEL_PAGES_END + KERNEL_EXTENDED_TABLES * TABLE_SIZE)                 // end of extended kernel pages. About 3GB + 32 MB + 512 MB
+#define KERNEL_PAGES_END (VIRT_BASE + (KERNEL_LOWER_TABLES + KERNEL_HIGHER_TABLES) * TABLE_SIZE)  // end of kernel space in virtual space. about 3GB + 32 MB
+
+#define KERNEL_EXTENDED_START (KERNEL_PAGES_END + PAGE_SIZE)                                 // start of ext kernel pages
+#define KERNEL_EXTENDED_END   (KERNEL_EXTENDED_START + KERNEL_EXTENDED_TABLES * TABLE_SIZE)  // end of extended kernel pages. About 3GB + 32 MB + 512 MB
 
 #define PHYS_TASKS_SPACE_START ((KERNEL_LOWER_TABLES + KERNEL_HIGHER_TABLES) * TABLE_SIZE)  // skip some physical pages indended for kernel
 #define PHYS_TASKS_SPACE_END   ((KERNEL_LOWER_TABLES + KERNEL_HIGHER_TABLES) * TABLE_SIZE + USER_SPACE_TABLES * TABLE_SIZE)

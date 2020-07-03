@@ -119,17 +119,17 @@ void PCI_init_task() {
         }
     }
 
-    klog("Preparing USB\n\n");
+    klog("Preparing PCI test\n\n");
 
     struct pci_dev_t dev = {0};
-    pci_fill_dev(0, 4, 0, &dev);
+    pci_fill_dev(0, 5, 0, &dev);
     if (dev.vendor != 0xFFFF) {
         log_device(&dev);
-        void *mem = alloc_pci_mem(&dev.base_addrs[0]) + 0x100;
-        //mmu_dump(kernel_page_directory);
-        uint8_t len = *((uint8_t *)mem);
-        uint16_t data = *((uint16_t *)((uint8_t *)mem + 2));
-        klog("Len of reg=%x, data=%x\n", len, data);
+        uint8_t *mem = alloc_pci_mem(&dev.base_addrs[1]);
+        mmu_dump(kernel_page_directory);
+        uint32_t id = *(uint32_t *)(mem + 4);
+        //uint16_t data = *((uint16_t *)((uint8_t *)mem + 2));
+        klog("id=%x\n", id);
     }
 
     syscall_exit();

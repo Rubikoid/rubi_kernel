@@ -153,8 +153,8 @@ void *alloc_page(struct page_table_entry_t *pt, size_t liner_addr) {
 
 void *alloc_page_extended(struct page_table_entry_t *pt, size_t phys_addr) {
     // bind_page(pt, liner_addr, phys_addr);
-    for (int i = KERNEL_PAGES_END; i < KERNEL_EXTENDED_END; i += PAGE_SIZE) {
-        uint8_t x = get_page_from_bitmap(extended_kernel_pages_bitmap, i - KERNEL_PAGES_END);
+    for (int i = KERNEL_EXTENDED_START; i < KERNEL_EXTENDED_END; i += PAGE_SIZE) {
+        uint8_t x = get_page_from_bitmap(extended_kernel_pages_bitmap, i - KERNEL_EXTENDED_START);
         if (x)
             continue;
         bind_page(pt, i, phys_addr, extended_kernel_bitmap_callback);
@@ -234,8 +234,8 @@ void simple_page_bitmap_callback(uint32_t phys_addr, uint32_t linear_addr, uint3
 }
 
 void extended_kernel_bitmap_callback(uint32_t phys_addr, uint32_t linear_addr, uint32_t set) {
-    if ((linear_addr - KERNEL_PAGES_END) >> (12 + 5) < MM_BITMAP_INT_PER_TABLE * KERNEL_EXTENDED_TABLES) {
-        set_page_to_bitmap(extended_kernel_pages_bitmap, (linear_addr - KERNEL_PAGES_END), set);
+    if ((linear_addr - KERNEL_EXTENDED_START) >> (12 + 5) < MM_BITMAP_INT_PER_TABLE * KERNEL_EXTENDED_TABLES) {
+        set_page_to_bitmap(extended_kernel_pages_bitmap, (linear_addr - KERNEL_EXTENDED_START), set);
         klog(
             "Successfull fit page in extended bitmap;"
             "PhysAddr=%x; "
@@ -246,7 +246,7 @@ void extended_kernel_bitmap_callback(uint32_t phys_addr, uint32_t linear_addr, u
             phys_addr,
             phys_addr & PDTE_BIT_FIELD,
             linear_addr,
-            linear_addr - KERNEL_PAGES_END,
+            linear_addr - KERNEL_EXTENDED_START,
             set);
     } else
         klog(

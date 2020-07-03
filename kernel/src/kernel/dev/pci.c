@@ -216,7 +216,7 @@ void *alloc_pci_mem(struct base_addres_register_t *bar) {
         for (int i = 0; i < bar->tables_count; i++) {
             bar->tables[i] = create_page_table(PAGES_PER_TABLE);  // alse fix here maybe?
         }
-        bar->base_linear_addr = alloc_page_extended(bar->tables[0], bar->address.memory_map.offset);
+        bar->base_linear_addr = alloc_page_extended(bar->tables[0], bar->address.memory_map.offset << 4);
         bind_table(kernel_page_directory, bar->tables[0], bar->base_linear_addr);
         klog("Allocated bar=MM, size=%x, off=%x, type=%x, to virtual addr=%x\n", bar->size, bar->address.memory_map.offset, bar->address.memory_map.type, bar->base_linear_addr);
         return bar->base_linear_addr;
@@ -269,7 +269,7 @@ void log_device(struct pci_dev_t *dev) {
             printf("addr[%d]=PM, size=%x, off=%x\n    ", i, dev->base_addrs[i].size, dev->base_addrs[i].address.port_map.offset);
         }
     }
-    // printf("addr[0]:addr[1]=%x(%x):%x(%x)\n    ");
+    printf("comm/status reg=%x/%x\n    ", dev->command_reg, dev->status_reg);
     printf("in bus:slot:func=%x:%x:%x\n", dev->bus, dev->slot, dev->func);
 }
 
