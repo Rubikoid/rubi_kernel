@@ -6,13 +6,16 @@
 #include <lib/string.h>
 #include <types.h>
 
+#define __MODULE_NAME__ "MMU"
+
 struct page_directory_entry_t *kernel_page_directory;
 struct page_table_entry_t *kernel_page_table;
+//struct page_table_entry_t *kernel_extended_page_table[KERNEL_EXTENDED_TABLES];
 
-uint32_t extended_kernel_pages_bitmap[32 * KERNEL_EXTENDED_TABLES];
-uint32_t pages_bitmap[32 * MM_BITMAP_TABLES];
+uint32_t extended_kernel_pages_bitmap[MM_BITMAP_INT_PER_TABLE * KERNEL_EXTENDED_TABLES];
+uint32_t pages_bitmap[MM_BITMAP_INT_PER_TABLE * MM_BITMAP_TABLES];
 
-// boolean for locking operations over kernel pages. i belive this can help don't shoot my leg.
+// boolean for locking operations over kernel pages. i belive this can help don't shoot leg.
 uint8_t kernel_pages_operations = 0;
 /*
 +------------------------+------------------------+-------+----------------------------------------------------+
@@ -40,18 +43,22 @@ uint8_t kernel_pages_operations = 0;
 void init_memory_manager() {
     kernel_page_directory = (struct page_directory_entry_t *)&boot_page_directory;
     kernel_page_table = (struct page_table_entry_t *)&boot_page_table;
-    memset(pages_bitmap, 0, 32 * MM_BITMAP_TABLES);
-    memset(extended_kernel_pages_bitmap, 0, 32 * KERNEL_EXTENDED_TABLES);
+    memset(pages_bitmap, 0, MM_BITMAP_INT_PER_TABLE * MM_BITMAP_TABLES);
+    memset(extended_kernel_pages_bitmap, 0, MM_BITMAP_INT_PER_TABLE * KERNEL_EXTENDED_TABLES);
 
-    /* first 16 mb of kernel */
+    /*  first 16 mb of kernel 
+        so, they are yet mapped by start.asm, but! they needed to be checked in bitmap.
+    */
     for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 32; j++) {
-            pages_bitmap[i * 32 + j] = 0b11111111111111111111111111111111;
+        for (int j = 0; j < MM_BITMAP_INT_PER_TABLE; j++) {
+            pages_bitmap[i * MM_BITMAP_INT_PER_TABLE + j] = 0b11111111111111111111111111111111;
         }
     }
-    /* first 16 mb of kernel */
-    int k = KERNEL_LOWER_TABLES * 1024;
+
+    /* second 16 mb of kernel, mapping kernel heap */
+    int k = KERNEL_LOWER_TABLES * PAGES_PER_TABLE;
     kernel_pages_operations = 1;
+    /* i = from 0xC1000000 to 0xC1FFFFFF -> this is a kernel heap */
     for (size_t i = VIRT_BASE + KERNEL_LOWER_TABLES * TABLE_SIZE; i < VIRT_BASE + (KERNEL_LOWER_TABLES + KERNEL_HIGHER_TABLES) * TABLE_SIZE; i += PAGE_SIZE, k += 1) {
         if (i % TABLE_SIZE == 0) {
             bind_table(kernel_page_directory, kernel_page_table + k, i);
@@ -59,6 +66,13 @@ void init_memory_manager() {
         bind_page(kernel_page_table + (k & (TABLE_BIT_FIELD >> 2)), i, PHYS(i), simple_page_bitmap_callback);
     }
     kernel_pages_operations = 0;
+
+    /*for (int i = 0; i < KERNEL_EXTENDED_TABLES; i++) {
+        kernel_extended_page_table[i] = create_page_table(1024);
+        if (!kernel_extended_page_table[i]) {
+            kpanic("Error allocationg kernel extended page tables, at i=%d", i);
+        }
+    }*/
 }
 
 void mmu_dump(struct page_directory_entry_t *pd) {
@@ -68,7 +82,7 @@ void mmu_dump(struct page_directory_entry_t *pd) {
     struct page_table_entry_t *cur_table = NULL;
     int k = 0;
     //for (int i = (VIRT_BASE >> 22); i < KERNEL_LOWER_TABLES + KERNEL_HIGHER_TABLES + (VIRT_BASE >> 22); i++, k++) {
-    for (int i = 0; i < 1024; i++, k++) {
+    for (int i = 0; i < PAGES_PER_TABLE; i++, k++) {
         cur_dir = &pd[i];
         if (cur_dir->present) {
             cur_table = (struct page_table_entry_t *)VIRT(cur_dir->page_table_addr << 12);
@@ -101,18 +115,18 @@ struct page_directory_entry_t *create_page_directory() {
 }
 
 struct page_table_entry_t *create_page_table(size_t count) {
-    if (count > 1024) return NULL;
+    if (count > PAGES_PER_TABLE) return NULL;
     struct page_table_entry_t *table;
     table = kmalloc_a(sizeof(struct page_table_entry_t) * count, 4096);
     memset((void *)table, 0, sizeof(struct page_table_entry_t) * count);
     return table;
 }
 
-uint8_t inline get_page_from_bitmap(uint32_t *bitmap, size_t addr) {
+uint8_t get_page_from_bitmap(uint32_t *bitmap, size_t addr) {
     return (bitmap[addr >> (12 + 5)] >> ((addr >> 12) & 0b11111)) & 0x1;
 }
 
-void inline set_page_to_bitmap(uint32_t *bitmap, size_t addr, uint8_t value) {
+void set_page_to_bitmap(uint32_t *bitmap, size_t addr, uint8_t value) {
     // free page in bitmap
     // make 0b0...1...0, invert and AND, which makes 0b1...0...1
     if (value == 0)  // unset
@@ -204,21 +218,54 @@ void unbind_table(struct page_directory_entry_t *pd, size_t liner_addr) {
 }
 
 void simple_page_bitmap_callback(uint32_t phys_addr, uint32_t linear_addr, uint32_t set) {
-    // between two chairs, where the first is random memory write and the second is untracked physical page alloc, i select the second
-    if (phys_addr >> (12 + 5) < 32 * MM_BITMAP_TABLES)
+    // between two chairs, where the first is random memory write (due to overflow in bitmap array) and the second is untracked physical page alloc, i select the second
+    // SO, this is an exceptional case, which should newer happend, BUT...
+    if ((phys_addr >> (12 + 5)) < MM_BITMAP_INT_PER_TABLE * MM_BITMAP_TABLES) {
         set_page_to_bitmap(pages_bitmap, phys_addr, set);  // select page in bitmap
+    } else
+        klog(
+            "Failed to fit page in main bitmap;"
+            "PhysAddr=%x; "
+            "LinAddr=%x; "
+            "set=%x\n",
+            phys_addr,
+            linear_addr,
+            set);
 }
 
 void extended_kernel_bitmap_callback(uint32_t phys_addr, uint32_t linear_addr, uint32_t set) {
-    // if(linear_addr >> )
+    if ((linear_addr - KERNEL_PAGES_END) >> (12 + 5) < MM_BITMAP_INT_PER_TABLE * KERNEL_EXTENDED_TABLES) {
+        set_page_to_bitmap(extended_kernel_pages_bitmap, (linear_addr - KERNEL_PAGES_END), set);
+        klog(
+            "Successfull fit page in extended bitmap;"
+            "PhysAddr=%x; "
+            "PhysAddr+=%x; "
+            "LinAddr=%x; "
+            "LinAddr-=%x; "
+            "set=%x\n",
+            phys_addr,
+            phys_addr & PDTE_BIT_FIELD,
+            linear_addr,
+            linear_addr - KERNEL_PAGES_END,
+            set);
+    } else
+        klog(
+            "Failed to fit page in extended bitmap;"
+            "PhysAddr=%x; "
+            "LinAddr=%x; "
+            "set=%x\n",
+            phys_addr,
+            linear_addr,
+            set);
 }
 
 void free_page_directory(struct page_directory_entry_t *pd) {
-    if (pd != kernel_page_directory)
+    if (pd != kernel_page_directory)  // save from unmapping kernel PD and shooting to leg
         kfree_a(pd);
 }
 
 void free_page_table(struct page_table_entry_t *pt) {
-    if (pt != kernel_page_table)
+    // save from unmapping kernel PT's and shooting to leg
+    if (!(pt >= kernel_page_table && pt <= (kernel_page_table + (KERNEL_LOWER_TABLES + KERNEL_HIGHER_TABLES) * TABLE_SIZE)))  // pt != kernel_page_table
         kfree_a(pt);
 }

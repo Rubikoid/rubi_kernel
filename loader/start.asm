@@ -34,7 +34,7 @@ section .bss
     boot_page_directory:
     	resd 1024
     boot_page_table:
-        resd (1024) * 4 * 2;1024
+        resd (1024) * (4 + 4); 1024
 
 section .boottext
     kernel_start:

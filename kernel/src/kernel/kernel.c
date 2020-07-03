@@ -109,11 +109,29 @@ void infiloop() {
 
 void PCI_init_task() {
     pci_init();
+    klog("Starting enumerate PCI\n");
+
     for (int i = 0; i < 255; i++) {
         for (int j = 0; j < 32; j++) {
-            pci_check_vendor(i, j);
+            //for (int k = 0; k < 256; k++) {
+            pci_check_vendor(i, j, 0);
+            //}
         }
     }
+
+    klog("Preparing USB\n\n");
+
+    struct pci_dev_t dev = {0};
+    pci_fill_dev(0, 4, 0, &dev);
+    if (dev.vendor != 0xFFFF) {
+        log_device(&dev);
+        void *mem = alloc_pci_mem(&dev.base_addrs[0]) + 0x100;
+        //mmu_dump(kernel_page_directory);
+        uint8_t len = *((uint8_t *)mem);
+        uint16_t data = *((uint16_t *)((uint8_t *)mem + 2));
+        klog("Len of reg=%x, data=%x\n", len, data);
+    }
+
     syscall_exit();
 }
 
@@ -130,7 +148,7 @@ void create_kernel_tasks() {
     //task_create(0, test6, NULL, "test6")->status = TASK_RUNNING;
     //task_create(0, test7, NULL, "test7")->status = TASK_RUNNING;
     //task_create(0, test7, NULL, "test7")->status = TASK_RUNNING;
-    task_create(0, test8, NULL, "test8")->status = TASK_RUNNING;
+    //task_create(0, test8, NULL, "test8")->status = TASK_RUNNING;
     task_create(0, PCI_init_task, NULL, "PCIi")->status = TASK_RUNNING;
 
     //task_create(0, test9, NULL, "test9")->status = TASK_RUNNING;

@@ -129,7 +129,7 @@ void test8() {
     {
         struct fs_node_t *x;
         x = resolve_path("/bin/shell");
-        klog("%x, %s, %x\n", x, x != NULL ? x->name : "-", x != NULL ? x->length : -1);
+        klog("[Test8] %x, %s, %x\n", x, x != NULL ? x->name : "-", x != NULL ? x->length : -1);
         if(x == NULL)
             return;
     }
@@ -142,13 +142,13 @@ void test8() {
             // uint8_t buff[];
             int readen = file_read(fd, buff, len);
             if (readen != len) {
-                klog("WTF???\n");
+                klog("[Test8] WTF???\n");
             } else {
                 elf_exec((struct elf_header_t *)buff);
             }
             kfree(buff);
             // buff[readen] = '\0';
-            // klog("%x, %s\n", fd, buff);
+            // klog("[Test8] %x, %s\n", fd, buff);
         }
     }
 

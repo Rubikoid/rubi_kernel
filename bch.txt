@@ -6,7 +6,12 @@ boot:            cdrom
 log:             bochslog.txt
 clock:           sync=realtime, time0=local
 cpu:             count=1, ips=1000000
+com1:            enabled=1, mode=file, dev=serial.txt
 magic_break:     enabled=1
+plugin_ctrl:     usb_ehci=1
+# pci:             enabled=1, chipset=i440fx, slot1=usb_ehci
+# usb_ehci:        enabled=1, port1=keypad
+
 display_library: x, options="gui_debug"
 
 debug: action=ignore

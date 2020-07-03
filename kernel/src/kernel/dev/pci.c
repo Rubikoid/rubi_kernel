@@ -197,11 +197,11 @@ void pci_config_write_dword(uint32_t bus, uint32_t device, uint32_t func, uint32
     outdw(PCI_CONFIG_DATA, value);
 }
 
-uint16_t pci_check_vendor(uint8_t bus, uint8_t slot) {
+uint16_t pci_check_vendor(uint8_t bus, uint8_t slot, uint8_t function) {
     // try and read the first configuration register. Since there are no
     // vendors that == 0xFFFF, it must be a non-existent device.
     struct pci_dev_t dev = {0};
-    pci_fill_dev(bus, slot, &dev);
+    pci_fill_dev(bus, slot, function, &dev);
     if (dev.vendor != 0xFFFF) {
         log_device(&dev);
         //klog("Found PCI device v:d=%x:%x, r:p=%x:%x, cl:sc=%x:%x in b:s=%x:%x\n", vendor, device, rev_id, prog_if, class_code, subclass, bus, slot);
@@ -211,7 +211,17 @@ uint16_t pci_check_vendor(uint8_t bus, uint8_t slot) {
 
 void *alloc_pci_mem(struct base_addres_register_t *bar) {
     if (bar->address.raw_value != 0 && bar->address.memory_map.memory_io_type == 0) {
-        
+        bar->tables_count = 1;  // TODO: normal calc this value, so this is a shitcode
+        bar->tables = kmalloc(bar->tables_count * sizeof(struct page_table_entry_t) * PAGES_PER_TABLE);
+        for (int i = 0; i < bar->tables_count; i++) {
+            bar->tables[i] = create_page_table(PAGES_PER_TABLE);  // alse fix here maybe?
+        }
+        bar->base_linear_addr = alloc_page_extended(bar->tables[0], bar->address.memory_map.offset);
+        bind_table(kernel_page_directory, bar->tables[0], bar->base_linear_addr);
+        klog("Allocated bar=MM, size=%x, off=%x, type=%x, to virtual addr=%x\n", bar->size, bar->address.memory_map.offset, bar->address.memory_map.type, bar->base_linear_addr);
+        return bar->base_linear_addr;
+        //bar->tables_count = bar->size / TABLE_SIZE;
+        // if(alloc_page_)
     }
     return NULL;
 }
@@ -244,61 +254,66 @@ void log_device(struct pci_dev_t *dev) {
             break;
         }
         default:
-            desc = "NONE";
+            desc = 0;
             break;
     }
     klog("Found PCI device vendor:device=%x:%x\n    ", dev->vendor, dev->device);
     printf("rev:prog=%x:%x\n    ", dev->revision.s.revision_ID, dev->revision.s.prog_IF);
-    printf("cl:sc=%s(%x):%s(%x)\n    ", pci_names[dev->dev_class.s.class_code], dev->dev_class.s.class_code, desc, dev->dev_class.s.sub_class);
-    if (dev->base_addrs[0].address.memory_map.memory_io_type == 0) {  // MM-IO
-        printf("addr[0]=MM, size=%x, off=%x, type=%x\n    ", dev->base_addrs[0].size, dev->base_addrs[0].address.memory_map.offset, dev->base_addrs[0].address.memory_map.type);
-    } else if (dev->base_addrs[0].address.memory_map.memory_io_type == 1) {  // PM-IO
-        printf("addr[0]=PM, size=%x, off=%x\n    ", dev->base_addrs[0].size, dev->base_addrs[0].address.port_map.offset);
+    printf("cl:sc=%s(%x):%s(%x)\n    ", pci_names[dev->dev_class.s.class_code], dev->dev_class.s.class_code, desc == 0 ? "NONE" : desc, dev->dev_class.s.sub_class); // 
+    for (int i = 0; i < 6; i++) {
+        if (dev->base_addrs[i].address.raw_value == 0)
+            continue;
+        if (dev->base_addrs[i].address.memory_map.memory_io_type == 0) {  // MM-IO
+            printf("addr[%d]=MM, size=%x, off=%x, type=%x\n    ", i, dev->base_addrs[i].size, dev->base_addrs[i].address.memory_map.offset, dev->base_addrs[i].address.memory_map.type);
+        } else if (dev->base_addrs[i].address.memory_map.memory_io_type == 1) {  // PM-IO
+            printf("addr[%d]=PM, size=%x, off=%x\n    ", i, dev->base_addrs[i].size, dev->base_addrs[i].address.port_map.offset);
+        }
     }
     // printf("addr[0]:addr[1]=%x(%x):%x(%x)\n    ");
-    printf("in bus:slot=%x:%x\n", dev->bus, dev->slot);
+    printf("in bus:slot:func=%x:%x:%x\n", dev->bus, dev->slot, dev->func);
 }
 
-uint16_t pci_fill_dev(uint8_t bus, uint8_t slot, struct pci_dev_t *dev) {
+uint16_t pci_fill_dev(uint8_t bus, uint8_t slot, uint8_t function, struct pci_dev_t *dev) {
     dev->bus = 0;
     dev->slot = 0;
-    if ((dev->vendor = pci_config_read_word(bus, slot, 0, 0 * 2)) != 0xFFFF) {
+    if ((dev->vendor = pci_config_read_word(bus, slot, function, 0 * 2)) != 0xFFFF) {
         dev->bus = bus;
         dev->slot = slot;
+        dev->func = function;
 
-        dev->device = pci_config_read_word(bus, slot, 0, 1 * 2);
+        dev->device = pci_config_read_word(bus, slot, function, 1 * 2);
 
-        dev->command_reg = pci_config_read_word(bus, slot, 0, 2 * 2);
-        dev->status_reg = pci_config_read_word(bus, slot, 0, 3 * 2);
+        dev->command_reg = pci_config_read_word(bus, slot, function, 2 * 2);
+        dev->status_reg = pci_config_read_word(bus, slot, function, 3 * 2);
 
-        dev->revision.revision = pci_config_read_word(bus, slot, 0, 4 * 2);
-        dev->dev_class.dev_class = pci_config_read_word(bus, slot, 0, 5 * 2);
+        dev->revision.revision = pci_config_read_word(bus, slot, function, 4 * 2);
+        dev->dev_class.dev_class = pci_config_read_word(bus, slot, function, 5 * 2);
 
-        dev->cache_latency.cache_latency = pci_config_read_word(bus, slot, 0, 6 * 2);
-        dev->header_BIST.header_BIST = pci_config_read_word(bus, slot, 0, 7 * 2);
+        dev->cache_latency.cache_latency = pci_config_read_word(bus, slot, function, 6 * 2);
+        dev->header_BIST.header_BIST = pci_config_read_word(bus, slot, function, 7 * 2);
 
         for (int i = 0; i < 6; i++) {
             int base_addr = 8 * 2 + i * 4;
-            dev->base_addrs[i].address.raw_value = pci_config_read_dword(bus, slot, 0, base_addr);
+            dev->base_addrs[i].address.raw_value = pci_config_read_dword(bus, slot, function, base_addr);
             if (dev->base_addrs[i].address.raw_value != 0) {
-                pci_config_write_dword(bus, slot, 0, base_addr, 0xFFFFFFFF);  // get size of mapping data
-                dev->base_addrs[i].size = pci_config_read_dword(bus, slot, 0, base_addr);
+                pci_config_write_dword(bus, slot, function, base_addr, 0xFFFFFFFF);  // get size of mapping data
+                dev->base_addrs[i].size = pci_config_read_dword(bus, slot, function, base_addr);
                 dev->base_addrs[i].size = dev->base_addrs[i].address.memory_map.memory_io_type ? dev->base_addrs[i].size & 0xFFFFFFFC : dev->base_addrs[i].size & 0xFFFFFFF0;
                 dev->base_addrs[i].size = (~dev->base_addrs[i].size) + 1;
 
-                pci_config_write_dword(bus, slot, 0, base_addr, dev->base_addrs[i].address.raw_value);  // restore orig value
+                pci_config_write_dword(bus, slot, function, base_addr, dev->base_addrs[i].address.raw_value);  // restore orig value
             }
         }
 
-        dev->cardbus_cis_pointer = pci_config_read_dword(bus, slot, 0, 8 * 2 + 6 * 4);
+        dev->cardbus_cis_pointer = pci_config_read_dword(bus, slot, function, 8 * 2 + 6 * 4);
 
-        dev->subsystem_vendor = pci_config_read_word(bus, slot, 0, 8 * 2 + 7 * 4 + 0 * 2);
-        dev->subsystem_id = pci_config_read_word(bus, slot, 0, 8 * 2 + 7 * 4 + 1 * 2);
+        dev->subsystem_vendor = pci_config_read_word(bus, slot, function, 8 * 2 + 7 * 4 + 0 * 2);
+        dev->subsystem_id = pci_config_read_word(bus, slot, function, 8 * 2 + 7 * 4 + 1 * 2);
 
-        dev->expansion_rom_base_addr = pci_config_read_dword(bus, slot, 0, 8 * 2 + 7 * 4 + 2 * 2 + 0 * 4);
+        dev->expansion_rom_base_addr = pci_config_read_dword(bus, slot, function, 8 * 2 + 7 * 4 + 2 * 2 + 0 * 4);
 
-        dev->interrupts.interrupts = pci_config_read_word(bus, slot, 0, 0x3C);
-        dev->grant_latency.grant_latency = pci_config_read_word(bus, slot, 0, 0x3C + 2);
+        dev->interrupts.interrupts = pci_config_read_word(bus, slot, function, 0x3C);
+        dev->grant_latency.grant_latency = pci_config_read_word(bus, slot, function, 0x3C + 2);
     }
     return dev->vendor;
 }

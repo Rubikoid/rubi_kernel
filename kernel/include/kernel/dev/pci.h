@@ -114,9 +114,9 @@ do_magic({
 */
 
 struct base_addres_register_t {
-    uint32_t size;
+    uint32_t size;  // size of memory area
     union {
-        uint32_t raw_value;
+        uint32_t raw_value;  // raw, unparsed value.
         struct {
             unsigned int memory_io_type : 1;
             unsigned int type : 2;
@@ -128,17 +128,22 @@ struct base_addres_register_t {
             unsigned int reserved : 1;
             unsigned int offset : 30;
         } port_map;
-    } address;
+    } address;  // address, readen from port
+
+    uint32_t tables_count;
+    struct page_table_entry_t **tables;
+    void *base_linear_addr;
 };
 
 struct pci_dev_t {
     uint8_t bus;
     uint8_t slot;
+    uint8_t func;
 
     uint16_t vendor;
     uint16_t device;
-    uint16_t command_reg;
-    uint16_t status_reg;
+    uint16_t command_reg;  // commands register
+    uint16_t status_reg;   // status register
 
     union {
         uint16_t revision;
@@ -219,8 +224,8 @@ uint8_t pci_config_read_byte(uint32_t bus, uint32_t device, uint32_t func, uint3
 void pci_config_write_dword(uint32_t bus, uint32_t device, uint32_t func, uint32_t reg, uint32_t value);
 
 void *alloc_pci_mem(struct base_addres_register_t *bar);
-uint16_t pci_fill_dev(uint8_t bus, uint8_t slot, struct pci_dev_t *dev);
+uint16_t pci_fill_dev(uint8_t bus, uint8_t slot, uint8_t function, struct pci_dev_t *dev);
 void log_device(struct pci_dev_t *dev);
-uint16_t pci_check_vendor(uint8_t bus, uint8_t slot);
+uint16_t pci_check_vendor(uint8_t bus, uint8_t slot, uint8_t function);
 
 #endif

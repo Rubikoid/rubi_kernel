@@ -76,7 +76,7 @@ struct task_t* task_create(uint16_t tid_depricated, void* start_addr, struct tas
 void task_delete(struct task_t* task) {
     if (task == NULL)
         return;
-
+    int tid = task->tid;
     kfree(task->kstack);
     kfree(task->ustack);
 
@@ -85,7 +85,7 @@ void task_delete(struct task_t* task) {
 
     if (task->task_mem.pages_count > 0) {
         for (int i = 0; i < task->task_mem.pages_count; i++)
-            unbind_page(task->task_mem.page_table, (size_t)(task->task_mem.pages[i]));
+            unbind_page(task->task_mem.page_table, (size_t)(task->task_mem.pages[i]), simple_page_bitmap_callback);
         kfree(task->task_mem.pages);
     }
     unbind_table(task->task_mem.page_dir, 0x0);  // WTF: what a magic constant
@@ -93,6 +93,7 @@ void task_delete(struct task_t* task) {
     free_page_directory(task->task_mem.page_dir);
 
     clist_delete(&task_list, (struct clist_head_t*)task);
+    // klog("Task killing tid=%d OK\n", tid);
 }
 
 struct task_t* task_find_by_status(uint16_t status) {

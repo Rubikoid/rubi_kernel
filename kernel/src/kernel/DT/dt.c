@@ -27,7 +27,7 @@ void gdt_init() {
 
     // kernel
     normal_gdt[GDT_KCODE_SEGMENT].base = 0;
-    normal_gdt[GDT_KCODE_SEGMENT].limit = 0xFFFFF;
+    normal_gdt[GDT_KCODE_SEGMENT].limit = 0xFFFFFFFF;
     normal_gdt[GDT_KCODE_SEGMENT].type = 0b1010;
     normal_gdt[GDT_KCODE_SEGMENT].p = 1;
     normal_gdt[GDT_KCODE_SEGMENT].a = 0;
@@ -37,7 +37,7 @@ void gdt_init() {
     normal_gdt[GDT_KCODE_SEGMENT].db = 1;
 
     normal_gdt[GDT_KDATA_SEGMENT].base = 0;
-    normal_gdt[GDT_KDATA_SEGMENT].limit = 0xFFFFF;
+    normal_gdt[GDT_KDATA_SEGMENT].limit = 0xFFFFFFFF;
     normal_gdt[GDT_KDATA_SEGMENT].type = 0b0010;
     normal_gdt[GDT_KDATA_SEGMENT].p = 1;
     normal_gdt[GDT_KDATA_SEGMENT].a = 0;

@@ -11,7 +11,14 @@ void cint_double_fail(PUSHAD_C) {
 }
 
 void cint_general_protect(uint16_t cs, PUSHAD_C, uint32_t error_code, uint32_t in_eip) {
-    kpanic(G_RED "Kernel panic: General protect: CS: %x, EIP: %x, Error_code: %x (%x %x)", cs, in_eip, error_code, error_code >> 3, error_code & 0b110);
+    kpanic(G_RED
+           "Kernel panic: General protect: "
+           "CS: %x, "
+           "EIP: %x, "
+           "Error_code: %x (%x %x)",
+           cs,
+           in_eip,
+           error_code, error_code >> 3, error_code & 0b110);
 }
 
 void cint_aligment_check(PUSHAD_C) {
@@ -28,7 +35,7 @@ void cint_segment_not_present(PUSHAD_C) {
 
 void cint_page_fault(size_t addr, PUSHAD_C, uint32_t error_code, uint32_t in_eip) {
     uint32_t* prev_eip = in_ebp + 4;  // i belive there shuild be a next eip
-    uint32_t prev_ebp = *((uint32_t *)in_ebp);
+    uint32_t prev_ebp = *((uint32_t*)in_ebp);
     uint32_t* prev_prev_eip = prev_ebp + 4;
     kpanic(G_RED
            "Kernel panic: "
@@ -39,8 +46,7 @@ void cint_page_fault(size_t addr, PUSHAD_C, uint32_t error_code, uint32_t in_eip
            addr,
            in_eip,
            error_code,
-           *prev_eip,
-           *prev_prev_eip);
+           *prev_eip, *prev_prev_eip);
 }
 
 static uint32_t counter = 0;

@@ -1,0 +1,28 @@
+Serial and terminal [OK]
+MemoryManager [OK]
+GDT, IDT, PIC [OK]
+KB Driver init [OK]
+TTY Driver init [OK]
+RubiKernel v0.1.2: Init! [OK]
+Multiboot: 0xC002CD80; StackStart: 0xC0129000; Mem_upper: 31680
+Multiboot modules count: 1
+Starting addr: 155000 -> 1649FD
+Base Address     | Len              | Type
+0000000000000000 | 000000000009F000 | 1
+000000000009F000 | 0000000000001000 | 2
+00000000000E8000 | 0000000000018000 | 2
+0000000000100000 | 0000000001EF0000 | 1
+0000000001FF0000 | 0000000000010000 | 3
+00000000FFFC0000 | 0000000000040000 | 2
+[KERNEL] mods_count: 1
+[IRD] Staring on initrd on C0155000
+[IRD] offset: F9DF
+[IRD] Root node ok
+[TASK] Task create tid: 0, k_esp:C10006DC, u_esp:C10012DC, eip:C01032E9, name: ifinity
+[TASK] Task create tid: 1, k_esp:C10017CC, u_esp:C10023CC, eip:C0103425, name: dq
+[TASK] Task create tid: 2, k_esp:C10028B8, u_esp:C10034B8, eip:C0103306, name: PCIi
+[KDQ] KernelDQ start
+[KERNEL] Starting enumerate PCI
+[KERNEL] Preparing USB
+
+

@@ -39,14 +39,14 @@ struct task_t* elf_exec(struct elf_header_t* header) {
 
         uint32_t pages_count = (p_header->p_memsz / PAGE_SIZE) + 1;
         void* section = (void*)(elf_base + p_header->p_offset);
-        void* start = 0;
+        void* start = (void*)p_header->p_vaddr; // почему тут был 0, когда можно просто взять и посчитать значение?
 
         for (int i = 0; i < pages_count; i++) {
             //printf("addr:%x\n", p_header->p_vaddr + i * PAGE_SIZE);
             task_mem.pages[task_mem.pages_count] = (void*)p_header->p_vaddr + i * PAGE_SIZE;
-            alloc_page(task_mem.page_table, p_header->p_vaddr + i * PAGE_SIZE);
-            if (i == 0)
-                start = task_mem.pages[task_mem.pages_count];
+            alloc_page(task_mem.page_table, p_header->p_vaddr + i * PAGE_SIZE); // this function return physical addr, but here i don't need they?
+            //if (i == 0)
+            //    start = task_mem.pages[task_mem.pages_count]; // а зачем я это сделал? Под чем я это писал?
             task_mem.pages_count += 1;
         }
 
