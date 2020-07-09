@@ -91,6 +91,8 @@
 #define PCI_SC_SERIAL_BUS_SERCOS_INTERFACE 0x08
 #define PCI_SC_SERIAL_BUS_CANBUS           0x09
 #define PCI_SC_SERIAL_BUS_COUNT            0x0A
+
+#define PCI_DRIVERS_COUNT 1
 /*
 do_magic({
     'CLASS_NAN': '0x0',
@@ -202,6 +204,38 @@ struct pci_dev_t {
     } grant_latency;
 };
 
+typedef void (*pci_driver_init_fn_t)(struct pci_dev_t *dev);
+
+struct pci_driver_dev_t {
+    struct clist_head_t list_head;
+
+    uint16_t vendor_mask;
+    uint16_t device_mask;
+
+    union {
+        uint16_t dev_class_mask;
+        struct {
+            uint8_t sub_class_mask;
+            uint8_t class_code_mask;
+        } s;
+    } dev_class_mask;
+
+    union {
+        uint16_t revision_mask;
+        struct {
+            uint8_t revision_ID_mask;
+            uint8_t prog_IF_mask;
+        } s;
+    } revision_mask;
+
+    pci_driver_init_fn_t init;
+};
+
+typedef void (*pci_driver_register_fn_t)(struct pci_driver_dev_t* drv_dev);
+
+extern pci_driver_register_fn_t pci_driver_register_list[PCI_DRIVERS_COUNT];
+extern struct clist_def_t pci_drivers_def;
+
 extern const char *pci_dev_name;
 
 extern void pci_init();
@@ -216,11 +250,11 @@ extern uint32_t pci_write(void *buf, uint32_t *offset, uint32_t size);
 extern uint32_t pci_read(void *buf, uint32_t *offset, uint32_t size);
 //extern char pci_read_ch();
 
-//uint16_t pci_config_read_word(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset);
 uint32_t pci_config_read(uint32_t bus, uint32_t device, uint32_t func, uint32_t reg);
 uint32_t pci_config_read_dword(uint32_t bus, uint32_t device, uint32_t func, uint32_t reg);
 uint16_t pci_config_read_word(uint32_t bus, uint32_t device, uint32_t func, uint32_t reg);
 uint8_t pci_config_read_byte(uint32_t bus, uint32_t device, uint32_t func, uint32_t reg);
+
 void pci_config_write_dword(uint32_t bus, uint32_t device, uint32_t func, uint32_t reg, uint32_t value);
 
 void *alloc_pci_mem(struct base_addres_register_t *bar);

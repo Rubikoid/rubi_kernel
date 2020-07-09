@@ -4,7 +4,10 @@
 #include <kernel/kthread/dq.h>
 #include <kernel/kthread/ktasks.h>
 #include <kernel/memory/heap.h>
+#include <lib/clist.h>
 #include <lib/string.h>
+
+#include <kernel/dev/pci/helloworld_device.h>
 
 #define __MODULE_NAME__ "PCI"
 
@@ -97,6 +100,16 @@ static const char *pci_sc_serial_bus_names[PCI_SC_SERIAL_BUS_COUNT] = {
     "CANBUS",
 };
 
+pci_driver_register_fn_t pci_driver_register_list[PCI_DRIVERS_COUNT] = {
+    helloword_pci_driver_register,
+};
+
+struct clist_def_t pci_drivers_def = {
+    .slots = 0,
+    .slot_size = sizeof(struct pci_driver_dev_t),
+    .head = 0,
+};
+
 void pci_init() {
     struct clist_head_t *entry;
     struct dev_t *dev;
@@ -122,6 +135,11 @@ void pci_init() {
     ih_low->number = 0;
     ih_low->subnumber = 0;
     ih_low->handler = pci_ih_low;
+
+    for(int i = 0; i < PCI_DRIVERS_COUNT; i++) {
+        struct pci_driver_dev_t* drv_dev = (struct pci_driver_dev_t*)clist_insert_after(&pci_drivers_def, pci_drivers_def.tail);
+        pci_driver_register_list[i](drv_dev);
+    }
 }
 
 void pci_ih_low(uint32_t number, struct ih_low_data_t *data) {
