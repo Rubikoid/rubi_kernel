@@ -89,7 +89,7 @@ int initrd_readdir(struct fs_node_t *node, uint32_t num, struct dirent_t *dirent
         dirent->ino = 0;
         return 0;
     }
-    //strncpy(dirent->name, (char *)inner_entry + sizeof(struct initrd_file_head_t), sizeof(dirent->name));
+    // strncpy(dirent->name, (char *)inner_entry + sizeof(struct initrd_file_head_t), sizeof(dirent->name));
     memcpy(dirent->name, (void *)inner_entry + sizeof(struct initrd_file_head_t), inner_entry->name_size);
     dirent->name[inner_entry->name_size] = '\0';
     return 1;

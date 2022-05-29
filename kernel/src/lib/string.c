@@ -22,13 +22,16 @@ void *memcpy(void *buf1, const void *buf2, uint32_t bytes) {
     return buf1;
 }
 
-//TODO: very haccky realization, fix that shit
+// TODO: very haccky realization, fix that shit
 int strcmp(const char *s1, const char *s2) {
     int len1 = strlen(s1);
     int len2 = strlen(s2);
-    if (len1 != len2)
-        return 1337;  // so this is the hack and bad realization... but for if(!strcmp) this will work
-    for (int i = 0; i < len1; i++) {
+    int len = (len1 < len2 ? len1 : len2);
+
+    // if (len1 != len2)
+    //     return 1337;  // so this is the hack and bad realization... but for if(!strcmp) this will work
+
+    for (int i = 0; i < len; i++) {
         if (s1[i] != s2[i])
             return 1338;  // also crazy implement;
     }
@@ -59,7 +62,7 @@ char *itoa(unsigned int value, char *str, unsigned int base) {
     uint32_t i = 0;
     uint32_t k = 0;
 
-    if (value == 0) {  // patch from kernel panic if we try to print 0;
+    if (value == 0) {  // WTF: patch from kernel panic if we try to print 0;
         str[i] = '0';
         i++;
     }
@@ -176,8 +179,8 @@ unsigned int vsscanf(char *src, const char *format, va_list list) {
     uint32_t format_i = 0, dst_i = 0;
     uint32_t count = 0;
 
-    //char rt[32];
-    //uint32_t num = 0;
+    // char rt[32];
+    // uint32_t num = 0;
     void *ptr = 0;
 
     while (format[format_i] != '\0' && src[dst_i] != '\0') {

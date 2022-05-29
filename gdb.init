@@ -2,4 +2,5 @@ set architecture i386
 file ./build/bin/kernel
 br kernel_main
 br kernel.c:128
+br kpanic
 target remote :1234

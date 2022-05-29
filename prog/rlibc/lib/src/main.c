@@ -2,8 +2,8 @@
 #include <lib/stdio.h>
 #include <lib/string.h>
 #include <lib/syscall.h>
+#include <main.h>
 
-void _start() {
-    // klog("Running repl\n");
-    syscall_exit();
+void entry_point() {
+    _start();
 }
