@@ -37,7 +37,7 @@ void clist_delete(struct clist_def_t *ct, struct clist_head_t *pos) {
     } else {
         struct clist_head_t *x = ct->head;
         for (int i = 0; i <= ct->slots; i++) {  // find previous list item
-            //printf("%x->%x == %x\n", x, x->next, pos);
+            // printf("%x->%x == %x\n", x, x->next, pos);
             if (x->next == pos)
                 break;
             x = x->next;
@@ -65,7 +65,7 @@ struct clist_head_t *clist_find(struct clist_def_t *ct, clist_find_fn_t func, ..
     struct clist_head_t *cur = ct->head;
     if (cur == NULL)
         return NULL;
-    //for (uint32_t i = 0; i <= ct->slots; i++) {
+    // for (uint32_t i = 0; i <= ct->slots; i++) {
     do {
         va_list list;
         va_start(list, func);

@@ -1,4 +1,5 @@
-# Работает:
+# Работает
+
 * MMU
 * heap
 * task switch
@@ -6,8 +7,8 @@
 * syscalls
 * elf loading
 * drivers?
-* * tty driver
-* * keyboard driver
+  * tty driver
+  * keyboard driver
 * vga text mode
 * serial write
 * some part of stdlib
