@@ -81,7 +81,7 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     {
         struct multiboot_memory_map_t *entry = (struct multiboot_memory_map_t *)(multiboot->mmap_addr + 0xC0000000);
         printf("Base Address     | Len              | Type\n");
-        while (entry < multiboot->mmap_addr + multiboot->mmap_length + 0xC0000000) {
+        while ((uint32_t)entry < multiboot->mmap_addr + multiboot->mmap_length + 0xC0000000) {
             printf("%X%X | %X%X | %x\n", entry->base_addr_high, entry->base_addr_low, entry->length_high, entry->length_low, entry->type);
             entry = (struct multiboot_memory_map_t *)((unsigned int)entry + entry->size + sizeof(entry->size));
         }
@@ -90,14 +90,38 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
     klog("mods_count: %x\n", multiboot->mods_count);
     if (multiboot->mods_count > 0) {
         initrd_init((void *)VIRT(multiboot->mods_addr[0].start));
-        devfs_mount(resolve_path("/dev"));
+        struct fs_node_t *dev_node = resolve_path("/dev");
+        if (dev_node == NULL) {
+            printf("Dev node not found in initrd. Panic.");
+            kpanic("/dev not found.\n");
+        } else {
+            devfs_mount(dev_node);
+        }
     }
+
     create_kernel_tasks();
-    // elf_exec(VIRT(multiboot->mods_addr[0].start));
     enable_int();
 
     sched_yield();  // strange shit. without first call scheduler going to break
     return;
+}
+
+void run_init() {
+    struct fs_node_t *init_node = resolve_path("/bin/shell");
+    uint32_t init_fd = syscall_open("/bin/shell", FILE_READ);
+    void *buffer = syscall_malloc(init_node->length);
+    uint32_t read_bytes = syscall_read(init_fd, buffer, init_node->length);
+
+    if (read_bytes != init_node->length) {
+        printf("Loading init error: %x (read_bytes) != %x (real_bytes)", read_bytes, init_node->length);
+    } else {
+        elf_exec(buffer);
+    }
+
+    syscall_free(buffer);
+    syscall_close(init_fd);
+    syscall_exit();
+    // elf_exec(VIRT(multiboot->mods_addr[0].start));
 }
 
 void infiloop() {
@@ -113,7 +137,7 @@ void PCI_init_task() {
 
     for (int i = 0; i < 255; i++) {
         for (int j = 0; j < 32; j++) {
-            //for (int k = 0; k < 256; k++) {
+            // for (int k = 0; k < 256; k++) {
             pci_check_vendor(i, j, 0);
             //}
         }
@@ -128,7 +152,7 @@ void PCI_init_task() {
         uint8_t *mem = alloc_pci_mem(&dev.base_addrs[1]);
         mmu_dump(kernel_page_directory);
         uint32_t id = *(uint32_t *)(mem + 4);
-        //uint16_t data = *((uint16_t *)((uint8_t *)mem + 2));
+        // uint16_t data = *((uint16_t *)((uint8_t *)mem + 2));
         klog("id=%x\n", id);
     }
 
@@ -140,22 +164,24 @@ void create_kernel_tasks() {
     kernel_tasks_init();
     // task_create(0, repl, NULL, "repl")->status = TASK_RUNNING;
 
-    //task_create(0, test1, NULL, "test1")->status = TASK_RUNNING;
-    //task_create(0, test2, NULL, "test2")->status = TASK_RUNNING;
-    //task_create(0, test3, NULL, "test3")->status = TASK_RUNNING;
-    //task_create(0, test4, NULL, "test4")->status = TASK_RUNNING;
-    //task_create(0, test5, NULL, "test5")->status = TASK_RUNNING;
-    //task_create(0, test6, NULL, "test6")->status = TASK_RUNNING;
-    //task_create(0, test7, NULL, "test7")->status = TASK_RUNNING;
-    //task_create(0, test7, NULL, "test7")->status = TASK_RUNNING;
-    //task_create(0, test8, NULL, "test8")->status = TASK_RUNNING;
-    task_create(0, PCI_init_task, NULL, "PCIi")->status = TASK_RUNNING;
+    // task_create(0, test1, NULL, "test1")->status = TASK_RUNNING;
+    // task_create(0, test2, NULL, "test2")->status = TASK_RUNNING;
+    // task_create(0, test3, NULL, "test3")->status = TASK_RUNNING;
+    // task_create(0, test4, NULL, "test4")->status = TASK_RUNNING;
+    // task_create(0, test5, NULL, "test5")->status = TASK_RUNNING;
+    // task_create(0, test6, NULL, "test6")->status = TASK_RUNNING;
+    // task_create(0, test7, NULL, "test7")->status = TASK_RUNNING;
+    // task_create(0, test7, NULL, "test7")->status = TASK_RUNNING;
+    // task_create(0, test8, NULL, "test8")->status = TASK_RUNNING;
+    // task_create(0, PCI_init_task, NULL, "PCIi")->status = TASK_RUNNING;
 
-    //task_create(0, test9, NULL, "test9")->status = TASK_RUNNING;
-    //task_create(0, test10, NULL, "test10")->status = TASK_RUNNING;
-    //task_create(0, test11, NULL, "test11")->status = TASK_RUNNING;
+    // task_create(0, test9, NULL, "test9")->status = TASK_RUNNING;
+    // task_create(0, test10, NULL, "test10")->status = TASK_RUNNING;
+    // task_create(0, test11, NULL, "test11")->status = TASK_RUNNING;
 
-    //tasks_debug();
-    // task_create(0, test1, NULL)->status = TASK_RUNNING;
-    // task_create(0, test2, NULL)->status = TASK_RUNNING;
+    // tasks_debug();
+    //  task_create(0, test1, NULL)->status = TASK_RUNNING;
+    //  task_create(0, test2, NULL)->status = TASK_RUNNING;
+
+    task_create(0, run_init, NULL, "init")->status = TASK_RUNNING;
 }
