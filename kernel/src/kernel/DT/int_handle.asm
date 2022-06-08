@@ -10,32 +10,31 @@ global int_division_by_zero, int_double_fail, int_segment_not_present, int_gener
 extern cint_timer, cint_keyboard
 global int_timer, int_keyboard
 
-int_division_by_zero:
+%macro handler 1
+%1:
     cli
 	pushad
 	cld
-	call cint_division_by_zero
+	call c%1
 	popad
     sti
 	iret	
+%endmacro
 
-int_double_fail:
-    cli
-	pushad
+%macro handler1 1
+%1:
+    pushad
 	cld
-	call cint_double_fail
+	call c%1
 	popad
-    sti
-	iret
+	iret	
+%endmacro
 
-int_segment_not_present:
-    cli
-	pushad
-	cld
-	call cint_segment_not_present
-	popad
-    sti
-	iret
+handler int_division_by_zero
+handler int_double_fail
+handler int_segment_not_present
+handler int_aligment_check
+handler1 int_keyboard
 
 int_general_protect:
     cli
@@ -45,15 +44,6 @@ int_general_protect:
 	push eax
 	call cint_general_protect
 	pop eax
-	popad
-    sti
-	iret
-
-int_aligment_check:
-    cli
-	pushad
-	cld
-	call cint_aligment_check
 	popad
     sti
 	iret
@@ -77,13 +67,6 @@ int_syscall:
     add esp, 32 ; we don't need to restore poped args
     ; popad
     iret
-
-int_keyboard:
-	pushad
-	cld
-	call cint_keyboard
-	popad
-	iret
 
 int_timer:
     cli ; i belive we should disallow interrupts?
