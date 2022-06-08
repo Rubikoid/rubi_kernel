@@ -6,6 +6,8 @@
 #include <lib/stdio.h>
 #include <types.h>
 
+#define __MODULE_NAME__ "INT_CTR"
+
 void cint_double_fail(PUSHAD_C) {
     kpanic(G_RED "Kernel panic: Double fail");
 }
@@ -78,7 +80,11 @@ void pic_init() {
 }
 
 void pic_enable() {
-    outb(PIC1_DATA_PORT, 0xFC); /* Enable IRQ0, IRQ1 */
+    outb(
+        PIC1_DATA_PORT,
+        1 & ~(1 << 0) & ~(1 << 1) & ~(1 << 4)
+        // 0xDC
+    ); /* Enable IRQ0, IRQ1, IRQ4 */
 
     // io_wait();
     // uint8_t x1 = inb(KB_PORT);
@@ -89,12 +95,13 @@ void dev_each_low_ih_cb(struct dev_t* entry, void* data) {
     struct clist_head_t* current = entry->ih_list.head;
     struct ih_low_t* ih_low;
 
-    //for (current = ; current != null; current = current->next) {
+    // for (current = ; current != null; current = current->next) {
     do {
         ih_low = (struct ih_low_t*)current->data;
         if (ih_low->number == low_data->number) {
             if ((ih_low->subnumber & low_data->subnumber) != 0)
                 ih_low->handler(low_data->number, low_data);
         }
+        current = current->next;
     } while (current != entry->ih_list.head && current != NULL);
 }

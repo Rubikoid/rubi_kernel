@@ -101,7 +101,7 @@ void encode_gdt_entry(struct GDT_raw_entry_t *target, struct GDT_normal_entry_t 
     // Check the limit to make sure that it can be encoded
     if ((source->limit > 65536) && ((source->limit & 0xFFF) != 0xFFF)) {
         return;
-        //kerror("You can't do that!");
+        // kerror("You can't do that!");
     }
     if (source->limit > 65536 && !source->g) {
         // Adjust granularity if required
@@ -146,6 +146,7 @@ void idt_init() {
     idt_fill_entry(INT_PAGE_FAULT, (size_t)int_page_fault);
     idt_fill_entry(INT_TIMER, (size_t)int_timer);
     idt_fill_entry(INT_KEYBOARD, (size_t)int_keyboard);
+    idt_fill_entry(INT_SERIAL, (size_t)int_serial);
     idt_fill_entry(INT_SYSCALL, (size_t)int_syscall);
 
     // generate addres for idt

@@ -9,6 +9,8 @@
 
 // const char *tty_dev_name = "TTY";
 
+#define __MODULE_NAME__ "DRV_" tty_dev_name
+
 // keyboard map for char set 1
 unsigned char keyboard_map[KEYBOARD_MAP_SIZE] = {
     0, 27, '1', '2', '3', '4', '5', '6', '7', '8',    /* 9 */
@@ -41,6 +43,11 @@ unsigned char keyboard_map[KEYBOARD_MAP_SIZE] = {
     0, 0, 0, 0,                                       /* F11 Key */
     0,                                                /* F12 Key */
     0,                                                /* All other keys are undefined */
+};
+
+struct interrupt_message_t {
+    void *callback;
+    uint32_t data;
 };
 
 char tty_output_buff[1];
@@ -80,6 +87,49 @@ void tty_init() {
     ih_low->number = INT_KEYBOARD;
     ih_low->subnumber = INT_KEYBOARD_NEW_KEY;
     ih_low->handler = tty_keyboard_ih_low;
+
+    entry = clist_insert_after(&dev->ih_list, entry);
+    ih_low = (struct ih_low_t *)entry->data;
+    ih_low->number = INT_SERIAL;
+    ih_low->subnumber = 1;
+    ih_low->handler = tty_keyboard_ih_serial_low;
+
+    klog("Handlers: %x, %x\n", tty_keyboard_ih_low, tty_keyboard_ih_serial_low);
+}
+
+void do_new_char_internal(char ch) {
+    if (ch == 0)
+        return;
+
+    if (tty_input_ptr < tty_input_buff + VGA_COLS) {  // so we don't want to have memory leak
+        // if (ch != '\b' || !read_line_mode) {          // not \b or not read line mode
+        *tty_input_ptr++ = ch;
+        //}
+    }
+
+    // if(tty_output_ptr < tty_output_buff + VGA_COLS) { // so we don't want to have memory leak
+    if (is_echo && ch != '\0') {  // ch != '\n' && ch != '\b'
+        //*tty_output_ptr++ = ch;
+        if (tty_input_ptr > tty_input_buff) {  // and we not on the start of buffer
+            term_putc(ch, FALSE);              // if not \n, not \b and echo enabled
+        }
+    }
+    //}
+    /*if (read_line_mode && ch == '\b') {        // if lines and \b
+        if (tty_input_ptr > tty_input_buff) {  // and we not on the start of buffer
+            *--tty_input_ptr = '\0';
+            // term_putc(ch, FALSE); // we should handle \b
+            //*--tty_output_ptr = ' ';
+        }
+    }*/
+
+    // struct message_t msg;  // create update task
+    // msg.type = IPC_MSG_TYPE_DQ_SCHED;
+    // msg.len = sizeof(struct interrupt_message_t);
+    // msg.data = kmalloc(msg.len);
+    // ((struct interrupt_message_t *)msg.data)->callback = (void *)tty_keyboard_ih_high;
+    // ((struct interrupt_message_t *)msg.data)->data = ch;
+    // ksend(ktasks[KERNEL_DQ_TASK_ID]->tid, &msg);
 }
 
 void tty_keyboard_ih_low(uint32_t number, struct ih_low_data_t *data) {
@@ -96,40 +146,56 @@ void tty_keyboard_ih_low(uint32_t number, struct ih_low_data_t *data) {
         printf("\nCurrent input array: (%x, %x) %s\n", strlen(tty_input_buff), tty_input_ptr - tty_input_buff, tty_input_buff);
     }
 
-    if (ch == 0)
-        return;
+    do_new_char_internal(ch);
+}
 
-    if (tty_input_ptr < tty_input_buff + VGA_COLS) {  // so we don't want to have memory leak
-        if (ch != '\b' || !read_line_mode) {          // not \b or not read line mode
-            *tty_input_ptr++ = ch;
-        }
-    }
+void tty_keyboard_ih_serial_low(uint32_t number, struct ih_low_data_t *data) {
+    // klog("serial task created");
+    uint8_t index = *((uint8_t *)data->data);
 
-    // if(tty_output_ptr < tty_output_buff + VGA_COLS) { // so we don't want to have memory leak
-    if (is_echo && ch != '\0') {  // ch != '\n' && ch != '\b'
-        //*tty_output_ptr++ = ch;
-        if (tty_input_ptr > tty_input_buff) {  // and we not on the start of buffer
-            term_putc(ch, FALSE);              // if not \n, not \b and echo enabled
-        }
+    char ch = '\0';
+    if (index == 0x7F) {
+        ch = '\b';
+    } else if (index == 0xD) {
+        ch = '\n';
+    } else if (index >= 0x4 && index <= 0xF) {
+        ch = '\0';
+    } else {
+        ch = index;
     }
-    //}
-    if (read_line_mode && ch == '\b') {        // if lines and \b
-        if (tty_input_ptr > tty_input_buff) {  // and we not on the start of buffer
-            *--tty_input_ptr = '\0';
-            // term_putc(ch, FALSE); // we should handle \b
-            //*--tty_output_ptr = ' ';
-        }
-    }
+    /*
+        ESC = 1B
+        F1  = 4
+        F2  = 5
+        F3  = 6
+        F4  = 7
+        F5  = 8
+        F6  = 9
+        F7  = A
+        F8  = B
+        F9  = C
+        F10 = D
+        F11 = E
+        F12 = F
+        TAG = 9
+    */
 
-    struct message_t msg;  // create update task
-    msg.type = IPC_MSG_TYPE_DQ_SCHED;
-    msg.len = 4;
-    msg.data = kmalloc(4);
-    *((size_t *)msg.data) = (size_t)tty_keyboard_ih_high;
-    ksend(ktasks[KERNEL_DQ_TASK_ID]->tid, &msg);
+    do_new_char_internal(ch);
+
+    // struct message_t msg;  // create update task
+    // msg.type = IPC_MSG_TYPE_DQ_SCHED;
+    // msg.len = sizeof(struct interrupt_message_t);
+    // msg.data = kmalloc(msg.len);
+    // ((struct interrupt_message_t *)msg.data)->callback = (void *)tty_keyboard_ih_high;
+    // ((struct interrupt_message_t *)msg.data)->data = index;
+    // ksend(ktasks[KERNEL_DQ_TASK_ID]->tid, &msg);
 }
 
 void tty_keyboard_ih_high(struct message_t *msg) {
+    struct interrupt_message_t *interrupt_msg = msg->data;
+    if (interrupt_msg->data != 0) {
+        klog("serial_inp: %c (%x)\n", (uint8_t)interrupt_msg->data, (uint8_t)interrupt_msg->data);
+    }
     term_flush();
 }
 
@@ -244,7 +310,10 @@ uint32_t tty_read(void *buf, uint32_t *offset, uint32_t size) {
     char ch = '\0';
     do {
         ch = tty_read_ch(offset);
-        if (ch != '\0') {
+        if (read_line_mode && ch == '\b') {
+            *ptr-- = '\0';
+            size += 1;
+        } else if (ch != '\0') {
             *ptr++ = ch;
             size -= 1;
             // printf("New symb: %x %x\n", ch, size);

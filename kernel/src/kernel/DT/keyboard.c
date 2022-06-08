@@ -3,19 +3,22 @@
 #include <kernel/asm_lib.h>
 #include <kernel/messages.h>
 #include <kernel/scheduler/task.h>
+#include <kernel/serial/serial.h>
 #include <kernel/vga/vga.h>
 #include <lib/stdio.h>
 #include <types.h>
+
+#define __MODULE_NAME__ "DT_KB"
 
 void cint_keyboard(PUSHAD_C) {
     struct keyboard_status_t status;
     status.status = inb(KB_CMD_PORT);
     /*
-        & 0x1: Output buffer status (0 = empty, 1 = full) 
+        & 0x1: Output buffer status (0 = empty, 1 = full)
             (must be set before attempting to read data from IO port 0x60)
-        & 0x2: Input buffer status (0 = empty, 1 = full) 
+        & 0x2: Input buffer status (0 = empty, 1 = full)
             (must be clear before attempting to write data to IO port 0x60 or IO port 0x64)
-        & 0x4: System Flag 
+        & 0x4: System Flag
             Meant to be cleared on reset and set by firmware (via. PS/2 Controller Configuration Byte) if the system passes self tests (POST)
         & 0x8: Command/data
             (0 = data written to input buffer is data for PS/2 device, 1 = data written to input buffer is data for PS/2 controller command)
@@ -29,7 +32,7 @@ void cint_keyboard(PUSHAD_C) {
         if (status.keycode >= 1) {
             struct ih_low_data_t ih_low_data;
             ih_low_data.number = INT_KEYBOARD;
-            ih_low_data.data = &status;
+            ih_low_data.data = &status;  // stack...
 
             if (status.keycode == KB_DATA_SELFTEST_OK ||     // Self test passed (sent after "0xFF (reset)" command or keyboard power up)
                 status.keycode == KB_DATA_ECHO ||            // Response to "0xEE (echo)" command
@@ -44,6 +47,22 @@ void cint_keyboard(PUSHAD_C) {
 
             dev_for_each(dev_each_low_ih_cb, &ih_low_data);  // we walk over the all driver list with O(n), and this is slow.
             // printf("Keyboard interrupt: %u 0x%x\n", keycode, keycode);
+        }
+    }
+    outb(PIC1_CMD_PORT, PIC_EOI);
+}
+
+void cint_serial(PUSHAD_C) {
+    uint16_t com = COM1_PORT;
+
+    if ((inb(com + COM_LINE_STAT) & 0x1) == 0x1) {
+        uint8_t keycode = read_com(0, 0);
+        if (keycode >= 1) {
+            struct ih_low_data_t ih_low_data;
+            ih_low_data.number = INT_SERIAL;
+            ih_low_data.data = &keycode;
+            ih_low_data.subnumber = 1;
+            dev_for_each(dev_each_low_ih_cb, &ih_low_data);
         }
     }
     outb(PIC1_CMD_PORT, PIC_EOI);

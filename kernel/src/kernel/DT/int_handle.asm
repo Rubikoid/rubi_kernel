@@ -4,8 +4,8 @@ section .text
 
 extern reload_kernel_segments
 
-extern cint_division_by_zero, cint_double_fail, cint_segment_not_present, cint_general_protect, cint_aligment_check, cint_page_fault, cint_syscall
-global int_division_by_zero, int_double_fail, int_segment_not_present, int_general_protect, int_aligment_check, int_page_fault, int_syscall
+extern cint_division_by_zero, cint_double_fail, cint_segment_not_present, cint_general_protect, cint_aligment_check, cint_page_fault, cint_syscall, cint_serial
+global int_division_by_zero, int_double_fail, int_segment_not_present, int_general_protect, int_aligment_check, int_page_fault, int_syscall, int_serial
 
 extern cint_timer, cint_keyboard
 global int_timer, int_keyboard
@@ -35,6 +35,7 @@ handler int_double_fail
 handler int_segment_not_present
 handler int_aligment_check
 handler1 int_keyboard
+handler1 int_serial
 
 int_general_protect:
     cli

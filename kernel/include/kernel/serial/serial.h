@@ -24,5 +24,6 @@
 
 extern void init_com(uint16_t com_id);
 extern void write_com(uint16_t com_id, uint8_t data);
+extern uint8_t read_com(uint16_t com_id, uint8_t blocking);
 
 #endif

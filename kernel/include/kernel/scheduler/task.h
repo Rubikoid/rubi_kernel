@@ -74,7 +74,7 @@ struct task_mem_t {
 struct message_t {
     uint8_t type;  /* message type */
     uint32_t len;  /* data length */
-    uint8_t* data; /* message data; reciver MUST clean data */
+    uint8_t* data; /* message data; reciver MUST clean data; */
 };
 
 struct __attribute__((__packed__, __aligned__(4))) task_t {

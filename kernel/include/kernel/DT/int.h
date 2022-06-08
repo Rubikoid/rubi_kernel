@@ -58,6 +58,7 @@ extern void cint_page_fault(size_t addr, PUSHAD_C, uint32_t error_code, uint32_t
 extern void cint_timer(size_t* ret_addr, size_t* reg_addr, PUSHAD_C);
 extern uint32_t cint_syscall(PUSHAD_C);
 extern void cint_keyboard(PUSHAD_C);
+extern void cint_serial(PUSHAD_C);
 
 // from asm handlers
 extern void int_division_by_zero();
@@ -69,5 +70,6 @@ extern void int_page_fault();
 extern uint32_t int_syscall();
 extern void int_timer();
 extern void int_keyboard();
+extern void int_serial();
 
 #endif

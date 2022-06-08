@@ -34,15 +34,18 @@ extern uint8_t read_line_mode;
 extern uint8_t is_echo;
 
 extern void tty_init();
+
 extern void tty_keyboard_ih_low(uint32_t number, struct ih_low_data_t* data);
+extern void tty_keyboard_ih_serial_low(uint32_t number, struct ih_low_data_t* data);
+
 extern void tty_keyboard_ih_high(struct message_t* msg);
 
 extern void tty_ioctl(uint32_t command, uint32_t subcm);
 
-extern uint32_t tty_write(void* buf, uint32_t *offset, uint32_t size);
+extern uint32_t tty_write(void* buf, uint32_t* offset, uint32_t size);
 extern void tty_write_ch(char ch);
 
-extern uint32_t tty_read(void* buf, uint32_t *offset, uint32_t size);
+extern uint32_t tty_read(void* buf, uint32_t* offset, uint32_t size);
 extern char tty_read_ch();
 
 #endif
