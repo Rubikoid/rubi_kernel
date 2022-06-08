@@ -12,21 +12,20 @@
 
 #define NORMAL_SYSCALL_COUNT 11
 
-#define SYSCALL_EXIT    0x1
-#define SYSCALL_KSEND   0x2
-#define SYSCALL_KRECV   0x3
-#define SYSCALL_GETTID  0x4
-#define SYSCALL_OPEN    0x5
-#define SYSCALL_CLOSE   0x6
-#define SYSCALL_READ    0x7
-#define SYSCALL_WRITE   0x8
-#define SYSCALL_IOCTL   0x9
-#define SYSCALL_MALLOC  0xA
-#define SYSCALL_FREE    0xB
-#define SYSCALL_READDIR 0xC
-//#define SYSCALL_FREE    0xD
-//#define SYSCALL_FREE    0xE
-//#define SYSCALL_FREE    0xF
+#define SYSCALL_EXIT         0x1
+#define SYSCALL_KSEND        0x2
+#define SYSCALL_KRECV        0x3
+#define SYSCALL_GETTID       0x4
+#define SYSCALL_OPEN         0x5
+#define SYSCALL_CLOSE        0x6
+#define SYSCALL_READ         0x7
+#define SYSCALL_WRITE        0x8
+#define SYSCALL_IOCTL        0x9
+#define SYSCALL_MALLOC       0xA
+#define SYSCALL_FREE         0xB
+#define SYSCALL_RESOLVE_PATH 0xC
+#define SYSCALL_READDIR      0xD
+//#define SYSCALL_FREE       0x0
 
 #define SYSCALL_TEST 0x1337
 
@@ -41,6 +40,9 @@
 #define syscall_read(fd, buf, size)    fsyscall(SYSCALL_READ, (uint32_t)fd, (uint32_t)buf, size);
 #define syscall_write(fd, buf, size)   fsyscall(SYSCALL_WRITE, (uint32_t)fd, (uint32_t)buf, size);
 #define syscall_ioctl(fd, cmd, subcmd) fsyscall(SYSCALL_IOCTL, (uint32_t)fd, cmd, subcmd);
+
+#define syscall_resolve_path(path)            (struct fs_node_t *)fsyscall(SYSCALL_RESOLVE_PATH, (uint32_t)path, 0, 0);
+#define syscall_readdir(fs_node, num, dirent) fsyscall(SYSCALL_READDIR, (uint32_t)fs_node, num, (uint32_t)dirent);
 
 #define syscall_test(a, b) fsyscall(SYSCALL_TEST, (uint32_t)a, (uint32_t)b, 0);
 

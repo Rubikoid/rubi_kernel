@@ -118,8 +118,8 @@ void test7() {
                     }
                 }
             }
-            //int ret = root->readdir(root, i, &test);
-            //klog("[Test7] %x %x %s\n", ret, test.ino, test.name == 0 ? "---" : test.name);
+            // int ret = root->readdir(root, i, &test);
+            // klog("[Test7] %x %x %s\n", ret, test.ino, test.name == 0 ? "---" : test.name);
         }
     }
     syscall_exit();
@@ -130,7 +130,7 @@ void test8() {
         struct fs_node_t *x;
         x = resolve_path("/bin/shell");
         klog("[Test8] %x, %s, %x\n", x, x != NULL ? x->name : "-", x != NULL ? x->length : -1);
-        if(x == NULL)
+        if (x == NULL)
             return;
     }
     {
@@ -185,6 +185,7 @@ void test11() {
     file_write(fd2, (uint8_t *)"lolkek\n", 7);
     syscall_exit();
 }
+
 
 void test_empty() {
     syscall_exit();

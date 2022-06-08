@@ -108,9 +108,9 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
 
 void run_init() {
     struct fs_node_t *init_node = resolve_path("/bin/shell");
-    uint32_t init_fd = syscall_open("/bin/shell", FILE_READ);
-    void *buffer = syscall_malloc(init_node->length);
-    uint32_t read_bytes = syscall_read(init_fd, buffer, init_node->length);
+    uint32_t init_fd = file_open("/bin/shell", FILE_READ);
+    void *buffer = kmalloc(init_node->length);
+    uint32_t read_bytes = file_read(init_fd, buffer, init_node->length);
 
     if (read_bytes != init_node->length) {
         printf("Loading init error: %x (read_bytes) != %x (real_bytes)", read_bytes, init_node->length);

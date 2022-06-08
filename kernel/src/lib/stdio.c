@@ -68,6 +68,12 @@ void stdio_init() {
     syscall_ioctl(stdin, TTY_IOCTL_READ_MODE_ECHO_ON, 0);
 }
 
+void uassert(const char *file, const char *func, uint32_t line, uint8_t expr) {
+    if (!expr) {
+        uprintf("[" G_RED "ERR" G_WHITE "] Assert in %s at %u (%s)\n", file, line, func);
+    }
+}
+
 void uvprintf(char *format, va_list arg_list) {
     if (stdout == -1) {
         stdio_init();

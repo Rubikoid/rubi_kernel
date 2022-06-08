@@ -22,19 +22,25 @@ void *memcpy(void *buf1, const void *buf2, uint32_t bytes) {
     return buf1;
 }
 
-// TODO: very haccky realization, fix that shit
 int strcmp(const char *s1, const char *s2) {
     int len1 = strlen(s1);
     int len2 = strlen(s2);
     int len = (len1 < len2 ? len1 : len2);
 
-    // if (len1 != len2)
-    //     return 1337;  // so this is the hack and bad realization... but for if(!strcmp) this will work
-
     for (int i = 0; i < len; i++) {
-        if (s1[i] != s2[i])
-            return 1338;  // also crazy implement;
+        if (s1[i] != s2[i]) {
+            // Need to cast to uint8_t (unsigned char) due to ISO/IEC 9899:1990 (“ISO C90”):
+            // `The comparison is done using unsigned characters, so that ‘\200’ is greater than ‘\0’.`
+            return ((uint8_t)s1[i]) - ((uint8_t)s2[i]);
+        }
     }
+
+    if (len1 > len2) {
+        return s1[len2];
+    } else if (len1 < len2) {
+        return -s2[len1];
+    }
+
     return 0;
 }
 

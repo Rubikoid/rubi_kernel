@@ -86,7 +86,7 @@ void tty_keyboard_ih_low(uint32_t number, struct ih_low_data_t *data) {
     /* write character to input buffer */
     struct keyboard_status_t *keycode = data->data;
     int index = keycode->keycode;
-    //assert(index < 128);
+    // assert(index < 128);
     if (index >= 128)  // this meant that key was released
         return;
 
@@ -105,7 +105,7 @@ void tty_keyboard_ih_low(uint32_t number, struct ih_low_data_t *data) {
         }
     }
 
-    //if(tty_output_ptr < tty_output_buff + VGA_COLS) { // so we don't want to have memory leak
+    // if(tty_output_ptr < tty_output_buff + VGA_COLS) { // so we don't want to have memory leak
     if (is_echo && ch != '\0') {  // ch != '\n' && ch != '\b'
         //*tty_output_ptr++ = ch;
         if (tty_input_ptr > tty_input_buff) {  // and we not on the start of buffer
@@ -116,7 +116,7 @@ void tty_keyboard_ih_low(uint32_t number, struct ih_low_data_t *data) {
     if (read_line_mode && ch == '\b') {        // if lines and \b
         if (tty_input_ptr > tty_input_buff) {  // and we not on the start of buffer
             *--tty_input_ptr = '\0';
-            //term_putc(ch, FALSE); // we should handle \b
+            // term_putc(ch, FALSE); // we should handle \b
             //*--tty_output_ptr = ' ';
         }
     }
@@ -202,10 +202,16 @@ uint32_t tty_write(void *buf, uint32_t *offset, uint32_t size) {
 
     for (int i = 0; i < size && ch != '\0' /*&& !io_buf->eof*/; i++) {
         ch = *ptr++;
+
+        if (ch == '\e') {
+            term_set_color(*ptr++);
+            continue;
+        }
+
         tty_write_ch(ch);
-        //write_com(0, ch);
-        //if (ch == '\n')
-        //    write_com(0, '\r');  // we ignore \r character, but seems like serial need to have it
+        // write_com(0, ch);
+        // if (ch == '\n')
+        //     write_com(0, '\r');  // we ignore \r character, but seems like serial need to have it
     }
     return (size_t)ptr - (size_t)buf;
 }
@@ -252,14 +258,14 @@ uint32_t tty_read(void *buf, uint32_t *offset, uint32_t size) {
 
 char tty_read_ch(uint32_t *offset) {
     uint8_t eof = (size_t)(tty_input_buff + *offset) >= (size_t)tty_input_ptr;  // pointer in file bigger than pointer in data;
-    //io_buf->eol = 0;                                             // idk
+    // io_buf->eol = 0;                                             // idk
 
     // there are some strange shit
     /*
     if (!io_buf->is_eof && read_line_mode) {
         // skip line
         *((char *)tty_input_buff_ptr) = '\0';
-        if (strchr(io_buf->ptr, '\n') == null) {  
+        if (strchr(io_buf->ptr, '\n') == null) {
             io_buf->is_eof = true;
             return '\0';
         }

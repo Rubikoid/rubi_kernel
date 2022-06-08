@@ -15,7 +15,7 @@ set_target_properties(libc_library
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/initrd/bin"
 )
 
-target_include_directories(libc_library PRIVATE "lib/include") # add includes
+target_include_directories(libc_library PUBLIC "lib/include") # add includes
 target_include_directories(libc_library PRIVATE "${CMAKE_SOURCE_DIR}/kernel/include") # add includes
 
 target_compile_options(

@@ -69,6 +69,8 @@ extern void term_setc(uint16_t x, uint16_t y, uint8_t color, char c);  // set ch
 extern void term_putc(char c, uint8_t flush);                          // set char directly into buffer, but with pos and suitable flush
 extern void term_print(const char *str);                               // write string, autoflush
 
+extern void term_set_color(uint8_t new_color);  // set term color to <byte>
+
 extern void term_change(uint8_t term_id);
 extern void term_flush();  // copy buffer to real video buff
 #endif
