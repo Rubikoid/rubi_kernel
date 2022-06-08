@@ -1,7 +1,7 @@
-#include <lib/syscall.h>
 #include <kernel/kthread/dq.h>
 #include <kernel/memory/heap.h>
 #include <kernel/scheduler/task.h>
+#include <lib/syscall.h>
 
 #define __MODULE_NAME__ "KDQ"
 
@@ -13,7 +13,7 @@ void dq_task() {
         switch (msg.type) {
             case IPC_MSG_TYPE_DQ_SCHED: {
                 /* do deffered callback execution */
-                assert(msg.len == 4);
+                assert(msg.len >= 4); // if we check for ==, we can't pass additional data to handler
                 dq_handler_t handler = (dq_handler_t) * ((size_t*)msg.data);
                 // printf(MSG_DQ_SCHED, handler);
                 handler(&msg);

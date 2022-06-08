@@ -60,10 +60,10 @@ void kpanic(char *message, ...) {
 #endif
 
 void stdio_init() {
-    stdout = syscall_open("/dev/"tty_dev_name, FILE_WRITE);
+    stdout = syscall_open("/dev/" tty_dev_name, FILE_WRITE);
     syscall_ioctl(stdout, IOCTL_INIT, TTY_IOCTL_WRITE);
 
-    stdin = syscall_open("/dev/"tty_dev_name, FILE_READ);
+    stdin = syscall_open("/dev/" tty_dev_name, FILE_READ);
     syscall_ioctl(stdin, IOCTL_INIT, TTY_IOCTL_READ);
     syscall_ioctl(stdin, TTY_IOCTL_READ_MODE_ECHO_ON, 0);
 }
@@ -96,20 +96,20 @@ void vscanf(char *format, va_list arg_list) {
         stdio_init();
     }
 
-    uint32_t count = 0, realcount = 0;
+    uint32_t count = 0, read_count = 0;
     uint32_t readen = 0;
     uint8_t buff[128] = {0};
 
     for (int i = 0; i < strlen(format); i++) {  // FIXME: crazy solution
         if (format[i] == '%')
-            realcount += 1;
-        //if(format[i+1] == '%') {
-        //    realcount -= 1;
-        //    i += 1;
-        //}
+            read_count += 1;
+        // if(format[i+1] == '%') {
+        //     realcount -= 1;
+        //     i += 1;
+        // }
     }
 
-    while (count < realcount) {
+    while (count < read_count) {
         readen = syscall_read(stdin, buff, sizeof(buff) - 1);
         buff[readen] = '\0';
         count += vsscanf((char *)buff, format, arg_list);
