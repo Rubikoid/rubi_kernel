@@ -29,9 +29,10 @@ make install
 ```bash
 mkdir build-gcc
 cd build-gcc
-../gcc-*/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,d,c++ --without-headers --disable-libssp --disable-libgomp --disable-libmudflap --disable-bootstrap --disable-multilib
+../gcc-*/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++,d --disable-libssp --disable-libgomp --disable-libmudflap --disable-bootstrap --disable-multilib --disable-default-pie --with-newlib --enable-libphobos --without-libbacktrace --without-libatomic --with-target-system-zlib=yes --with-system-zlib
 make all-gcc -j 16
 make all-target-libgcc -j 16
+make all-target-libphobos -j 16
 make install-gcc
 make install-target-libgcc
 ```
