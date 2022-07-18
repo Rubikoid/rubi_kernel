@@ -1,12 +1,12 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.13)
 
-project(rubiKernel C CXX ASM_NASM)
-# enable_language(ASM-ATT)
+# set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/llvm.toolchain.cmake)
+set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/gcc.toolchain.cmake)
 
-# set(PREFIX "$ENV{HOME}/gcc_cross/opt")
-# set(CMAKE_C_COMPILER "${PREFIX}/bin/i686-elf-gcc")
-# set(CMAKE_ASM_COMPILER "${PREFIX}/bin/i686-elf-gcc")
-# set(CMAKE_CXX_COMPILER "${PREFIX}/bin/i686-elf-g++")
+# dlang
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/dlang)
+
+project(rubiKernel C CXX ASM_NASM D)
 
 # set(CMAKE_NASM_LINK_EXECUTABLE "ld <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
 

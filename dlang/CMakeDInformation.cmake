@@ -38,12 +38,16 @@ get_filename_component(CMAKE_BASE_NAME ${CMAKE_D_COMPILER} NAME_WE)
 
 set(_INCLUDED_FILE 0)  # reset the indicator if an include occurred.
 
+message(STATUS "CMAKE_PLATFORM_INFO: CMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}, CMAKE_D_COMPILER_ID=${CMAKE_D_COMPILER_ID}, CMAKE_SYSTEM_PROCESSOR=${CMAKE_SYSTEM_PROCESSOR}, CMAKE_BASE_NAME=${CMAKE_BASE_NAME}")
+
 # load a hardware specific file, mostly useful for embedded compilers
 if(CMAKE_SYSTEM_PROCESSOR)
   if(CMAKE_D_COMPILER_ID)
+    message(STATUS "CMAKE_D_SELECT_PLATFORM: 1")
     include(Platform/${CMAKE_SYSTEM_NAME}-${CMAKE_D_COMPILER_ID}-D-${CMAKE_SYSTEM_PROCESSOR} OPTIONAL RESULT_VARIABLE _INCLUDED_FILE)
   endif()
   if(NOT _INCLUDED_FILE)
+    message(STATUS "CMAKE_D_SELECT_PLATFORM: 2")
     include(Platform/${CMAKE_SYSTEM_NAME}-${CMAKE_BASE_NAME}-${CMAKE_SYSTEM_PROCESSOR} OPTIONAL)
   endif()
 endif()
@@ -52,12 +56,14 @@ set(_INCLUDED_FILE 0)  # reset the indicator if an include occurred.
 
 # load the system- and compiler specific files
 if(CMAKE_D_COMPILER_ID)
+  message(STATUS "CMAKE_D_SELECT_PLATFORM: 3")
   include(Platform/${CMAKE_SYSTEM_NAME}-${CMAKE_D_COMPILER_ID}-D
     OPTIONAL RESULT_VARIABLE _INCLUDED_FILE)
 endif()
 
 # if no high specificity file was included, then try a more general one
 if(NOT _INCLUDED_FILE)
+  message(STATUS "CMAKE_D_SELECT_PLATFORM: 4")
   include(Platform/${CMAKE_SYSTEM_NAME}-${CMAKE_BASE_NAME}
     OPTIONAL RESULT_VARIABLE _INCLUDED_FILE)
 endif()
@@ -67,6 +73,7 @@ endif()
 # was first included.  Include it again to get the language info.
 # Remove this when all compiler info is removed from system files.
 if(NOT _INCLUDED_FILE)
+  message(STATUS "CMAKE_D_SELECT_PLATFORM: 5")
   include(Platform/${CMAKE_SYSTEM_NAME} OPTIONAL)
 endif()
 
