@@ -19,12 +19,10 @@ target_include_directories(shell PRIVATE "${CMAKE_SOURCE_DIR}/kernel/include") #
 target_compile_options(
     shell
     PRIVATE
-    $<$<COMPILE_LANGUAGE:C>:-std=gnu99>
     $<$<COMPILE_LANGUAGE:C>:-fno-stack-protector>
     $<$<COMPILE_LANGUAGE:C>:-nostdinc>
-    $<$<COMPILE_LANGUAGE:C>:-ffreestanding>
-    $<$<COMPILE_LANGUAGE:C>:-m32>
+    # $<$<COMPILE_LANGUAGE:C>:-ffreestanding> # -ffreestanding
     -g -Wall) # compile without linux gcc shit
 target_compile_definitions(shell PRIVATE "_DEBUG=1")
-target_link_options(shell PRIVATE -m32 -ffreestanding -nostdlib -g -lgcc -T ${CMAKE_SOURCE_DIR}/prog/linker.ld) #link everything using linkerscript # 
+target_link_options(shell PRIVATE -g -lgcc -T ${CMAKE_SOURCE_DIR}/prog/linker.ld) #link everything using linkerscript # 
 target_link_libraries(shell libc_library)

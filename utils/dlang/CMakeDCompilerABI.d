@@ -1,4 +1,5 @@
-extern (C) int main(string[] args)
+module object;
+extern (C) int main(char[][] args)
 {
     enum int sizeof_dptr = (void*).sizeof;
     string info_sizeof_dptr = "INFO" ~ ":" ~ "sizeof_dptr[" ~ sizeof_dptr.stringof ~ "]";

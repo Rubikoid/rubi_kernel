@@ -1,19 +1,23 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.13)
 
+# === Select crosscompiler toolchain ===
 # set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/llvm.toolchain.cmake)
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/gcc.toolchain.cmake)
+set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/utils/toolchains/gcc.toolchain.cmake)
 
-# dlang
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/dlang)
+# === Setup D lang ===
+# set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/dlang)
 
-project(rubiKernel C CXX ASM_NASM D)
+# === Init kernel ===
+project(rubiKernel C CXX ASM_NASM)
 
 # set(CMAKE_NASM_LINK_EXECUTABLE "ld <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
 
+# === Init NASM assembler ===
 set(CAN_USE_ASSEMBLER TRUE)
 set(CMAKE_ASM_NASM_OBJECT_FORMAT elf32)
 enable_language(ASM_NASM)
 
+# === Collect source folders ===
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/iso" "${CMAKE_BINARY_DIR}/iso/boot" "${CMAKE_BINARY_DIR}/iso/boot/grub")
 file(GLOB_RECURSE KERNEL_SRC ${PROJECT_SOURCE_DIR}/kernel/src/*.c)
 file(GLOB_RECURSE KERNEL_ASM_SRC ${PROJECT_SOURCE_DIR}/kernel/src/*.asm)
@@ -24,31 +28,27 @@ file(GLOB_RECURSE KERNEL_LIB_SRC ${PROJECT_SOURCE_DIR}/kernel/src/lib/*.c)
 file(GLOB_RECURSE KERNEL_LIB_HEAD ${PROJECT_SOURCE_DIR}/kernel/include/lib/*.h)
 file(GLOB_RECURSE KERNEL_LIB_ASM_SRC ${PROJECT_SOURCE_DIR}/kernel/src/lib/*.asm)
 
+# === Add executable... ===
 add_executable(kernel ${KERNEL_LOADER_ASM_SRC} ${KERNEL_ASM_SRC} ${KERNEL_SRC} ${KERNEL_HEAD})
 
-target_include_directories(kernel PRIVATE "kernel/include") # add includes
+# === Add includes ===
+target_include_directories(kernel PRIVATE "kernel/include")
 
-set(CMAKE_ASM_NASM_FLAGS_DEBUG "-Fdwarf -32") # some debug info, i hope
+# === Add some debug info for NASM ===
+set(CMAKE_ASM_NASM_FLAGS_DEBUG "-Fdwarf -32")
 
+# === Setup compile options for KERNEL ===
 target_compile_options(
     kernel
     PRIVATE
-    $<$<COMPILE_LANGUAGE:C>:-std=gnu99>
     $<$<COMPILE_LANGUAGE:C>:-fno-stack-protector>
     $<$<COMPILE_LANGUAGE:C>:-nostdinc>
     $<$<COMPILE_LANGUAGE:C>:-ffreestanding>
-    $<$<COMPILE_LANGUAGE:C>:-m32>
     -g -Wall) # compile without linux gcc shit
 target_compile_definitions(kernel PRIVATE "KERNEL=1" "_DEBUG=1" "KERNEL_VERSION=\"v0.1.2\"")
-target_link_options(kernel PRIVATE -m32 -ffreestanding -nostdlib -g -lgcc -T ${CMAKE_SOURCE_DIR}/loader/linker.ld) #link everything using linkerscript
+target_link_options(kernel PRIVATE -ffreestanding -nostdlib -g -lgcc -T ${CMAKE_SOURCE_DIR}/loader/linker.ld) #link everything using linkerscript
 
-#include(prog/CMakeLists.txt)
-add_subdirectory(prog)
-add_custom_target(initrd_build)
-add_dependencies(initrd_build programms)
-
-add_dependencies(kernel initrd_build)
-
+# === Setup output dirs for KERNEL ===
 set_target_properties(kernel
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
@@ -56,6 +56,16 @@ set_target_properties(kernel
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 
+
+# === Add progs subdir ===
+add_subdirectory(prog)
+add_custom_target(initrd_build)
+add_dependencies(initrd_build programms)
+
+# === Add dependencies ===
+add_dependencies(kernel initrd_build)
+
+# === Commands for initrd build ===
 add_custom_command(TARGET initrd_build POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/initrd_base ${CMAKE_BINARY_DIR}/initrd)
 add_custom_command(TARGET initrd_build POST_BUILD COMMAND python ${CMAKE_SOURCE_DIR}/tools/initrd_builder.py -o ${CMAKE_BINARY_DIR}/initrd_file -i ${CMAKE_BINARY_DIR}/initrd)
 
@@ -71,15 +81,23 @@ add_custom_command(TARGET kernel POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_dir
 # 
 
 
-# generate debug info for bochs
+# === Generate debug info for bocks ===
 add_custom_command(TARGET kernel POST_BUILD COMMAND objcopy --only-keep-debug $<TARGET_FILE:kernel> ${CMAKE_BINARY_DIR}/kernel.sym.bin)
 add_custom_command(TARGET kernel POST_BUILD COMMAND bash -c "nm ${CMAKE_BINARY_DIR}/kernel.sym.bin | grep \" [Tbt] \" | awk '{ print \$1\" \"\$3 }' > ${CMAKE_BINARY_DIR}/kernel.sym " VERBATIM)
 
+# === Commands for initrd build ===
 add_custom_target(reidd COMMAND COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/initrd_base ${CMAKE_BINARY_DIR}/initrd)
 add_custom_target(reini COMMAND python ${CMAKE_SOURCE_DIR}/tools/initrd_builder.py -o ${CMAKE_BINARY_DIR}/initrd_file -i ${CMAKE_BINARY_DIR}/initrd)
 
+# === Setup based qemu params ===
 set(QEMU_PARAMS -m 64 -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file) # -usb -device usb-ehci,id=ehci -device usb-kbd -device pci-hellodev
 
+# === Commands for running qemu: ===
+# run   - just qemu
+# rung  - qemu with debug socket listen
+# rungs - qemu with debug socket listen & wait for debugger
+# runc  - qemu in cli mode (interaction with kernel over serial interface)
+# runcr - qemu in cli mode (interaction with kernel over serial interface) without reboot
 add_custom_target(run   COMMAND qemu-system-i386                                ${QEMU_PARAMS} DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 add_custom_target(rung  COMMAND qemu-system-i386 -s                             ${QEMU_PARAMS} DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 add_custom_target(rungs COMMAND qemu-system-i386 -s -S                          ${QEMU_PARAMS} DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})

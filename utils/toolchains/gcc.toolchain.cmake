@@ -3,19 +3,18 @@ INCLUDE(CMakeForceCompiler)
 # SET(CMAKE_SYSTEM_NAME Generic)
 # SET(CMAKE_SYSTEM_VERSION 1)
 
-set(CLANG_TARGET_TRIPLE "i686-pc-none-elf")
 set(CMAKE_SYSTEM_PROCESSOR i686)
 
-set(BUILD_PREFIX "$ENV{HOME}/gcc_cross")
+set(BUILD_PREFIX "$ENV{HOME}/opt/cross")
 
-set(CMAKE_D_COMPILER "${BUILD_PREFIX}/bin/i686-elf-gdc")
-set(CMAKE_C_COMPILER "${BUILD_PREFIX}/bin/i686-elf-gcc")
-set(CMAKE_ASM_COMPILER "${BUILD_PREFIX}/bin/i686-elf-gcc")
-set(CMAKE_CXX_COMPILER "${BUILD_PREFIX}/bin/i686-elf-g++")
+set(CMAKE_D_COMPILER "${BUILD_PREFIX}/bin/i686-rkernel-gdc")
+set(CMAKE_C_COMPILER "${BUILD_PREFIX}/bin/i686-rkernel-gcc")
+set(CMAKE_ASM_COMPILER "${BUILD_PREFIX}/bin/i686-rkernel-gcc")
+set(CMAKE_CXX_COMPILER "${BUILD_PREFIX}/bin/i686-rkernel-g++")
 
 set(ARCH_FLAGS "-m32")
 
-set(CMAKE_C_FLAGS "-Wall ${ARCH_FLAGS}" CACHE STRING "Common flags for C compiler")
+set(CMAKE_C_FLAGS "-Wall -std=gnu99 ${ARCH_FLAGS}" CACHE STRING "Common flags for C compiler")
 set(CMAKE_CXX_FLAGS "-Wall ${ARCH_FLAGS} -fno-pie -std=c++17 -fno-exceptions -fno-rtti -fno-threadsafe-statics" CACHE STRING "Common flags for C++ compiler")
 # -nophoboslib -fno-exceptions -fno-moduleinfo -fno-rtti == 
 set(CMAKE_D_FLAGS "-Wall ${ARCH_FLAGS} -fno-exceptions -fno-moduleinfo -fno-rtti" CACHE STRING "Common flags for D compiler")
