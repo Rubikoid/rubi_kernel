@@ -1,6 +1,7 @@
 .vscode/
 
 build/
+build*/
 # grub/stage2_eltorito
 
 .gdb_history

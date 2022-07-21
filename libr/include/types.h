@@ -31,6 +31,15 @@ typedef __int8_t int8_t;
 typedef __int16_t int16_t;
 typedef __int32_t int32_t;
 
+typedef __uint8_t u8;
+typedef __uint16_t u16;
+typedef __uint32_t u32;
+
+typedef __int8_t i8;
+typedef __int16_t i16;
+typedef __int32_t i32;
+
+
 #if __WORDSIZE == 64
 typedef __uint64_t uint64_t;
 #endif

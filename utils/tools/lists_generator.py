@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+
 def from_simple_list(l, pref):
     f = {}
     for i in l.split("\n"):
@@ -11,7 +14,7 @@ def from_simple_list(l, pref):
 
 
 def do_pci_file():
-    d = open("pci.txt", 'r').read()
+    d = open("pci.txt", "r").read()
     d = d.split("!!!")
     for i in d:
         i = i.strip()

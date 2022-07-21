@@ -4,13 +4,14 @@
 #include <lib/stdio.h>
 #include <lib/string.h>
 #include <lib/syscall.h>
-#include <tests_lib.h>
+
+// #include <tests_lib.h>
 
 void tests() {
-    test_strcmp();
+    // test_strcmp();
 }
 
-void _start() {
+void main() {
     tests();
 
     printf("Running repl\n");

@@ -1,6 +1,9 @@
+#!/usr/bin/env python3
+
 import struct
 import os
 import argparse
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-o", "--output", help="output file", required=True)
 parser.add_argument("-i", "--input", help="input directory", required=True)
@@ -30,12 +33,12 @@ for root, subdirs, files in os.walk(I_DIR):
     # print(root, subdirs, files)
     # print("---WATAFACK---")
     for i in files:
-        relpath = (os.path.relpath(os.path.join(root, i), I_DIR))
-        if relpath.count('/') <= 1:
+        relpath = os.path.relpath(os.path.join(root, i), I_DIR)
+        if relpath.count("/") <= 1:
             final_nodes[relpath] = 0
     for i in subdirs:
-        relpath = (os.path.relpath(os.path.join(root, i), I_DIR))
-        if relpath.count('/') == 0:
+        relpath = os.path.relpath(os.path.join(root, i), I_DIR)
+        if relpath.count("/") == 0:
             if "/" in dirs:
                 dirs["/"][relpath] = 0
             else:
@@ -53,7 +56,7 @@ for i in final_nodes:
     rname = os.path.join(I_DIR, i)
     data += struct.pack(file_head, FILE_MAGIC, os.stat(rname).st_size, len(name), FS_FILE)
     data += name.encode()  # struct.pack(string_name_base.format(size=len(name)), list())
-    data += open(rname, 'rb').read()  # f"lole".encode()  # struct.pack(string_name_base.format(size=4), list())
+    data += open(rname, "rb").read()  # f"lole".encode()  # struct.pack(string_name_base.format(size=4), list())
 
 for i in dirs:
     if i == "/":
@@ -70,7 +73,7 @@ dirs_def_offset = len(data)
 
 data += struct.pack(file_head, FILE_MAGIC, len(dirs["/"]), len("/"), FS_DIRECTORY)
 data += b"/"
-data += b"".join(struct.pack(directory_base, dirs['/'][k]) for k in dirs['/'])
+data += b"".join(struct.pack(directory_base, dirs["/"][k]) for k in dirs["/"])
 
 data = struct.pack(header, HEADER_MAGIC, dirs_def_offset) + data[8:]
 
@@ -79,5 +82,5 @@ print(dirs)
 print(dirs_def_offset)
 print(data[dirs_def_offset:])
 
-with open(O_FILE, 'wb') as f:
+with open(O_FILE, "wb") as f:
     f.write(data)

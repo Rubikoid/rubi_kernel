@@ -98,7 +98,7 @@ void vscanf(char *format, va_list arg_list) {
 
     uint32_t count = 0, read_count = 0;
     uint32_t readen = 0;
-    uint8_t buff[128] = {0};
+    uint8_t buff[512] = {0};
 
     for (int i = 0; i < strlen(format); i++) {  // FIXME: crazy solution
         if (format[i] == '%')
@@ -109,6 +109,7 @@ void vscanf(char *format, va_list arg_list) {
         // }
     }
 
+    int fake_arg_counter = 0;
     while (count < read_count) {
         readen = syscall_read(stdin, buff, sizeof(buff) - 1);
         buff[readen] = '\0';
@@ -116,8 +117,12 @@ void vscanf(char *format, va_list arg_list) {
         {  // i hate this crazy solution, but these warnings makes me cry
             size_t _ = 0;
             _ = (size_t)_;
-            for (int i = 0; i < count; i++) {
+            for (; fake_arg_counter < count; fake_arg_counter++) {
                 _ = (size_t)va_arg(arg_list, void *);
+                /*
+                    the main idea
+                    of this cycle - to move arg_list pointer thought arguments
+                */
             }
         }
     }

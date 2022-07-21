@@ -2,9 +2,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.13)
 
 file(GLOB_RECURSE PROG_SRC ${PROJECT_SOURCE_DIR}/prog/shell/shell/src/*.c)
 file(GLOB_RECURSE PROG_ASM_SRC ${PROJECT_SOURCE_DIR}/prog/shell/shell/src/*.asm)
-file(GLOB_RECURSE PROG_HEAD ${PROJECT_SOURCE_DIR}/prog/shell/shell/include/*.h)
 
-add_executable(shell ${PROG_ASM_SRC} ${PROG_SRC} ${PROG_HEAD} ${KERNEL_HEAD})
+add_executable(shell ${PROG_ASM_SRC} ${PROG_SRC})
 
 set_target_properties(shell
     PROPERTIES
@@ -20,9 +19,6 @@ target_compile_options(
     shell
     PRIVATE
     $<$<COMPILE_LANGUAGE:C>:-fno-stack-protector>
-    $<$<COMPILE_LANGUAGE:C>:-nostdinc>
-    # $<$<COMPILE_LANGUAGE:C>:-ffreestanding> # -ffreestanding
-    -g -Wall) # compile without linux gcc shit
+    -g) # compile without linux gcc shit
 target_compile_definitions(shell PRIVATE "_DEBUG=1")
-target_link_options(shell PRIVATE -g -lgcc -T ${CMAKE_SOURCE_DIR}/prog/linker.ld) #link everything using linkerscript # 
-target_link_libraries(shell libc_library)
+target_link_options(shell PRIVATE -g -T ${CMAKE_SOURCE_DIR}/prog/linker.ld) #link everything using linkerscript

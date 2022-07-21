@@ -5,7 +5,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.13)
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/utils/toolchains/gcc.toolchain.cmake)
 
 # === Setup D lang ===
-# set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/dlang)
+# set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/utils/dlang)
 
 # === Init kernel ===
 project(rubiKernel C CXX ASM_NASM)
@@ -24,15 +24,19 @@ file(GLOB_RECURSE KERNEL_ASM_SRC ${PROJECT_SOURCE_DIR}/kernel/src/*.asm)
 file(GLOB_RECURSE KERNEL_LOADER_ASM_SRC ${PROJECT_SOURCE_DIR}/loader/*.asm)
 file(GLOB_RECURSE KERNEL_HEAD ${PROJECT_SOURCE_DIR}/kernel/include/*.h)
 
-file(GLOB_RECURSE KERNEL_LIB_SRC ${PROJECT_SOURCE_DIR}/kernel/src/lib/*.c)
-file(GLOB_RECURSE KERNEL_LIB_HEAD ${PROJECT_SOURCE_DIR}/kernel/include/lib/*.h)
-file(GLOB_RECURSE KERNEL_LIB_ASM_SRC ${PROJECT_SOURCE_DIR}/kernel/src/lib/*.asm)
+file(GLOB_RECURSE KERNEL_LIB_SRC ${PROJECT_SOURCE_DIR}/libr/src/*.c)
+file(GLOB_RECURSE KERNEL_LIB_HEAD ${PROJECT_SOURCE_DIR}/libr/include/*.h)
+file(GLOB_RECURSE KERNEL_LIB_ASM_SRC ${PROJECT_SOURCE_DIR}/libr/src/*.asm)
+
+# gEnIaL fix...
+list(REMOVE_ITEM KERNEL_LIB_ASM_SRC "${PROJECT_SOURCE_DIR}/libr/src/crt0.asm")
 
 # === Add executable... ===
-add_executable(kernel ${KERNEL_LOADER_ASM_SRC} ${KERNEL_ASM_SRC} ${KERNEL_SRC} ${KERNEL_HEAD})
+add_executable(kernel ${KERNEL_LOADER_ASM_SRC} ${KERNEL_ASM_SRC} ${KERNEL_SRC} ${KERNEL_LIB_SRC} ${KERNEL_LIB_ASM_SRC})
 
 # === Add includes ===
 target_include_directories(kernel PRIVATE "kernel/include")
+target_include_directories(kernel PRIVATE "libr/include")
 
 # === Add some debug info for NASM ===
 set(CMAKE_ASM_NASM_FLAGS_DEBUG "-Fdwarf -32")
@@ -66,13 +70,13 @@ add_dependencies(initrd_build programms)
 add_dependencies(kernel initrd_build)
 
 # === Commands for initrd build ===
-add_custom_command(TARGET initrd_build POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/initrd_base ${CMAKE_BINARY_DIR}/initrd)
-add_custom_command(TARGET initrd_build POST_BUILD COMMAND python ${CMAKE_SOURCE_DIR}/tools/initrd_builder.py -o ${CMAKE_BINARY_DIR}/initrd_file -i ${CMAKE_BINARY_DIR}/initrd)
+add_custom_command(TARGET initrd_build POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/utils/initrd_base ${CMAKE_BINARY_DIR}/initrd)
+add_custom_command(TARGET initrd_build POST_BUILD COMMAND ${CMAKE_SOURCE_DIR}/utils/tools/initrd_builder.py -o ${CMAKE_BINARY_DIR}/initrd_file -i ${CMAKE_BINARY_DIR}/initrd)
 
 # generate iso file for bochs
 add_custom_command(TARGET kernel POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:kernel> ${CMAKE_BINARY_DIR}/iso/boot/$<TARGET_FILE_NAME:kernel>)
 add_custom_command(TARGET kernel POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/initrd_file ${CMAKE_BINARY_DIR}/iso/boot/initrd)
-add_custom_command(TARGET kernel POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/grub ${CMAKE_BINARY_DIR}/iso/boot/grub)
+add_custom_command(TARGET kernel POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/utils/grub ${CMAKE_BINARY_DIR}/iso/boot/grub)
 # add_custom_command(TARGET kernel POST_BUILD COMMAND genisoimage -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 -A ${PROJECT_NAME} -input-charset utf8 -quiet -boot-info-table -o ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.iso ${CMAKE_BINARY_DIR}/iso)
 # if(CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
 #     add_custom_command(TARGET kernel POST_BUILD COMMAND grub-mkrescue -o  ${CMAKE_BINARY_DIR}/grub.iso  ${CMAKE_BINARY_DIR}/iso)
@@ -82,12 +86,12 @@ add_custom_command(TARGET kernel POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_dir
 
 
 # === Generate debug info for bocks ===
-add_custom_command(TARGET kernel POST_BUILD COMMAND objcopy --only-keep-debug $<TARGET_FILE:kernel> ${CMAKE_BINARY_DIR}/kernel.sym.bin)
-add_custom_command(TARGET kernel POST_BUILD COMMAND bash -c "nm ${CMAKE_BINARY_DIR}/kernel.sym.bin | grep \" [Tbt] \" | awk '{ print \$1\" \"\$3 }' > ${CMAKE_BINARY_DIR}/kernel.sym " VERBATIM)
+# add_custom_command(TARGET kernel POST_BUILD COMMAND objcopy --only-keep-debug $<TARGET_FILE:kernel> ${CMAKE_BINARY_DIR}/kernel.sym.bin)
+# add_custom_command(TARGET kernel POST_BUILD COMMAND bash -c "nm ${CMAKE_BINARY_DIR}/kernel.sym.bin | grep \" [Tbt] \" | awk '{ print \$1\" \"\$3 }' > ${CMAKE_BINARY_DIR}/kernel.sym " VERBATIM)
 
 # === Commands for initrd build ===
-add_custom_target(reidd COMMAND COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/initrd_base ${CMAKE_BINARY_DIR}/initrd)
-add_custom_target(reini COMMAND python ${CMAKE_SOURCE_DIR}/tools/initrd_builder.py -o ${CMAKE_BINARY_DIR}/initrd_file -i ${CMAKE_BINARY_DIR}/initrd)
+add_custom_target(reidd COMMAND COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/utils/initrd_base ${CMAKE_BINARY_DIR}/initrd)
+add_custom_target(reini COMMAND python ${CMAKE_SOURCE_DIR}/utils/tools/initrd_builder.py -o ${CMAKE_BINARY_DIR}/initrd_file -i ${CMAKE_BINARY_DIR}/initrd)
 
 # === Setup based qemu params ===
 set(QEMU_PARAMS -m 64 -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/initrd_file) # -usb -device usb-ehci,id=ehci -device usb-kbd -device pci-hellodev

@@ -1,8 +1,8 @@
-#include <lib/syscall.h>
 #include <kernel/kthread/dq.h>
 #include <kernel/kthread/ktasks.h>
 #include <kernel/memory/heap.h>
 #include <kernel/scheduler/task.h>
+#include <lib/syscall.h>
 
 uint32_t ktasks_size = 0;
 struct task_t **ktasks = 0;
