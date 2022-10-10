@@ -22,6 +22,17 @@ void *memcpy(void *buf1, const void *buf2, uint32_t bytes) {
     return buf1;
 }
 
+int memcmp(const void *str1, const void *str2, size_t n) {
+    register const unsigned char *s1 = (const unsigned char *)str1;
+    register const unsigned char *s2 = (const unsigned char *)str2;
+
+    while (n-- > 0) {
+        if (*s1++ != *s2++)
+            return s1[-1] < s2[-1] ? -1 : 1;
+    }
+    return 0;
+}
+
 int strcmp(const char *s1, const char *s2) {
     int len1 = strlen(s1);
     int len2 = strlen(s2);

@@ -12,6 +12,7 @@ extern char *strcpy(char *dst, const char *src);                                
 extern char *strncpy(char *dst, const char *src, uint32_t n);                     // ok
 extern void *memcpy(void *dst, const void *src, uint32_t bytes);                  // ok
 extern void *memset(void *dst, uint8_t value, uint32_t bytes);                    // ok
+extern int memcmp(const void *s1, const void *s2, size_t n);                      // not ok
 extern int strcmp(const char *s1, const char *s2);                                // ok
 extern int strncmp(const char *s1, const char *s2, uint32_t n);                   // not ok
 extern char *strcat(char *s1, const char *s2);                                    // not ok
