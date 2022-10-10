@@ -107,8 +107,8 @@ void kernel_main(struct multiboot_t *multiboot, void *kstack) {
 }
 
 void run_init() {
-    struct fs_node_t *init_node = resolve_path("/bin/shell");
-    uint32_t init_fd = file_open("/bin/shell", FILE_READ);
+    struct fs_node_t *init_node = resolve_path("/bin/shell_d");
+    uint32_t init_fd = file_open("/bin/shell_d", FILE_READ);
     void *buffer = kmalloc(init_node->length);
     uint32_t read_bytes = file_read(init_fd, buffer, init_node->length);
 

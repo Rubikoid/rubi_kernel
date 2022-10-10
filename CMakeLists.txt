@@ -5,10 +5,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.13)
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/utils/toolchains/gcc.toolchain.cmake)
 
 # === Setup D lang ===
-# set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/utils/dlang)
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/utils/dlang)
 
 # === Init kernel ===
-project(rubiKernel C CXX ASM_NASM)
+project(rubiKernel C CXX ASM_NASM D)
 
 # set(CMAKE_NASM_LINK_EXECUTABLE "ld <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
 
@@ -105,5 +105,5 @@ set(QEMU_PARAMS -m 64 -kernel $<TARGET_FILE:kernel> -initrd ${CMAKE_BINARY_DIR}/
 add_custom_target(run   COMMAND qemu-system-i386                                ${QEMU_PARAMS} DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 add_custom_target(rung  COMMAND qemu-system-i386 -s                             ${QEMU_PARAMS} DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 add_custom_target(rungs COMMAND qemu-system-i386 -s -S                          ${QEMU_PARAMS} DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-add_custom_target(runc  COMMAND qemu-system-i386          -nographic            ${QEMU_PARAMS} DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_custom_target(runc  COMMAND qemu-system-i386 -s       -nographic            ${QEMU_PARAMS} DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 add_custom_target(runcr COMMAND qemu-system-i386          -nographic -no-reboot ${QEMU_PARAMS} DEPENDS initrd_build kernel WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
