@@ -1,0 +1,464 @@
+diff --git a/libphobos/libdruntime/Makefile.am b/libphobos/libdruntime/Makefile.am
+index bf9bff095..3217a3b5d 100644
+--- a/libphobos/libdruntime/Makefile.am
++++ b/libphobos/libdruntime/Makefile.am
+@@ -145,48 +145,56 @@ install-data-local:
+ 
+ DRUNTIME_CSOURCES = core/stdc/errno_.c
+ 
+-DRUNTIME_DSOURCES = core/atomic.d core/attribute.d core/bitop.d \
+-	core/checkedint.d core/cpuid.d core/demangle.d core/exception.d \
+-	core/internal/abort.d core/internal/arrayop.d core/internal/convert.d \
+-	core/internal/hash.d core/internal/spinlock.d core/internal/string.d \
+-	core/internal/traits.d core/math.d core/memory.d core/runtime.d \
+-	core/simd.d core/stdc/assert_.d core/stdc/complex.d core/stdc/config.d \
+-	core/stdc/ctype.d core/stdc/errno.d core/stdc/fenv.d \
+-	core/stdc/float_.d core/stdc/inttypes.d core/stdc/limits.d \
+-	core/stdc/locale.d core/stdc/math.d core/stdc/signal.d \
+-	core/stdc/stdarg.d core/stdc/stddef.d core/stdc/stdint.d \
+-	core/stdc/stdio.d core/stdc/stdlib.d core/stdc/string.d \
+-	core/stdc/tgmath.d core/stdc/time.d core/stdc/wchar_.d \
+-	core/stdc/wctype.d core/sync/barrier.d core/sync/condition.d \
+-	core/sync/config.d core/sync/exception.d core/sync/mutex.d \
+-	core/sync/rwmutex.d core/sync/semaphore.d core/thread.d core/time.d \
+-	core/vararg.d gcc/attribute.d gcc/backtrace.d gcc/builtins.d gcc/deh.d \
+-	gcc/emutls.d gcc/gthread.d gcc/sections/android.d \
+-	gcc/sections/elf_shared.d gcc/sections/osx.d \
+-	gcc/sections/package.d gcc/sections/win32.d gcc/sections/win64.d \
+-	gcc/unwind/arm.d gcc/unwind/arm_common.d gcc/unwind/c6x.d \
+-	gcc/unwind/generic.d gcc/unwind/package.d gcc/unwind/pe.d object.d \
+-	rt/aApply.d rt/aApplyR.d rt/aaA.d rt/adi.d rt/arrayassign.d \
+-	rt/arraycast.d rt/arraycat.d rt/cast_.d rt/config.d rt/critical_.d \
+-	rt/deh.d rt/dmain2.d rt/invariant.d rt/lifetime.d rt/memory.d \
+-	rt/minfo.d rt/monitor_.d rt/obj.d rt/qsort.d rt/sections.d \
+-	rt/switch_.d rt/tlsgc.d rt/typeinfo/ti_Acdouble.d \
+-	rt/typeinfo/ti_Acfloat.d rt/typeinfo/ti_Acreal.d \
+-	rt/typeinfo/ti_Adouble.d rt/typeinfo/ti_Afloat.d rt/typeinfo/ti_Ag.d \
+-	rt/typeinfo/ti_Aint.d rt/typeinfo/ti_Along.d rt/typeinfo/ti_Areal.d \
+-	rt/typeinfo/ti_Ashort.d rt/typeinfo/ti_C.d rt/typeinfo/ti_byte.d \
+-	rt/typeinfo/ti_cdouble.d rt/typeinfo/ti_cent.d rt/typeinfo/ti_cfloat.d \
+-	rt/typeinfo/ti_char.d rt/typeinfo/ti_creal.d rt/typeinfo/ti_dchar.d \
+-	rt/typeinfo/ti_delegate.d rt/typeinfo/ti_double.d \
+-	rt/typeinfo/ti_float.d rt/typeinfo/ti_idouble.d \
+-	rt/typeinfo/ti_ifloat.d rt/typeinfo/ti_int.d rt/typeinfo/ti_ireal.d \
+-	rt/typeinfo/ti_long.d rt/typeinfo/ti_n.d rt/typeinfo/ti_ptr.d \
+-	rt/typeinfo/ti_real.d rt/typeinfo/ti_short.d rt/typeinfo/ti_ubyte.d \
+-	rt/typeinfo/ti_ucent.d rt/typeinfo/ti_uint.d rt/typeinfo/ti_ulong.d \
+-	rt/typeinfo/ti_ushort.d rt/typeinfo/ti_void.d rt/typeinfo/ti_wchar.d \
+-	rt/util/array.d rt/util/container/array.d rt/util/container/common.d \
+-	rt/util/container/hashtab.d rt/util/container/treap.d rt/util/random.d \
+-	rt/util/typeinfo.d rt/util/utf.d
++DRUNTIME_DSOURCES = \
++	object.d \
++	core/internal/convert.d core/internal/traits.d core/internal/hash.d \
++	core/math.d \
++    core/vararg.d core/stdc/stdarg.d \
++    rt/switch_.d \
++    gcc/builtins.d
++    
++# DRUNTIME_DSOURCES = core/atomic.d core/attribute.d core/bitop.d \
++# 	core/checkedint.d core/cpuid.d core/demangle.d core/exception.d \
++# 	core/internal/abort.d core/internal/arrayop.d core/internal/convert.d \
++# 	core/internal/hash.d core/internal/spinlock.d core/internal/string.d \
++# 	core/internal/traits.d core/math.d core/memory.d core/runtime.d \
++# 	core/simd.d core/stdc/assert_.d core/stdc/complex.d core/stdc/config.d \
++# 	core/stdc/ctype.d core/stdc/errno.d core/stdc/fenv.d \
++# 	core/stdc/float_.d core/stdc/inttypes.d core/stdc/limits.d \
++# 	core/stdc/locale.d core/stdc/math.d core/stdc/signal.d \
++# 	core/stdc/stdarg.d core/stdc/stddef.d core/stdc/stdint.d \
++# 	core/stdc/stdio.d core/stdc/stdlib.d core/stdc/string.d \
++# 	core/stdc/tgmath.d core/stdc/time.d core/stdc/wchar_.d \
++# 	core/stdc/wctype.d core/sync/barrier.d core/sync/condition.d \
++# 	core/sync/config.d core/sync/exception.d core/sync/mutex.d \
++# 	core/sync/rwmutex.d core/sync/semaphore.d core/thread.d core/time.d \
++# 	core/vararg.d gcc/attribute.d gcc/backtrace.d gcc/builtins.d gcc/deh.d \
++# 	gcc/emutls.d gcc/gthread.d gcc/sections/android.d \
++# 	gcc/sections/elf_shared.d gcc/sections/osx.d \
++# 	gcc/sections/package.d gcc/sections/win32.d gcc/sections/win64.d \
++# 	gcc/unwind/arm.d gcc/unwind/arm_common.d gcc/unwind/c6x.d \
++# 	gcc/unwind/generic.d gcc/unwind/package.d gcc/unwind/pe.d object.d \
++# 	rt/aApply.d rt/aApplyR.d rt/aaA.d rt/adi.d rt/arrayassign.d \
++# 	rt/arraycast.d rt/arraycat.d rt/cast_.d rt/config.d rt/critical_.d \
++# 	rt/deh.d rt/dmain2.d rt/invariant.d rt/lifetime.d rt/memory.d \
++# 	rt/minfo.d rt/monitor_.d rt/obj.d rt/qsort.d rt/sections.d \
++# 	rt/switch_.d rt/tlsgc.d rt/typeinfo/ti_Acdouble.d \
++# 	rt/typeinfo/ti_Acfloat.d rt/typeinfo/ti_Acreal.d \
++# 	rt/typeinfo/ti_Adouble.d rt/typeinfo/ti_Afloat.d rt/typeinfo/ti_Ag.d \
++# 	rt/typeinfo/ti_Aint.d rt/typeinfo/ti_Along.d rt/typeinfo/ti_Areal.d \
++# 	rt/typeinfo/ti_Ashort.d rt/typeinfo/ti_C.d rt/typeinfo/ti_byte.d \
++# 	rt/typeinfo/ti_cdouble.d rt/typeinfo/ti_cent.d rt/typeinfo/ti_cfloat.d \
++# 	rt/typeinfo/ti_char.d rt/typeinfo/ti_creal.d rt/typeinfo/ti_dchar.d \
++# 	rt/typeinfo/ti_delegate.d rt/typeinfo/ti_double.d \
++# 	rt/typeinfo/ti_float.d rt/typeinfo/ti_idouble.d \
++# 	rt/typeinfo/ti_ifloat.d rt/typeinfo/ti_int.d rt/typeinfo/ti_ireal.d \
++# 	rt/typeinfo/ti_long.d rt/typeinfo/ti_n.d rt/typeinfo/ti_ptr.d \
++# 	rt/typeinfo/ti_real.d rt/typeinfo/ti_short.d rt/typeinfo/ti_ubyte.d \
++# 	rt/typeinfo/ti_ucent.d rt/typeinfo/ti_uint.d rt/typeinfo/ti_ulong.d \
++# 	rt/typeinfo/ti_ushort.d rt/typeinfo/ti_void.d rt/typeinfo/ti_wchar.d \
++# 	rt/util/array.d rt/util/container/array.d rt/util/container/common.d \
++# 	rt/util/container/hashtab.d rt/util/container/treap.d rt/util/random.d \
++# 	rt/util/typeinfo.d rt/util/utf.d
+ 
+ DRUNTIME_DSOURCES_STDCXX = core/stdcpp/exception.d \
+ 	core/stdcpp/typeinfo.d
+diff --git a/libphobos/libdruntime/core/stdc/errno.d b/libphobos/libdruntime/core/stdc/errno.d
+index 06c2b5d94..a657cda20 100644
+--- a/libphobos/libdruntime/core/stdc/errno.d
++++ b/libphobos/libdruntime/core/stdc/errno.d
+@@ -128,6 +128,18 @@ else version (CRuntime_UClibc)
+         alias errno = __errno_location;
+     }
+ }
++else version (CRuntime_LibR) {
++    ///
++    @property int errno() { return getErrno(); }
++    ///
++    @property int errno(int n) { return setErrno(n); }
++
++    extern (C)
++    {
++        private int getErrno();      // for internal use
++        private int setErrno(int);   // for internal use
++    }
++}
+ else version (Darwin)
+ {
+     extern (C)
+@@ -1708,6 +1720,9 @@ else version (Solaris)
+     enum EALREADY =       149     /** operation already in progress */;
+     enum EINPROGRESS =    150     /** operation now in progress */;
+     enum ESTALE =         151     /** Stale NFS file handle */;
++}
++else version(RKernel) {
++
+ }
+ else
+ {
+diff --git a/libphobos/libdruntime/core/stdc/stdio.d b/libphobos/libdruntime/core/stdc/stdio.d
+index 6ce3f9d13..2387595b7 100644
+--- a/libphobos/libdruntime/core/stdc/stdio.d
++++ b/libphobos/libdruntime/core/stdc/stdio.d
+@@ -347,6 +347,24 @@ else version (CRuntime_UClibc)
+         L_tmpnam     = 20
+     }
+ }
++else version(CRuntime_LibR) 
++{
++    enum
++    {
++        ///
++        BUFSIZ       = 1024,
++        ///
++        EOF          = -1,
++        ///
++        FOPEN_MAX    = 1000,
++        ///
++        FILENAME_MAX = 4096,
++        ///
++        TMP_MAX      = 10000,
++        ///
++        L_tmpnam     = 20
++    }
++}
+ else
+ {
+     static assert( false, "Unsupported platform" );
+@@ -779,6 +797,20 @@ else version (CRuntime_UClibc)
+     ///
+     alias shared(__STDIO_FILE_STRUCT) FILE;
+ }
++else version(CRuntime_LibR)
++{
++    union fpos_t
++    {
++        char[16] __opaque = 0;
++        double __align;
++    }
++    struct _IO_FILE;
++
++    ///
++    alias _IO_FILE _iobuf; // needed for phobos
++    ///
++    alias shared(_IO_FILE) FILE;
++}
+ else
+ {
+     static assert( false, "Unsupported platform" );
+@@ -1111,6 +1143,24 @@ else version (CRuntime_UClibc)
+     ///
+     extern shared FILE* stderr;
+ }
++else version(CRuntime_LibR)
++{
++    // needs tail const
++    extern shared FILE* stdin;
++    ///
++    extern shared FILE* stdout;
++    ///
++    extern shared FILE* stderr;
++    enum
++    {
++        ///
++        _IOFBF = 0,
++        ///
++        _IOLBF = 1,
++        ///
++        _IONBF = 2,
++    }
++}
+ else
+ {
+     static assert( false, "Unsupported platform" );
+@@ -1684,6 +1734,27 @@ else version (CRuntime_UClibc)
+     ///
+     int  vsnprintf(scope char* s, size_t n, scope const char* format, va_list arg);
+ }
++else version (CRuntime_LibR)
++{
++    @trusted
++    {
++        ///
++        void rewind(FILE* stream);
++        ///
++        pure void clearerr(FILE* stream);
++        ///
++        pure int  feof(FILE* stream);
++        ///
++        pure int  ferror(FILE* stream);
++        ///
++        int  fileno(FILE *);
++    }
++
++    ///
++    int snprintf(scope char* s, size_t n, scope const char* format, ...);
++    ///
++    int vsnprintf(scope char* s, size_t n, scope const char* format, va_list arg);
++}
+ else
+ {
+     static assert( false, "Unsupported platform" );
+diff --git a/libphobos/libdruntime/core/stdc/stdlib.d b/libphobos/libdruntime/core/stdc/stdlib.d
+index 7c0b7b6bc..06c401c79 100644
+--- a/libphobos/libdruntime/core/stdc/stdlib.d
++++ b/libphobos/libdruntime/core/stdc/stdlib.d
+@@ -95,6 +95,7 @@ else version (Solaris) enum RAND_MAX = 0x7fff;
+ else version (CRuntime_Bionic) enum RAND_MAX = 0x7fffffff;
+ else version (CRuntime_Musl) enum RAND_MAX = 0x7fffffff;
+ else version (CRuntime_UClibc) enum RAND_MAX = 0x7fffffff;
++else version (CRuntime_LibR) enum RAND_MAX = 0x7fffffff;
+ else static assert( false, "Unsupported platform" );
+ 
+ ///
+diff --git a/libphobos/libdruntime/core/sys/posix/sys/types.d b/libphobos/libdruntime/core/sys/posix/sys/types.d
+index 060b56f88..ecaaac17d 100644
+--- a/libphobos/libdruntime/core/sys/posix/sys/types.d
++++ b/libphobos/libdruntime/core/sys/posix/sys/types.d
+@@ -295,6 +295,22 @@ else version (CRuntime_UClibc)
+     alias slong_t   time_t;
+     alias uint      uid_t;
+ }
++// else version (CRuntime_LibR) {
++//     alias long      blksize_t;
++//     alias ulong     nlink_t;
++//     alias long      dev_t;
++//     alias long      blkcnt_t;
++//     alias ulong     ino_t;
++//     alias long      off_t;
++//     alias long      _Addr;
++//     alias int       pid_t;
++//     alias uint      uid_t;
++//     alias uint      gid_t;
++//     alias long      time_t;
++//     alias long      clock_t;
++//     alias ulong     pthread_t;
++//     alias _Addr     ssize_t;
++// }
+ else
+ {
+     static assert(false, "Unsupported platform");
+@@ -440,6 +456,22 @@ else version (CRuntime_UClibc)
+     alias slong_t   suseconds_t;
+     alias uint      useconds_t;
+ }
++// else version(CRuntime_LibR)
++// {
++//   static if ( __USE_FILE_OFFSET64 )
++//   {
++//     alias ulong     fsblkcnt_t;
++//     alias ulong     fsfilcnt_t;
++//   }
++//   else
++//   {
++//     alias ulong_t   fsblkcnt_t;
++//     alias ulong_t   fsfilcnt_t;
++//   }
++//     alias uint mode_t;
++//     alias uint id_t;
++//     alias long suseconds_t;
++// }
+ else
+ {
+     static assert(false, "Unsupported platform");
+@@ -1233,6 +1265,9 @@ else version (CRuntime_UClibc)
+ 
+     alias c_ulong pthread_t;
+ }
++// else version(CRuntime_LibR) {
++    
++// }
+ else
+ {
+     static assert(false, "Unsupported platform");
+diff --git a/libphobos/libdruntime/gcstub/gc.d b/libphobos/libdruntime/gcstub/gc.d
+index 9124a78ef..97cb5de60 100644
+--- a/libphobos/libdruntime/gcstub/gc.d
++++ b/libphobos/libdruntime/gcstub/gc.d
+@@ -28,7 +28,7 @@ module gc.gc;
+ private
+ {
+     import core.stdc.stdlib;
+-    import core.stdc.stdio;
++    // import core.stdc.stdio;
+ 
+     static import core.memory;
+     private alias BlkAttr = core.memory.GC.BlkAttr;
+diff --git a/libphobos/src/Makefile.am b/libphobos/src/Makefile.am
+index 04a8ad5e7..8e7ce1211 100644
+--- a/libphobos/src/Makefile.am
++++ b/libphobos/src/Makefile.am
+@@ -59,65 +59,73 @@ install-data-local:
+ # https://gist.github.com/jpf91/8744acebc9dcf1e9d1a35cdff20afbb2
+ # Can't use wildcards here:
+ # https://www.gnu.org/software/automake/manual/html_node/Wildcards.html
+-PHOBOS_DSOURCES = etc/c/curl.d etc/c/sqlite3.d etc/c/zlib.d \
+-	std/algorithm/comparison.d std/algorithm/internal.d \
+-	std/algorithm/iteration.d std/algorithm/mutation.d \
+-	std/algorithm/package.d std/algorithm/searching.d \
+-	std/algorithm/setops.d std/algorithm/sorting.d std/array.d std/ascii.d \
+-	std/base64.d std/bigint.d std/bitmanip.d std/compiler.d std/complex.d \
+-	std/concurrency.d std/container/array.d std/container/binaryheap.d \
+-	std/container/dlist.d std/container/package.d std/container/rbtree.d \
+-	std/container/slist.d std/container/util.d std/conv.d std/csv.d \
+-	std/datetime/date.d std/datetime/interval.d std/datetime/package.d \
+-	std/datetime/stopwatch.d std/datetime/systime.d \
+-	std/datetime/timezone.d std/demangle.d std/digest/crc.d \
+-	std/digest/digest.d std/digest/hmac.d std/digest/md.d \
+-	std/digest/murmurhash.d std/digest/package.d std/digest/ripemd.d \
+-	std/digest/sha.d std/encoding.d std/exception.d \
+-	std/experimental/allocator/building_blocks/affix_allocator.d \
+-	std/experimental/allocator/building_blocks/allocator_list.d \
+-	std/experimental/allocator/building_blocks/bitmapped_block.d \
+-	std/experimental/allocator/building_blocks/bucketizer.d \
+-	std/experimental/allocator/building_blocks/fallback_allocator.d \
+-	std/experimental/allocator/building_blocks/free_list.d \
+-	std/experimental/allocator/building_blocks/free_tree.d \
+-	std/experimental/allocator/building_blocks/kernighan_ritchie.d \
+-	std/experimental/allocator/building_blocks/null_allocator.d \
+-	std/experimental/allocator/building_blocks/package.d \
+-	std/experimental/allocator/building_blocks/quantizer.d \
+-	std/experimental/allocator/building_blocks/region.d \
+-	std/experimental/allocator/building_blocks/scoped_allocator.d \
+-	std/experimental/allocator/building_blocks/segregator.d \
+-	std/experimental/allocator/building_blocks/stats_collector.d \
+-	std/experimental/allocator/common.d \
+-	std/experimental/allocator/gc_allocator.d \
+-	std/experimental/allocator/mallocator.d \
+-	std/experimental/allocator/mmap_allocator.d \
+-	std/experimental/allocator/package.d \
+-	std/experimental/allocator/showcase.d \
+-	std/experimental/allocator/typed.d std/experimental/checkedint.d \
+-	std/experimental/logger/core.d std/experimental/logger/filelogger.d \
+-	std/experimental/logger/multilogger.d \
+-	std/experimental/logger/nulllogger.d std/experimental/logger/package.d \
+-	std/experimental/typecons.d std/file.d std/format.d std/functional.d \
+-	std/getopt.d std/internal/cstring.d std/internal/math/biguintcore.d \
+-	std/internal/math/biguintnoasm.d std/internal/math/errorfunction.d \
+-	std/internal/math/gammafunction.d std/internal/scopebuffer.d \
+-	std/internal/test/dummyrange.d std/internal/test/range.d \
+-	std/internal/test/uda.d std/internal/unicode_comp.d \
+-	std/internal/unicode_decomp.d std/internal/unicode_grapheme.d \
+-	std/internal/unicode_norm.d std/internal/unicode_tables.d \
+-	std/internal/windows/advapi32.d std/json.d std/math.d \
+-	std/mathspecial.d std/meta.d std/mmfile.d std/net/curl.d \
+-	std/net/isemail.d std/numeric.d std/outbuffer.d std/parallelism.d \
+-	std/path.d std/process.d std/random.d std/range/interfaces.d \
+-	std/range/package.d std/range/primitives.d \
+-	std/regex/internal/backtracking.d std/regex/internal/generator.d \
+-	std/regex/internal/ir.d std/regex/internal/kickstart.d \
+-	std/regex/internal/parser.d std/regex/internal/tests.d \
+-	std/regex/internal/thompson.d std/regex/package.d std/signals.d \
+-	std/socket.d std/stdint.d std/stdio.d std/string.d std/system.d \
+-	std/traits.d std/typecons.d std/typetuple.d std/uni.d std/uri.d \
+-	std/utf.d std/uuid.d std/variant.d std/windows/charset.d \
+-	std/windows/registry.d std/windows/syserror.d std/xml.d std/zip.d \
+-	std/zlib.d
++PHOBOS_DSOURCES = \
++	std/ascii.d 
++
++# std/algorithm/comparison.d std/algorithm/internal.d \
++# std/algorithm/iteration.d std/algorithm/mutation.d \
++# std/algorithm/package.d std/algorithm/searching.d \
++# std/algorithm/setops.d std/algorithm/sorting.d std/array.d std/ascii.d
++
++# PHOBOS_DSOURCES = etc/c/curl.d etc/c/sqlite3.d etc/c/zlib.d \
++# 	std/algorithm/comparison.d std/algorithm/internal.d \
++# 	std/algorithm/iteration.d std/algorithm/mutation.d \
++# 	std/algorithm/package.d std/algorithm/searching.d \
++# 	std/algorithm/setops.d std/algorithm/sorting.d std/array.d std/ascii.d \
++# 	std/base64.d std/bigint.d std/bitmanip.d std/compiler.d std/complex.d \
++# 	std/concurrency.d std/container/array.d std/container/binaryheap.d \
++# 	std/container/dlist.d std/container/package.d std/container/rbtree.d \
++# 	std/container/slist.d std/container/util.d std/conv.d std/csv.d \
++# 	std/datetime/date.d std/datetime/interval.d std/datetime/package.d \
++# 	std/datetime/stopwatch.d std/datetime/systime.d \
++# 	std/datetime/timezone.d std/demangle.d std/digest/crc.d \
++# 	std/digest/digest.d std/digest/hmac.d std/digest/md.d \
++# 	std/digest/murmurhash.d std/digest/package.d std/digest/ripemd.d \
++# 	std/digest/sha.d std/encoding.d std/exception.d \
++# 	std/experimental/allocator/building_blocks/affix_allocator.d \
++# 	std/experimental/allocator/building_blocks/allocator_list.d \
++# 	std/experimental/allocator/building_blocks/bitmapped_block.d \
++# 	std/experimental/allocator/building_blocks/bucketizer.d \
++# 	std/experimental/allocator/building_blocks/fallback_allocator.d \
++# 	std/experimental/allocator/building_blocks/free_list.d \
++# 	std/experimental/allocator/building_blocks/free_tree.d \
++# 	std/experimental/allocator/building_blocks/kernighan_ritchie.d \
++# 	std/experimental/allocator/building_blocks/null_allocator.d \
++# 	std/experimental/allocator/building_blocks/package.d \
++# 	std/experimental/allocator/building_blocks/quantizer.d \
++# 	std/experimental/allocator/building_blocks/region.d \
++# 	std/experimental/allocator/building_blocks/scoped_allocator.d \
++# 	std/experimental/allocator/building_blocks/segregator.d \
++# 	std/experimental/allocator/building_blocks/stats_collector.d \
++# 	std/experimental/allocator/common.d \
++# 	std/experimental/allocator/gc_allocator.d \
++# 	std/experimental/allocator/mallocator.d \
++# 	std/experimental/allocator/mmap_allocator.d \
++# 	std/experimental/allocator/package.d \
++# 	std/experimental/allocator/showcase.d \
++# 	std/experimental/allocator/typed.d std/experimental/checkedint.d \
++# 	std/experimental/logger/core.d std/experimental/logger/filelogger.d \
++# 	std/experimental/logger/multilogger.d \
++# 	std/experimental/logger/nulllogger.d std/experimental/logger/package.d \
++# 	std/experimental/typecons.d std/file.d std/format.d std/functional.d \
++# 	std/getopt.d std/internal/cstring.d std/internal/math/biguintcore.d \
++# 	std/internal/math/biguintnoasm.d std/internal/math/errorfunction.d \
++# 	std/internal/math/gammafunction.d std/internal/scopebuffer.d \
++# 	std/internal/test/dummyrange.d std/internal/test/range.d \
++# 	std/internal/test/uda.d std/internal/unicode_comp.d \
++# 	std/internal/unicode_decomp.d std/internal/unicode_grapheme.d \
++# 	std/internal/unicode_norm.d std/internal/unicode_tables.d \
++# 	std/internal/windows/advapi32.d std/json.d std/math.d \
++# 	std/mathspecial.d std/meta.d std/mmfile.d std/net/curl.d \
++# 	std/net/isemail.d std/numeric.d std/outbuffer.d std/parallelism.d \
++# 	std/path.d std/process.d std/random.d std/range/interfaces.d \
++# 	std/range/package.d std/range/primitives.d \
++# 	std/regex/internal/backtracking.d std/regex/internal/generator.d \
++# 	std/regex/internal/ir.d std/regex/internal/kickstart.d \
++# 	std/regex/internal/parser.d std/regex/internal/tests.d \
++# 	std/regex/internal/thompson.d std/regex/package.d std/signals.d \
++# 	std/socket.d std/stdint.d std/stdio.d std/string.d std/system.d \
++# 	std/traits.d std/typecons.d std/typetuple.d std/uni.d std/uri.d \
++# 	std/utf.d std/uuid.d std/variant.d std/windows/charset.d \
++# 	std/windows/registry.d std/windows/syserror.d std/xml.d std/zip.d \
++# 	std/zlib.d
