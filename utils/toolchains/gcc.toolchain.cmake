@@ -17,7 +17,7 @@ set(ARCH_FLAGS "-m32")
 set(CMAKE_C_FLAGS "-Wall -std=gnu99 ${ARCH_FLAGS}" CACHE STRING "Common flags for C compiler")
 set(CMAKE_CXX_FLAGS "-Wall ${ARCH_FLAGS} -fno-pie -std=c++17 -fno-exceptions -fno-rtti -fno-threadsafe-statics" CACHE STRING "Common flags for C++ compiler")
 # -nophoboslib -fno-exceptions -fno-moduleinfo -fno-rtti == 
-set(CMAKE_D_FLAGS "-Wall ${ARCH_FLAGS} -fno-exceptions -fno-moduleinfo -fno-rtti" CACHE STRING "Common flags for D compiler")
+set(CMAKE_D_FLAGS "-Wall ${ARCH_FLAGS} -fno-exceptions -fno-moduleinfo -fno-rtti -fno-assert -fbounds-check=off -defaultlib=gdruntime" CACHE STRING "Common flags for D compiler")
 # set(CMAKE_EXE_LINKER_FLAGS "") # -flto -static -fno-pie -m32 -ffreestanding -nostdlib
 
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
