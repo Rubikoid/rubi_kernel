@@ -45,6 +45,8 @@ GCC_CONFIGURE_FLAGS = --disable-nls --disable-tls --enable-languages=c,c++,d \
 					  --disable-threads \
 					  --disable-shared --enable-static
 
+ROOTDIR = $(realpath .)
+
 # just glob files for make works better
 LIBR_FILES = $(shell find libr -type f \( -name '*.h' -o -name '*.c' -o -name '*.asm' \) )
 
@@ -184,13 +186,13 @@ build_cross: download_toolchain
 	@echo "[+] Building cross-compiler"
 	mkdir -p $(TOOLCHAIN_PATH)
 
-	# @echo "[+] Building binutils"
-	# export PATH=$(TOOLCHAIN_PATH)/bin:$$PATH && \
-	# mkdir -p $(BINUTILS_BUILD_DIR) && \
-	# cd $(BINUTILS_BUILD_DIR) && \
-	# $(BINUTILS_SRC_DIR)/configure --target=$(TARGET) --prefix="$(TOOLCHAIN_PATH)" --with-sysroot --disable-nls --disable-werror && \
-	# $(MAKE) -j $(CORES) && \
-	# $(MAKE) install
+	@echo "[+] Building binutils"
+	export PATH=$(TOOLCHAIN_PATH)/bin:$$PATH && \
+	mkdir -p $(BINUTILS_BUILD_DIR) && \
+	cd $(BINUTILS_BUILD_DIR) && \
+	$(BINUTILS_SRC_DIR)/configure --target=$(TARGET) --prefix="$(TOOLCHAIN_PATH)" --with-sysroot --disable-nls --disable-werror && \
+	$(MAKE) -j $(CORES) && \
+	$(MAKE) install
 
 	@echo "[+] Building GCC"
 	export PATH=$(TOOLCHAIN_PATH)/bin:$$PATH && \
@@ -207,13 +209,16 @@ build_libphobos: download_toolchain libr
 	@echo "[+] Building libphobos"
 	export PATH=$(TOOLCHAIN_PATH)/bin:$$PATH && \
 	export GDC=$(TARGET)-gdc && \
+	export LD=$(TARGET)-ld && \
+	export AR=$(TARGET)-ar && \
+	export RANLIB=$(TARGET)-ranlib && \
+	export GDCFLAGS="-fno-moduleinfo -fno-assert -fbounds-check=off" && \
 	mkdir -p $(LIBPHOBOS_BUILD_DIR) && \
 	cd $(LIBPHOBOS_BUILD_DIR) && \
 	$(GCC_SRC_DIR)/libphobos/configure --target=$(TARGET) --prefix="$(TOOLCHAIN_PATH)" \
-	--disable-werror --disable-tls --without-pic \
+	--disable-werror --without-pic \
 	--disable-shared --enable-static \
 	--with-gnu-ld \
-	--with-libphobos-druntime-only \
 	--enable-libphobos --disable-druntime-gc --disable-unix \
 	--without-libatomic --without-libbacktrace \
 	--with-target-system-zlib=yes \
@@ -234,11 +239,11 @@ distclean_cross:
 	@echo "[!] Cleaning cross-compiler files"
 
 	cd $(BINUTILS_BUILD_DIR) && \
-	$(MAKE) distclean; \
+	$(MAKE) clean distclean; \
 	rm ./config.cache
 
 	cd $(GCC_BUILD_DIR) && \
-	$(MAKE) distclean; \
+	$(MAKE) clean distclean; \
 	rm ./config.cache
 
 .PHONY: cmake_libr
@@ -253,8 +258,8 @@ libr: cmake_libr $(LIBR_FILES)
 
 .PHONY: install-libr
 install-libr: libr
-	cp $(LIBR_BUILD_DIR)/lib/libr.a $(TOOLCHAIN_PATH)/lib/gcc/i686-rkernel/$(GCC_VERSION)
-	cp $(LIBR_BUILD_DIR)/CMakeFiles/r.dir/src/crt0.asm.obj $(TOOLCHAIN_PATH)/lib/gcc/i686-rkernel/$(GCC_VERSION)/crt0.o
+	ln -s $(ROOTDIR)/$(LIBR_BUILD_DIR)/lib/libr.a $(TOOLCHAIN_PATH)/lib/gcc/i686-rkernel/$(GCC_VERSION)
+	ln -s $(ROOTDIR)/$(LIBR_BUILD_DIR)/CMakeFiles/r.dir/src/crt0.asm.obj $(TOOLCHAIN_PATH)/lib/gcc/i686-rkernel/$(GCC_VERSION)/crt0.o
 	cp -r libr/include/* $(TOOLCHAIN_PATH)/lib/gcc/i686-rkernel/$(GCC_VERSION)/include
 
 .PHONY: uninstall-libr
