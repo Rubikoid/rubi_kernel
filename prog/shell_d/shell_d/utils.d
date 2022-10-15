@@ -51,13 +51,18 @@ struct Split {
     }
 
     nothrow void print() {
-        printf("Slice of \"%s\", sep='%c', start=%d, end=%d, empty=%d, slice=",
+        printf("Slice of '%S' (%d), sep='%c', start=%d, end=%d, empty=%d, slice='%S' (%d)\n",
             raw_slice.ptr,
+            raw_slice.length,
+            raw_slice.length,
             sep,
             start,
             end,
-            isEmpty());
-        print_slice(slice());
+            isEmpty(),
+            slice().ptr,
+            slice().length,
+            slice().length);
+        // print_slice();
     }
 }
 

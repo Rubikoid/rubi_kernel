@@ -6,15 +6,16 @@ __gshared uint stdin;
 __gshared uint stdout;
 
 @nogc nothrow @system extern (C) void stdio_init();
-@nogc nothrow @system extern (C) void uprintf(scope const char* format, ...);
-@nogc nothrow @system extern (C) void scanf(scope const char* format, ...);
 
-@nogc nothrow @system extern (C) void uvprintf(scope const char* format, va_list argptr);
-@nogc nothrow @system extern (C) void vscanf(scope const char* format, va_list argptr);
+@nogc nothrow @system pure extern (C) void uprintf(scope const char* format, ...);
+@nogc nothrow @system pure extern (C) void scanf(scope const char* format, ...);
 
-@nogc nothrow @system extern (C) void sprintf(scope const char* buff, scope const char* format, ...);
+@nogc nothrow @system pure extern (C) void uvprintf(scope const char* format, va_list argptr);
+@nogc nothrow @system pure extern (C) void vscanf(scope const char* format, va_list argptr);
 
-@nogc nothrow @system extern (C) uint fsyscall(uint id, uint arg1, uint arg2, uint arg3);
+@nogc nothrow @system pure extern (C) void sprintf(scope const char* buff, scope const char* format, ...);
+
+@nogc nothrow @system pure extern (C) uint fsyscall(uint id, uint arg1, uint arg2, uint arg3);
 
 nothrow @system extern (C) void printf(const char* format, ...) {
     va_list args;
