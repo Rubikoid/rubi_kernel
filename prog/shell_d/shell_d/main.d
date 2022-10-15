@@ -6,7 +6,14 @@ import shell_d.libr;
 import shell_d.utils;
 
 void ls(Split spl) {
-
+    int i = 0;
+    auto spl_arg = spl;
+    while (!spl_arg.isEmpty()) {
+        auto arg = spl_arg.slice();
+        printf("arg%d: %S\n", i, arg.ptr, arg.length);
+        i += 1;
+        spl_arg = spl_arg.split();
+    }
 }
 
 extern (C) void main() {
@@ -17,10 +24,11 @@ extern (C) void main() {
 
     outer: while (1) {
         printf("$ ");
-        uint readen = syscall_read(stdin, cast(uint) buff.ptr, buff.length - 1);
-        buff[readen - 1] = 0;
 
-        auto spl = split(cast(immutable) buff, ' ');
+        uint readen = syscall_read(stdin, cast(uint) buff.ptr, buff.length - 1);
+        string s_buff = cast(immutable) buff[0 .. readen - 1];
+
+        auto spl = split(s_buff, ' ');
         switch (spl.slice()) {
         case "ls":
             ls(spl);
@@ -28,7 +36,7 @@ extern (C) void main() {
         case "exit":
             break outer;
         default:
-            printf("unknown cmd: '%s'", buff.ptr);
+            printf("unknown cmd: '%S'\n", s_buff.ptr, s_buff.length);
             break;
         }
         // auto i = 0;
