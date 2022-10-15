@@ -8,6 +8,7 @@
  */
 
 extern int strlen(const char *s);                                                 // ok
+extern int strnlen(const char *s, uint32_t n);                                    // ok
 extern char *strcpy(char *dst, const char *src);                                  // ok
 extern char *strncpy(char *dst, const char *src, uint32_t n);                     // ok
 extern void *memcpy(void *dst, const void *src, uint32_t bytes);                  // ok

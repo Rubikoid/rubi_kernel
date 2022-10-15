@@ -78,7 +78,7 @@ void uvprintf(char *format, va_list arg_list) {
     if (stdout == -1) {
         stdio_init();
     }
-    char ret[256];  // FIXME: possible memory leak
+    char ret[256] = {0};  // FIXME: possible memory leak
     vsprintf(ret, format, arg_list);
     syscall_write(stdout, ret, sizeof(ret));
     syscall_ioctl(stdout, IOCTL_FLUSH, TTY_IOCTL_WRITE);
