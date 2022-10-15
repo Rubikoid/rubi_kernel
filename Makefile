@@ -283,7 +283,8 @@ runc: cmake
 
 .PHONY: runc
 rung: cmake
-	tmux split-window -h "sleep 3; r2 -e dbg.bpinmaps=false -a x86.nasm -b 32 -D gdb gdb://localhost:1234"
+	# tmux split-window -h "sleep 2; r2 -i r2_init -e dbg.exe.path='./build/bin/kernel' -a x86.nasm -b 32 -D gdb gdb://localhost:1234"
+	tmux split-window -h "sleep 2; lldb --local-lldbinit --arch i386"
 	$(MAKE) -C $(BUILD_DIR) -j $(CORES) runc
 
 .PHONY: clean

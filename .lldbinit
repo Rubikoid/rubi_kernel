@@ -1,0 +1,9 @@
+file ./build/bin/kernel
+image add build/initrd/bin/shell_d
+break set -b kernel_main
+break set -b kpanic
+break set -b cint_page_fault
+gdb-remote localhost:1234
+
+br s -b strnlen
+br s -f string.c -l 172
