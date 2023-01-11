@@ -77,12 +77,11 @@ add_custom_command(TARGET initrd_build POST_BUILD COMMAND ${CMAKE_SOURCE_DIR}/ut
 add_custom_command(TARGET kernel POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:kernel> ${CMAKE_BINARY_DIR}/iso/boot/$<TARGET_FILE_NAME:kernel>)
 add_custom_command(TARGET kernel POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/initrd_file ${CMAKE_BINARY_DIR}/iso/boot/initrd)
 add_custom_command(TARGET kernel POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/utils/grub ${CMAKE_BINARY_DIR}/iso/boot/grub)
-# add_custom_command(TARGET kernel POST_BUILD COMMAND genisoimage -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 -A ${PROJECT_NAME} -input-charset utf8 -quiet -boot-info-table -o ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.iso ${CMAKE_BINARY_DIR}/iso)
-# if(CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
-#     add_custom_command(TARGET kernel POST_BUILD COMMAND grub-mkrescue -o  ${CMAKE_BINARY_DIR}/grub.iso  ${CMAKE_BINARY_DIR}/iso)
-#     add_custom_command(TARGET kernel POST_BUILD COMMAND xz -zfkv -T 0 ${CMAKE_BINARY_DIR}/grub.iso)
-# ENDIF(CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
-# 
+if(CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
+    add_custom_command(TARGET kernel POST_BUILD COMMAND genisoimage -R -b boot/grub/stage2_eltorito -no-emul-boot -boot-load-size 4 -A ${PROJECT_NAME} -input-charset utf8 -quiet -boot-info-table -o ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.iso ${CMAKE_BINARY_DIR}/iso)
+    add_custom_command(TARGET kernel POST_BUILD COMMAND grub-mkrescue -o  ${CMAKE_BINARY_DIR}/grub.iso  ${CMAKE_BINARY_DIR}/iso)
+    add_custom_command(TARGET kernel POST_BUILD COMMAND xz -zfkv -T 0 ${CMAKE_BINARY_DIR}/grub.iso)
+ENDIF(CMAKE_BUILD_TYPE MATCHES RelWithDebInfo)
 
 
 # === Generate debug info for bocks ===

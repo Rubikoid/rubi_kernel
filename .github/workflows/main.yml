@@ -18,56 +18,55 @@ jobs:
       #- uses: ilammy/setup-nasm@v1
       #with:
       #  from-source: false
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
-      - name: Create Build Environment
-        run: cmake -E make_directory ${{runner.workspace}}/build
-      - name: Set up Python 3.x
-        uses: actions/setup-python@v1
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.8"
+          python-version: "3.10"
+
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
 
       - name: Install nasm and genisoimage
         shell: bash
-        run: sudo apt-get install -y nasm genisoimage libfl-dev grub2-common mtools
+        run: sudo apt-get install -y nasm genisoimage libfl-dev grub2-common mtools build-essential wget make tar git cmake
+
+      - name: Cache sources
+        id: compiler-src-cache
+        uses: actions/cache@v3
+        with:
+          path: ~/build/cross/src
+          key: ${{ runner.os }}-compiler-src
+
+      - name: Download compiler
+        if: steps.compiler-src-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          make download_toolchain download_autotools
 
       - name: Cache compiler
-        id: compiler_cacher_step_id
-        uses: actions/cache@v1
-        env:
-          cache-name: cache-compiler
+        id: compiler-cache
+        uses: actions/cache@v3
         with:
-          path: ${{runner.workspace}}/gcc_cross
-          key: ${{ runner.os }}-build-${{ env.cache-name }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+          path: ~/opt
+          key: ${{ runner.os }}-compiler-${{ hashFiles('utils/patches/*.patch') }}
 
       - name: Prepare compiler
-        if: steps.compiler_cacher_step_id.outputs.cache-hit == false
+        if: steps.compiler-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          mkdir -vp ${{runner.workspace}}/gcc_cross/ &&
-          wget http://vpn.rubikoid.ru:18923/gcc_cross.7z -O ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
-          7z x -o${{runner.workspace}}/gcc_cross/ ${{runner.workspace}}/gcc_cross/gcc_cross.7z &&
-          wget https://github.com/Rubikoid/gcc_cross-compiler_binary/raw/master/toolchain.cmake -O ${{runner.workspace}}/gcc_cross/toolchain.cmake &&
-          chmod +x ${{runner.workspace}}/gcc_cross/opt/bin/* && 
-          chmod +x ${{runner.workspace}}/gcc_cross/opt/i686-elf/bin/* &&
-          chmod +x ${{runner.workspace}}/gcc_cross/opt/libexec/gcc/i686-elf/9.2.0/*
+          make CORES=2 build_autotools patch do_autotools_thing build_cross
 
-      - name: Configure CMake
-        shell: bash
-        working-directory: ${{runner.workspace}}/build
-        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=${{runner.workspace}}/gcc_cross/toolchain.cmake -DBUILD_PREFIX=${{runner.workspace}}/gcc_cross/opt
-
-      - name: Build
-        working-directory: ${{runner.workspace}}/build
+      - name: Build libr, libphobos, libd
         shell: bash
         run: |
-          cmake --build . -t kernel --config $BUILD_TYPE
+          make CORES=2 install_libr build_libphobos install_libd
+
+      - name: Build libr, libphobos, libd
+        shell: bash
+        run: |
+          CMAKE_BUILD_TYPE=RelWithDebInfo make CORES=2 build
 
       # save artifacts
       - name: Save entire kernel
@@ -128,23 +127,23 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path:  ${{runner.workspace}}/build/kernel.tar.gz
+          asset_path: ${{runner.workspace}}/build/kernel.tar.gz
           asset_name: kernel.tar.gz
           asset_content_type: application/x-tar
         if: github.event_name == 'create' && github.event['ref_type'] == 'tag'
-      
+
       - name: Upload Release Asset initrd
-        id: upload-release-asset-initrd 
+        id: upload-release-asset-initrd
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path:  ${{runner.workspace}}/build/initrd_file.tar.gz
+          asset_path: ${{runner.workspace}}/build/initrd_file.tar.gz
           asset_name: initrd_file.tar.gz
           asset_content_type: application/x-tar
         if: github.event_name == 'create' && github.event['ref_type'] == 'tag'
-      
+
       - name: Upload Release Asset rubiKernel
         id: upload-release-asset-rubiKernel
         uses: actions/upload-release-asset@v1
@@ -152,7 +151,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path:  ${{runner.workspace}}/build/rubiKernel.iso.tar.gz
+          asset_path: ${{runner.workspace}}/build/rubiKernel.iso.tar.gz
           asset_name: rubiKernel.iso.tar.gz
           asset_content_type: application/x-tar
         if: github.event_name == 'create' && github.event['ref_type'] == 'tag'
@@ -164,7 +163,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path:  ${{runner.workspace}}/build/grub.iso.tar.gz
+          asset_path: ${{runner.workspace}}/build/grub.iso.tar.gz
           asset_name: grub.iso.tar.gz
           asset_content_type: application/x-tar
         if: github.event_name == 'create' && github.event['ref_type'] == 'tag'
