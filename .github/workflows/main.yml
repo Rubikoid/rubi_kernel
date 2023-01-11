@@ -56,6 +56,8 @@ jobs:
         if: steps.compiler-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
+          git config --global user.email "ci@github.com"
+          git config --global user.name "ci"
           make CORES=2 build_autotools patch do_autotools_thing build_cross
 
       - name: Build libr, libphobos, libd
