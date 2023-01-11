@@ -37,8 +37,10 @@ void cint_segment_not_present(PUSHAD_C) {
 
 void cint_page_fault(size_t addr, PUSHAD_C, uint32_t error_code, uint32_t in_eip) {
     uint32_t* prev_eip = ((uint32_t*)in_ebp) + 1;  // i belive there shuild be a next eip
-    uint32_t prev_ebp = *((uint32_t*)in_ebp);
-    uint32_t* prev_prev_eip = ((uint32_t*)prev_ebp) + 1;
+
+    uint32_t prev_ebp = in_ebp != NULL ? *((uint32_t*)in_ebp) : 0;
+    uint32_t* prev_prev_eip = prev_ebp != 0 ? ((uint32_t*)prev_ebp) + 1 : 0;
+
     kpanic(G_RED
            "Kernel panic: "
            "page fault at %x, "
@@ -48,7 +50,7 @@ void cint_page_fault(size_t addr, PUSHAD_C, uint32_t error_code, uint32_t in_eip
            addr,
            in_eip,
            error_code,
-           *prev_eip, *prev_prev_eip);
+           *prev_eip, prev_prev_eip != 0 ? *prev_prev_eip : 0);
 }
 
 static uint32_t counter = 0;
