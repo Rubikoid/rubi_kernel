@@ -77,29 +77,29 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: kernel.elf
-          path: ${{runner.workspace}}/build/bin/kernel
+          path: ./build/bin/kernel
 
       - name: Save initrd
         uses: actions/upload-artifact@v1
         with:
           name: initrd
-          path: ${{runner.workspace}}/build/initrd_file
+          path: ./build/initrd_file
 
       - name: Save boot image
         uses: actions/upload-artifact@v1
         with:
           name: kernel.iso
-          path: ${{runner.workspace}}/build/rubiKernel.iso
+          path: ./build/rubiKernel.iso
 
       - name: Save grub image
         uses: actions/upload-artifact@v1
         with:
           name: grub.iso
-          path: ${{runner.workspace}}/build/grub.iso
+          path: ./build/grub.iso
 
       # create release
       - name: Archive
-        working-directory: ${{runner.workspace}}/build
+        working-directory: ./build
         shell: bash
         run: |
           tar czvf kernel.tar.gz bin/kernel;
