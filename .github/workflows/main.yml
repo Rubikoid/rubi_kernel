@@ -43,6 +43,8 @@ jobs:
         if: steps.compiler-src-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
+          git config --global user.email "ci@github.com"
+          git config --global user.name "ci"
           make download_toolchain download_autotools
 
       - name: Cache compiler
