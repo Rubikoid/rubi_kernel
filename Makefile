@@ -2,6 +2,7 @@
 CORES = 6
 BUILD_DIR = ./build
 LIBR_BUILD_DIR = ./build_libr
+LIBD_BUILD_DIR = ./build_libd
 
 TOOLCHAIN_PATH = $(HOME)/opt/cross
 AUTOTOOLS_PATH = $(HOME)/opt/autotools
@@ -45,26 +46,39 @@ GCC_CONFIGURE_FLAGS = --disable-nls --disable-tls --enable-languages=c,c++,d \
 					  --disable-threads \
 					  --disable-shared --enable-static
 
+LIBPHOBOS_CONFIGURE_FLAGS = --disable-werror --without-pic \
+							--disable-shared --disable-multilib --enable-static \
+							--with-gnu-ld \
+							--enable-libphobos --disable-druntime-gc --disable-unix \
+							--without-libatomic --without-libbacktrace \
+							--with-target-system-zlib=yes
+
 ROOTDIR = $(realpath .)
 
 # just glob files for make works better
-LIBR_FILES = $(shell find libr -type f \( -name '*.h' -o -name '*.c' -o -name '*.asm' \) )
+LIBR_FILES = $(shell find libs/libr -type f \( -name '*.h' -o -name '*.c' -o -name '*.asm' \) )
+LIBD_FILES = $(shell find libs/libd -type f \( -name '*.d' \) )
 
 UNAME_S := $(shell uname -s)
 UNAME_P := $(shell uname -p)
 				  
 # yep, in MACOS we don't have gmp/mpc/mprf in normal condition, so that hack exists...
 ifeq ($(UNAME_S),Darwin)
-GCC_CONFIGURE_FLAGS += --with-gmp=/opt/homebrew --with-mpc=/opt/homebrew --with-mprf=/opt/homebrew
+GCC_CONFIGURE_FLAGS 	  += --with-gmp=/opt/homebrew --with-mpc=/opt/homebrew --with-mprf=/opt/homebrew
+LIBPHOBOS_CONFIGURE_FLAGS += --with-cross-host=arm-apple-darwin21.5.0
 endif
 
-.PHONY: download_toolchain download_autotools build_autotools patch build_cross clean_cross distclean_cross cmake_libr libr install-libr cmake build clean
+ifeq ($(UNAME_S),Linux)
+LIBPHOBOS_CONFIGURE_FLAGS += --with-cross-host=x86_64-pc-linux-gnu
+endif
+
+.PHONY: download_toolchain download_autotools build_autotools patch build_cross clean_cross distclean_cross cmake_libr libr install_libr cmake build clean
 
 .DEFAULT: none
 none: 
 	@echo "Nothing selected."
 	@echo "Valid actions are:"
-	@echo "	download_toolchain download_autotools build_autotools patch build_cross clean_cross distclean_cross cmake_libr libr install-libr cmake build clean"
+	@echo "	download_toolchain download_autotools build_autotools patch build_cross clean_cross distclean_cross cmake_libr libr install_libr cmake build clean"
 	@echo "=== Some debug: ==="
 	@echo "GCC CONFIG FLAGS: " $(GCC_CONFIGURE_FLAGS)
 	@echo "==================="
@@ -132,9 +146,9 @@ build_autotools: download_autotools
 	$(MAKE) install
 
 .PHONY: patch
-patch: download_toolchain utils/patches/binutils-$(BINUTILS_VERSION).patch utils/patches/gcc-$(GCC_VERSION)-1.patch utils/patches/gcc-$(GCC_VERSION)-2.patch utils/patches/gcc-9.5.0.macos.patch
+patch: build_autotools download_toolchain utils/patches/binutils-$(BINUTILS_VERSION).patch utils/patches/gcc-$(GCC_VERSION)-1.patch utils/patches/gcc-$(GCC_VERSION)-2.patch utils/patches/gcc-9.5.0.macos.patch
 	@echo [+] Patching binutils
-	# patch -p1 $(PATCH_ARGS) -d $(BINUTILS_SRC_DIR) < utils/patches/binutils-$(BINUTILS_VERSION).patch
+	patch -p1 $(PATCH_ARGS) -d $(BINUTILS_SRC_DIR) < utils/patches/binutils-$(BINUTILS_VERSION).patch
 
     ifeq (${GCC_VERSION},9.5.0)
     ifeq ($(UNAME_S),Darwin)
@@ -152,6 +166,8 @@ patch: download_toolchain utils/patches/binutils-$(BINUTILS_VERSION).patch utils
 	patch -p1 $(PATCH_ARGS) -d $(GCC_SRC_DIR) < utils/patches/gcc-$(GCC_VERSION)-1.patch
 	patch -p1 $(PATCH_ARGS) -d $(GCC_SRC_DIR) < utils/patches/gcc-$(GCC_VERSION)-2.patch
 
+.PHONY: do_autotools_thing
+do_autotools_thing:
 	@echo [+] Doing autotools thing
 	export PATH=$(AUTOTOOLS_PATH)/bin:$$PATH && \
 	cd $(GCC_SRC_DIR)/libphobos && \
@@ -204,6 +220,8 @@ build_cross: download_toolchain
 	$(MAKE) install-gcc && \
 	$(MAKE) install-target-libgcc
 
+# 
+
 .PHONY: build_libphobos
 build_libphobos: download_toolchain libr
 	@echo "[+] Building libphobos"
@@ -215,16 +233,10 @@ build_libphobos: download_toolchain libr
 	export GDCFLAGS="-fno-moduleinfo -fno-assert -fbounds-check=off" && \
 	mkdir -p $(LIBPHOBOS_BUILD_DIR) && \
 	cd $(LIBPHOBOS_BUILD_DIR) && \
-	$(GCC_SRC_DIR)/libphobos/configure --target=$(TARGET) --prefix="$(TOOLCHAIN_PATH)" \
-	--disable-werror --without-pic \
-	--disable-shared --enable-static \
-	--with-gnu-ld \
-	--enable-libphobos --disable-druntime-gc --disable-unix \
-	--without-libatomic --without-libbacktrace \
-	--with-target-system-zlib=yes \
-	--with-cross-host=arm-apple-darwin21.5.0 && \
+	$(GCC_SRC_DIR)/libphobos/configure --target=$(TARGET) --prefix="$(TOOLCHAIN_PATH)" $(LIBPHOBOS_CONFIGURE_FLAGS) && \
 	$(MAKE) -j $(CORES) && \
 	$(MAKE) install && \
+	ln -s $(TOOLCHAIN_PATH)/lib/libgdruntime.a $(TOOLCHAIN_PATH)/lib/gcc/i686-rkernel/$(GCC_VERSION)/libgdruntime.a || echo "[!] link already exists" && \
 	echo "[!] libphobos builded!!"
 
 .PHONY: clean_cross
@@ -247,25 +259,46 @@ distclean_cross:
 	rm ./config.cache
 
 .PHONY: cmake_libr
-cmake_libr: libr/CMakeLists.txt
+cmake_libr: libs/libr/CMakeLists.txt
 	mkdir -p $(LIBR_BUILD_DIR) && \
 	cd $(LIBR_BUILD_DIR) && \
-	cmake ../libr
+	cmake ../libs/libr
 
 .PHONY: libr
 libr: cmake_libr $(LIBR_FILES)
 	$(MAKE) -C $(LIBR_BUILD_DIR) -j $(CORES)
 
-.PHONY: install-libr
-install-libr: libr
-	ln -s $(ROOTDIR)/$(LIBR_BUILD_DIR)/lib/libr.a $(TOOLCHAIN_PATH)/lib/gcc/i686-rkernel/$(GCC_VERSION)
-	ln -s $(ROOTDIR)/$(LIBR_BUILD_DIR)/CMakeFiles/r.dir/src/crt0.asm.obj $(TOOLCHAIN_PATH)/lib/gcc/i686-rkernel/$(GCC_VERSION)/crt0.o
-	cp -r libr/include/* $(TOOLCHAIN_PATH)/lib/gcc/i686-rkernel/$(GCC_VERSION)/include
+.PHONY: install_libr
+install_libr: libr
+	ln -s $(ROOTDIR)/$(LIBR_BUILD_DIR)/lib/libr.a $(TOOLCHAIN_PATH)/lib/gcc/$(TARGET)/$(GCC_VERSION) || echo "[!] Link already exists"
+	ln -s $(ROOTDIR)/$(LIBR_BUILD_DIR)/CMakeFiles/r.dir/src/crt0.asm.obj $(TOOLCHAIN_PATH)/lib/gcc/$(TARGET)/$(GCC_VERSION)/crt0.o
+	cp -r libs/libr/include/* $(TOOLCHAIN_PATH)/lib/gcc/$(TARGET)/$(GCC_VERSION)/include
 
-.PHONY: uninstall-libr
-uninstall-libr: libr
-	rm $(TOOLCHAIN_PATH)/lib/gcc/i686-rkernel/$(GCC_VERSION)/{libr.a,crt0.o}
-	rm -rf $(TOOLCHAIN_PATH)/lib/gcc/i686-rkernel/$(GCC_VERSION)/include/{types.h,lib}
+.PHONY: uninstall_libr
+uninstall_libr: libr
+	rm $(TOOLCHAIN_PATH)/lib/gcc/$(TARGET)/$(GCC_VERSION)/{libr.a,crt0.o}
+	rm -rf $(TOOLCHAIN_PATH)/lib/gcc/$(TARGET)/$(GCC_VERSION)/include/{types.h,lib}
+
+.PHONY: cmake_libd
+cmake_libd: libs/libd/CMakeLists.txt
+	mkdir -p $(LIBD_BUILD_DIR) && \
+	cd $(LIBD_BUILD_DIR) && \
+	cmake ../libs/libd
+
+.PHONY: libd
+libd: cmake_libd $(LIBD_FILES)
+	$(MAKE) -C $(LIBD_BUILD_DIR) -j $(CORES)
+
+.PHONY: install_libd
+install_libd: libd
+	ln -s $(ROOTDIR)/$(LIBD_BUILD_DIR)/lib/libd.a $(TOOLCHAIN_PATH)/lib/gcc/$(TARGET)/$(GCC_VERSION) || echo "[!] Link already exists"
+	mkdir -p $(TOOLCHAIN_PATH)/lib/gcc/$(TARGET)/$(GCC_VERSION)/include/d/libd
+	cp -r libs/libd/libd/* $(TOOLCHAIN_PATH)/lib/gcc/$(TARGET)/$(GCC_VERSION)/include/d/libd
+
+.PHONY: uninstall_libd
+uninstall_libd: libd
+	rm $(TOOLCHAIN_PATH)/lib/gcc/i686-rkernel/$(GCC_VERSION)/libd.a
+	rm -rf $(TOOLCHAIN_PATH)/lib/gcc/$(TARGET)/$(GCC_VERSION)/include/d/libd/*
 
 .PHONY: cmake
 cmake: CMakeLists.txt
@@ -276,6 +309,10 @@ cmake: CMakeLists.txt
 .PHONY: build
 build: cmake
 	$(MAKE) -C $(BUILD_DIR) -j $(CORES)
+
+.PHONY: run
+run: cmake
+	$(MAKE) -C $(BUILD_DIR) -j $(CORES) run
 
 .PHONY: runc
 runc: cmake
@@ -291,3 +328,5 @@ rung: cmake
 clean: 
 	@echo "Clean"
 	rm -rf $(BUILD_DIR)/*
+	rm -rf $(LIBR_BUILD_DIR)/*
+	rm -rf $(LIBD_BUILD_DIR)/*

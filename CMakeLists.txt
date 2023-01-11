@@ -24,19 +24,19 @@ file(GLOB_RECURSE KERNEL_ASM_SRC ${PROJECT_SOURCE_DIR}/kernel/src/*.asm)
 file(GLOB_RECURSE KERNEL_LOADER_ASM_SRC ${PROJECT_SOURCE_DIR}/loader/*.asm)
 file(GLOB_RECURSE KERNEL_HEAD ${PROJECT_SOURCE_DIR}/kernel/include/*.h)
 
-file(GLOB_RECURSE KERNEL_LIB_SRC ${PROJECT_SOURCE_DIR}/libr/src/*.c)
-file(GLOB_RECURSE KERNEL_LIB_HEAD ${PROJECT_SOURCE_DIR}/libr/include/*.h)
-file(GLOB_RECURSE KERNEL_LIB_ASM_SRC ${PROJECT_SOURCE_DIR}/libr/src/*.asm)
+file(GLOB_RECURSE KERNEL_LIB_SRC ${PROJECT_SOURCE_DIR}/libs/libr/src/*.c)
+file(GLOB_RECURSE KERNEL_LIB_HEAD ${PROJECT_SOURCE_DIR}/libs/libr/include/*.h)
+file(GLOB_RECURSE KERNEL_LIB_ASM_SRC ${PROJECT_SOURCE_DIR}/libs/libr/src/*.asm)
 
 # gEnIaL fix...
-list(REMOVE_ITEM KERNEL_LIB_ASM_SRC "${PROJECT_SOURCE_DIR}/libr/src/crt0.asm")
+list(REMOVE_ITEM KERNEL_LIB_ASM_SRC "${PROJECT_SOURCE_DIR}/libs/libr/src/crt0.asm")
 
 # === Add executable... ===
 add_executable(kernel ${KERNEL_LOADER_ASM_SRC} ${KERNEL_ASM_SRC} ${KERNEL_SRC} ${KERNEL_LIB_SRC} ${KERNEL_LIB_ASM_SRC})
 
 # === Add includes ===
 target_include_directories(kernel PRIVATE "kernel/include")
-target_include_directories(kernel PRIVATE "libr/include")
+target_include_directories(kernel PRIVATE "libs/libr/include")
 
 # === Add some debug info for NASM ===
 set(CMAKE_ASM_NASM_FLAGS_DEBUG "-Fdwarf -32")
