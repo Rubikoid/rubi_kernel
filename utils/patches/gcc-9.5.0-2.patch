@@ -1,5 +1,5 @@
 diff --git a/libphobos/libdruntime/Makefile.am b/libphobos/libdruntime/Makefile.am
-index bf9bff095..3217a3b5d 100644
+index bf9bff095..e3679bf84 100644
 --- a/libphobos/libdruntime/Makefile.am
 +++ b/libphobos/libdruntime/Makefile.am
 @@ -145,48 +145,56 @@ install-data-local:
@@ -52,7 +52,7 @@ index bf9bff095..3217a3b5d 100644
 +	object.d \
 +	core/internal/convert.d core/internal/traits.d core/internal/hash.d \
 +	core/math.d \
-+    core/vararg.d core/stdc/stdarg.d \
++    core/vararg.d core/stdc/stdarg.d core/stdc/string.d \
 +    rt/switch_.d \
 +    gcc/builtins.d
 +    
