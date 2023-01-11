@@ -1,61 +1,40 @@
-# GCC
+# Build cross-compiler
 
-## Build cross-compiler
+Reqired software (generally, `base-devel`):
 
-### Build automake
+- Working compiler for your host system (gcc/llvm/anything you want, i don't care)
+- `make` - to run make
+- `wget` - to download gcc/binutils/automake source code
+- `tar`, with `gzip` - to extract srcs
+- `git` - for patches generation
+- `patch` - for applying patches over gcc/binutils src
+- `cmake` - for building kernel
+- `qemu` - for testing kernel
 
-```bash
-export PREFIX_AUTOMAKE="$HOME/build/cross_comp/autoconf_builded"
-export PATH="$PREFIX_AUTOMAKE/bin:$PATH"
-```
+Firstly, you need to download and patch cross-compiler (and download and build autotools. Because of GCC.):
 
-```bash
-wget https://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.xz
-wget https://ftp.gnu.org/gnu/automake/automake-1.15.1.tar.xz
-tar -xJf src/autoconf-2.69.tar.xz
-tar -xJf src/automake-1.15*.tar.xz
-```
+`make patch`
 
-```bash
+Then you need to build crosscompiler itself:
 
-```
+`make build_cross`
 
-### Get code
+Then you need to build libr (libc replacement), and install it to cross-compiler env:
 
-```bash
-mkdir cross_comp
-wget https://ftp.gnu.org/gnu/binutils/binutils-2.38.tar.xz
-wget https://ftp.gnu.org/gnu/gcc/gcc-9.5.0/gcc-9.5.0.tar.xz
-tar -xJf src/binutils-2.3*.tar.xz
-tar -xJf src/gcc-9*.tar.xz
-```
+`make install_libr`
 
-### Setup vars
+Then you need to build libphobos (Dlang runtime):
 
-```bash
-export TARGET=i686-rkernel
-export PREFIX="$HOME/opt/cross"
-export PATH="$PREFIX/bin:$PATH"
-```
+`make build_libphobos`
 
-### Build binutils
+# Bulid kernel
 
-```bash
-mkdir build-binutils
-cd build-binutils
-../binutils-*/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot --disable-nls --disable-werror
-make -j 8
-make install
-```
+To build kernel, run:
 
-### Build gcc
+`make cmake`
 
-```bash
-mkdir build-gcc
-cd build-gcc
-../gcc-9*/configure "--target=$TARGET" --prefix="$PREFIX" --disable-nls --enable-languages=c,c++,d --disable-libssp --disable-libgomp --disable-libmudflap --disable-bootstrap --disable-multilib --disable-default-pie --disable-libphobos --with-system-zlib --disable-threads --disable-shared --enable-static
-make all-gcc -j 8
-make all-target-libgcc -j 8
-make install-gcc
-make install-target-libgcc
-```
+This will generate cmake build directory in `./build`
+
+# Run kernel
+
+`make runc`
