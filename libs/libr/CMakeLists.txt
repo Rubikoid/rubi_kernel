@@ -2,7 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.13)
 
 message(STATUS "CMAKE_CURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}")
 
-set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../utils/toolchains/gcc.toolchain.cmake)
+set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../../utils/toolchains/gcc.toolchain.cmake)
 
 project(LibR C ASM_NASM)
 
@@ -24,7 +24,7 @@ set_target_properties(r
 )
 
 target_include_directories(r PUBLIC "${PROJECT_SOURCE_DIR}/include") # add includes
-target_include_directories(r PRIVATE "${PROJECT_SOURCE_DIR}/../kernel/include") # add includes
+target_include_directories(r PRIVATE "${PROJECT_SOURCE_DIR}/../../kernel/include") # add includes
 
 target_compile_options(
     r

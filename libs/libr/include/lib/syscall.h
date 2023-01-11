@@ -25,7 +25,7 @@
 #define SYSCALL_FREE         0xB
 #define SYSCALL_RESOLVE_PATH 0xC
 #define SYSCALL_READDIR      0xD
-//#define SYSCALL_FREE       0x0
+// #define SYSCALL_FREE       0x0
 
 #define SYSCALL_TEST 0x1337
 
