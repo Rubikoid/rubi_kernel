@@ -6,9 +6,88 @@ version (unittest) {
     // extern (C) void main() {
     //     static foreach (u; __traits(getUnitTests, __traits(parent, main)))
     //         u();
-    // }    
+    // }
 } else {
-    import shell_d.libr : printf, sprintf;
+    import libd : printf, sprintf;
+}
+
+template to(T) {
+    T to(S)(S from) if (is(T : bool)) {
+        static if (is(S : string)) {
+            if (from == "1" || from == "true")
+                return true;
+            else if (from == "0" || from == "false")
+                return false;
+        } else static if (is(S : int)) {
+            if (from == 1)
+                return true;
+            else if (from == 0)
+                return false;
+        }
+        assert(0);
+    }
+
+    T to(S)(S from) if (is(T : string)) {
+        static if (is(S : bool)) {
+            if (from)
+                return "true";
+            else
+                return "false";
+        }
+        assert(0);
+    }
+
+    T to(S)(S from) if (is(T : int) && !is(T : bool)) {
+        static if (is(S : string)) {
+            int ret = 0;
+            int i = 0;
+            int j = 1;
+
+            while (i < from.length && (from[i] != ' ' || from[i] != '\t'))
+            i++;
+
+            for (i--; i >= 0; i--, j *= 10) {
+                if (from[i] >= '0' && from[i] <= '9') {
+                    ret += (from[i] - '0') * j;
+                } else if (from[i] == '-') {
+                    ret *= -1;
+                }
+            }
+            return ret;
+        }
+        assert(0);
+    }
+}
+
+unittest {
+    assert(to!bool("1") == true);
+    assert(to!bool("true") == true);
+
+    assert(to!bool("0") == false);
+    assert(to!bool("false") == false);
+
+    assert(to!bool(1) == true);
+    assert(to!bool(0) == false);
+}
+
+unittest {
+    assert(to!string(true) == "true");
+    assert(to!string(false) == "false");
+}
+
+unittest {
+
+    assert(to!int("") == 0);
+    assert(to!int("0") == 0);
+
+    assert(to!int("1") == 1);
+    assert(to!int("123") == 123);
+
+    assert(to!int("-1") == -1);
+    assert(to!int("-123") == -123);
+
+    assert(to!int("--1") == 1); // intended
+    assert(to!int("-12-3") != 123); // intended
 }
 
 nothrow void print_slice(string slice) {
