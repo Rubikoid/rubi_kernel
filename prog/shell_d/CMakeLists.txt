@@ -18,4 +18,7 @@ target_compile_options(
     -I ${PROJECT_SOURCE_DIR}/prog/shell_d/
     )
 target_compile_definitions(shell_d PRIVATE "_DEBUG=1")
+
+target_link_libraries(shell_d d)
+
 target_link_options(shell_d PRIVATE -g -T ${CMAKE_SOURCE_DIR}/prog/linker.ld) #link everything using linkerscript # 
