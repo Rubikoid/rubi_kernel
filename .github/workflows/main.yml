@@ -30,7 +30,7 @@ jobs:
 
       - name: Install nasm and genisoimage
         shell: bash
-        run: sudo apt-get install -y nasm genisoimage libfl-dev grub2-common mtools build-essential wget make tar git cmake
+        run: sudo apt-get install -y nasm genisoimage libfl-dev grub2-common mtools build-essential wget make tar git cmake libmpc-dev libgmp3-dev libmpfr-dev
 
       - name: Cache sources
         id: compiler-src-cache
@@ -67,7 +67,7 @@ jobs:
         run: |
           make CORES=2 install_libr build_libphobos install_libd
 
-      - name: Build libr, libphobos, libd
+      - name: Build kernel, initrd, and everything
         shell: bash
         run: |
           CMAKE_BUILD_TYPE=RelWithDebInfo make CORES=2 build
